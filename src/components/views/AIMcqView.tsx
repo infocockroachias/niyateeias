@@ -51,7 +51,7 @@ function SetupForm({
         count: 5,
       });
       const qs = Array.isArray(data.questions) ? data.questions : [];
-      if (qs.length === 0) throw new Error("The AI returned no questions — try again.");
+      if (qs.length === 0) throw new Error("The AI returned no questions, try again.");
       onGenerated(qs, subject, difficulty);
     } catch (err) {
       toast.error(toErrorMessage(err));
@@ -105,9 +105,9 @@ function SetupForm({
 
           <div className="rounded-lg bg-muted/60 p-4 text-sm text-muted-foreground">
             <p className="flex items-center gap-2 font-semibold text-primary">
-              <ListChecks className="h-4 w-4 text-secondary" aria-hidden /> 5 questions · instant feedback · explanations
+              <ListChecks className="h-4 w-4 text-gold-ink" aria-hidden /> 5 questions · instant feedback · explanations
             </p>
-            <p className="mt-1">Prelims-style MCQs generated fresh by AI — negative marking is not applied here. Focus on learning.</p>
+            <p className="mt-1">Prelims-style MCQs generated fresh by AI. Negative marking is not applied here. Focus on learning.</p>
           </div>
 
           <Button
@@ -168,7 +168,7 @@ function QuizRunner({
       setScore((s) => s + 1);
       toast.success("Correct!");
     } else {
-      toast.error("Not quite — read the explanation.");
+      toast.error("Not quite, read the explanation.");
     }
   };
 
@@ -296,7 +296,7 @@ function Summary({
   const best = Math.max(score, ...loadQuizAttempts().filter((a) => a.subject === subject).map((a) => a.score), 0);
 
   const message =
-    pct >= 80 ? "Outstanding — you're in selection form!" : pct >= 60 ? "Solid. Review the misses and go again." : pct >= 40 ? "Getting there — revisit the concepts behind each question." : "Treat this as your starting line — read the topic, then re-attempt.";
+    pct >= 80 ? "Outstanding (you're in selection form!" : pct >= 60 ? "Solid. Review the misses and go again." : pct >= 40 ? "Getting there) revisit the concepts behind each question." : "Treat this as your starting line, read the topic, then re-attempt.";
 
   return (
     <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="mx-auto max-w-md">
@@ -330,7 +330,6 @@ export function AIMcqView() {
     <div className="py-12">
       <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
         <div className="mb-10 text-center">
-          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.22em] text-secondary">AI Tool 03</p>
           <h1 className="font-display text-4xl text-balance text-primary sm:text-5xl">AI MCQ Practice</h1>
           <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
             Fresh Prelims-style questions, generated on demand. Immediate feedback with explanations
@@ -366,7 +365,7 @@ export function AIMcqView() {
         )}
 
         <p className="mt-10 flex items-center justify-center gap-2 text-center text-xs text-muted-foreground">
-          <Sparkles className="h-4 w-4 text-secondary" aria-hidden />
+          <Sparkles className="h-4 w-4 text-gold-ink" aria-hidden />
           Questions are AI-generated for practice. Attempt history is stored on this device.
         </p>
       </div>

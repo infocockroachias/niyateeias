@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
     if (password.length < 8) return jsonError('Password must be at least 8 characters.', 400)
 
     const existing = await db.user.findUnique({ where: { email } })
-    if (existing) return jsonError('An account with this email already exists — please log in.', 409)
+    if (existing) return jsonError('An account with this email already exists, please log in.', 409)
 
     const user = await db.user.create({
       data: { name, email, passwordHash: hashPassword(password) },

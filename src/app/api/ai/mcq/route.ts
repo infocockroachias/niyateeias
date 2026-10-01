@@ -70,7 +70,7 @@ Return only the JSON array with ${count} items.`
       const raw = completion.choices[0]?.message?.content ?? ''
       const parsed = extractJson(raw)
       if (!Array.isArray(parsed) || parsed.length === 0) {
-        return jsonError('The question generator returned an unreadable response — please try again.', 502)
+        return jsonError('The question generator returned an unreadable response, please try again.', 502)
       }
 
       const questions: Array<{
@@ -118,12 +118,12 @@ Return only the JSON array with ${count} items.`
       }
 
       if (questions.length === 0) {
-        return jsonError('Could not generate valid questions — please try a different subject.', 502)
+        return jsonError('Could not generate valid questions, please try a different subject.', 502)
       }
       return Response.json({ questions, source: 'generated' })
     } catch (err) {
       console.error('[ai/mcq]', err)
-      return jsonError('AI question generation is busy right now — please try again in a moment.', 503)
+      return jsonError('AI question generation is busy right now, please try again in a moment.', 503)
     }
   }, 'Failed to generate MCQs')
 }

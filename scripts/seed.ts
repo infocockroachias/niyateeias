@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 /**
  * Niyatee IAS — database seed script.
  * Run: bun run scripts/seed.ts

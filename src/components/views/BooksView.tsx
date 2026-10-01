@@ -39,9 +39,8 @@ export function BooksView() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeading
           align="left"
-          eyebrow="Bookshop"
           title="Mentor-Approved UPSC Books"
-          description="Handpicked titles and Niyatee's own printed notes — the exact material our classroom toppers use."
+          description="Handpicked titles and Niyatee's own printed notes, the exact material our classroom toppers use."
         />
 
         <div className="mb-8 flex flex-wrap gap-2" role="tablist" aria-label="Book category">
@@ -130,9 +129,9 @@ export function BooksView() {
         )}
 
         <p className="mt-10 flex items-center justify-center gap-2 text-sm text-muted-foreground">
-          <Truck className="h-4 w-4 text-secondary" aria-hidden />
+          <Truck className="h-4 w-4 text-gold-ink" aria-hidden />
           Free delivery in Bhubaneswar · Cash on delivery available ·{" "}
-          <button type="button" onClick={() => navigate("contact")} className="font-semibold text-secondary hover:underline">
+          <button type="button" onClick={() => navigate("contact")} className="font-semibold text-gold-ink hover:underline">
             bulk orders for batches
           </button>
         </p>

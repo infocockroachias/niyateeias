@@ -26,9 +26,6 @@ export function ChatWidget() {
         className="fixed bottom-5 right-4 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-gold shadow-xl ring-2 ring-gold/40 transition-colors hover:bg-navy-800 sm:right-6"
       >
         {open ? <X className="h-6 w-6" aria-hidden /> : <Sparkles className="h-6 w-6" aria-hidden />}
-        {!open ? (
-          <span className="absolute -right-0.5 -top-0.5 h-3.5 w-3.5 rounded-full border-2 border-background bg-secondary" aria-hidden />
-        ) : null}
         <span className="pointer-events-none absolute whitespace-nowrap rounded-md bg-primary px-2 py-1 text-xs text-primary-foreground opacity-0 transition-opacity peer-hover:opacity-100 -left-24"></span>
       </motion.button>
 

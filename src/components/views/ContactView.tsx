@@ -78,7 +78,7 @@ function ContactMethods() {
       icon: MessageSquareText,
       title: "WhatsApp",
       line1: SITE.phone,
-      line2: "Fastest replies · 9AM–9PM",
+      line2: "Fastest replies, 9AM-9PM",
       href: SITE.whatsapp,
       cta: "Chat on WhatsApp",
       external: true,
@@ -99,12 +99,12 @@ function ContactMethods() {
           <Card className="h-full transition-all duration-300 group-hover:-translate-y-1 group-hover:border-secondary/60 group-hover:shadow-lg">
             <CardContent className="p-5">
               <span className="mb-3 flex h-11 w-11 items-center justify-center rounded-xl bg-primary">
-                <m.icon className="h-5 w-5 text-gold" aria-hidden />
+                <m.icon className="h-5 w-5 text-gold-ink" aria-hidden />
               </span>
               <h3 className="font-display text-lg font-bold text-primary">{m.title}</h3>
               <p className="mt-1 text-sm font-medium text-foreground/85">{m.line1}</p>
               <p className="text-xs text-muted-foreground">{m.line2}</p>
-              <p className="mt-3 text-sm font-semibold text-secondary">{m.cta} →</p>
+              <p className="mt-3 text-sm font-semibold text-gold-ink">{m.cta} →</p>
             </CardContent>
           </Card>
         </a>
@@ -189,8 +189,7 @@ export function ContactView() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeading
           align="left"
-          eyebrow="Contact"
-          title="Talk to a Mentor — Not a Sales Desk"
+          title="Talk to a Mentor, Not a Sales Desk"
           description="Ask about batches, fees, scholarships or your preparation plan. We reply within one working day."
         />
 
@@ -202,7 +201,7 @@ export function ContactView() {
             <CardContent className="p-6 sm:p-8">
               <h2 className="font-display text-2xl font-bold text-primary">Enquiry Form</h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                {done ? "We've got your details — here's the form again if you'd like to send another." : "Fill this once; our admissions mentor calls you back."}
+                {done ? "We've got your details. Here's the form again if you'd like to send another." : "Fill this once; our admissions mentor calls you back."}
               </p>
 
               <form onSubmit={submit} className="mt-6 space-y-5" aria-label="Enquiry form">
@@ -302,7 +301,7 @@ export function ContactView() {
               <div className="bg-navy relative flex h-56 items-center justify-center" aria-hidden>
                 <span className="absolute inset-0 bg-[radial-gradient(rgba(201,162,75,0.09)_1px,transparent_1px)] [background-size:20px_20px]" />
                 <div className="relative text-center text-ivory">
-                  <MapPin className="mx-auto h-10 w-10 text-gold" aria-hidden />
+                  <MapPin className="mx-auto h-10 w-10 text-gold-ink" aria-hidden />
                   <p className="mt-3 font-display text-lg font-bold">Find Us in Infovalley</p>
                   <p className="mx-auto mt-1 max-w-xs text-xs text-ivory/70">{SITE.address}</p>
                 </div>
@@ -310,7 +309,7 @@ export function ContactView() {
               <CardContent className="p-5">
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Clock className="h-4 w-4 text-secondary" aria-hidden /> {SITE.hours}
+                    <Clock className="h-4 w-4 text-gold-ink" aria-hidden /> {SITE.hours}
                   </div>
                   <Button asChild variant="outline" className="min-h-11 shrink-0">
                     <a href={SITE.mapsDirections} target="_blank" rel="noopener noreferrer">
@@ -348,10 +347,10 @@ export function ContactView() {
 
             <FadeIn>
               <div className="rounded-2xl bg-navy p-6 text-ivory">
-                <Headset className="h-8 w-8 text-gold" aria-hidden />
+                <Headset className="h-8 w-8 text-gold-ink" aria-hidden />
                 <h3 className="mt-3 font-display text-xl font-bold">Free 30-minute Counselling</h3>
                 <p className="mt-2 text-sm leading-relaxed text-ivory/70">
-                  Not sure where you stand? Get a free diagnostic session — syllabus mapping, attempt
+                  Not sure where you stand? Get a free diagnostic session: syllabus mapping, attempt
                   planning and an honest read on your readiness.
                 </p>
                 <Button asChild className="mt-4 min-h-11 bg-secondary font-semibold text-primary hover:bg-gold-bright">

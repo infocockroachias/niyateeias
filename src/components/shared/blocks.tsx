@@ -10,14 +10,12 @@ import { cn } from "@/lib/utils";
 /* ------------------------------ Section heading ---------------------------- */
 
 export function SectionHeading({
-  eyebrow,
   title,
   description,
   dark = false,
   align = "center",
   className,
 }: {
-  eyebrow?: string;
   title: string;
   description?: string;
   dark?: boolean;
@@ -36,16 +34,6 @@ export function SectionHeading({
         className
       )}
     >
-      {eyebrow ? (
-        <p
-          className={cn(
-            "mb-3 text-xs font-semibold uppercase tracking-[0.22em]",
-            dark ? "text-gold" : "text-secondary"
-          )}
-        >
-          {eyebrow}
-        </p>
-      ) : null}
       <h2
         className={cn(
           "font-display text-3xl leading-tight text-balance sm:text-4xl",

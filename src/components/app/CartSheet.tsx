@@ -27,7 +27,7 @@ export function CartSheet() {
   const count = cart.reduce((n, c) => n + c.qty, 0);
 
   const checkout = () => {
-    toast.success("Demo checkout — online payments are coming soon. Our team will call you to confirm your order!");
+    toast.success("Demo checkout, online payments are coming soon. Our team will call you to confirm your order!");
     clearCart();
     setOpen(false);
   };

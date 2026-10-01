@@ -11,8 +11,8 @@ export const SITE = {
   email: "info@niyateeias.com",
   emailHref: "mailto:info@niyateeias.com",
   admissionsEmail: "admissions@niyateeias.com",
-  address: "Inn Views, Off Infovalley, Bhubaneswar – 752054",
-  hours: "Mon–Sat 9AM–7PM · Sun 10AM–2PM",
+  address: "Inn Views, Off Infovalley, Bhubaneswar - 752054",
+  hours: "Mon-Sat 9AM-7PM, Sun 10AM-2PM",
   youtube: "https://www.youtube.com/@NiyateeIASAcademy",
   instagram: "https://instagram.com/niyateeiasacademy",
   x: "https://x.com/niyateeias",
@@ -41,13 +41,13 @@ export const AI_TOOLS = [
     title: "AI MCQ Practice",
     icon: "ListChecks",
     blurb:
-      "Generate fresh Prelims-style MCQs by subject and difficulty — instant feedback, explanations and score tracking.",
+      "Generate fresh Prelims-style MCQs by subject and difficulty, instant feedback, explanations and score tracking.",
   },
   {
     view: "ai-geo" as const,
     title: "AI Geography Maps",
     icon: "Map",
     blurb:
-      "A 3D world atlas of 130+ UPSC-curated locations — rivers, straits, ports, places in news, heritage & ecology hotspots — with layers, search, fly-to and an AI map quiz.",
+      "A 3D world atlas of 130+ UPSC-curated locations (rivers, straits, ports, places in news, heritage & ecology hotspots) with layers, search, fly-to and an AI map quiz.",
   },
 ] as const;

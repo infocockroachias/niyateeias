@@ -132,13 +132,13 @@ export function Navbar() {
           type="button"
           onClick={() => go("home")}
           className="flex min-h-11 items-center gap-2 rounded-md pr-2"
-          aria-label="Niyatee Civil Services Academy — go to home"
+          aria-label="Niyatee Civil Services Academy, go to home"
         >
           { }
           <img src="/brand/logo.png" alt="Niyatee IAS logo" className="h-9 w-auto" />
         </button>
 
-        {/* Desktop links — Radix-heavy tree mounts after hydration */}
+        {/* Desktop links, Radix-heavy tree mounts after hydration */}
         {mounted ? (
           <>
             <div className="hidden items-center gap-5 lg:flex">

@@ -92,8 +92,8 @@ function Hero() {
             transition={{ duration: 0.55, delay: 0.08 }}
             className="font-display text-4xl leading-[1.12] text-balance sm:text-5xl lg:text-[3.4rem]"
           >
-            Best UPSC Coaching in Odisha —{" "}
-            <span className="text-gold">AI-Powered UPSC Preparation</span> &amp; Expert Mentorship
+            Best UPSC Coaching in Odisha, with{" "}
+            <span className="text-gold">AI-powered preparation</span> and expert mentorship
           </motion.h1>
 
           <motion.p
@@ -105,9 +105,9 @@ function Hero() {
             <span className="font-hindi font-bold text-gold" lang="hi">
               नियती
             </span>{" "}
-            means <em>Destiny</em> in Sanskrit — and destiny is built, not wished for. A structured
-            Learn → Practice → Evaluate → Succeed framework for Prelims, Mains and Interview, now
-            supercharged with AI.
+            means <em>Destiny</em> in Sanskrit, and destiny is built, not wished for. A structured
+            Learn → Practice → Evaluate → Succeed framework for Prelims, Mains and Interview, with
+            AI built in.
           </motion.p>
 
           <motion.div
@@ -127,7 +127,7 @@ function Hero() {
               size="lg"
               variant="outline"
               onClick={() => navigate("courses")}
-              className="min-h-12 border-ivory/30 bg-transparent px-6 text-base text-ivory hover:bg-white/10 hover:text-ivory"
+              className="min-h-12 border-ivory/50 bg-transparent px-6 text-base font-semibold text-ivory hover:bg-ivory/10 hover:text-ivory"
             >
               Explore Our Courses
             </Button>
@@ -160,7 +160,7 @@ function Hero() {
           aria-hidden
         >
           {/* Central logo card */}
-          <div className="absolute left-1/2 top-1/2 w-64 -translate-x-1/2 -translate-y-1/2 rounded-3xl border border-white/10 bg-white/5 p-8 text-center shadow-2xl backdrop-blur-sm">
+          <div className="absolute left-1/2 top-1/2 w-64 -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-white/10 bg-navy-800/60 p-8 text-center shadow-2xl">
             <Star className="mx-auto mb-3 h-6 w-6 fill-gold text-gold" />
             <img
               src="/brand/logo.png"
@@ -174,18 +174,18 @@ function Hero() {
             <p className="mt-3 text-sm font-medium text-ivory/85">{SITE.tagline}</p>
           </div>
 
-          {/* Floating stat cards */}
-          <div className="animate-float-slow absolute -top-2 right-0 flex items-center gap-3 rounded-2xl border border-white/10 bg-navy-deep/90 p-4 shadow-xl backdrop-blur">
+          {/* Floating value cards */}
+          <div className="animate-float-slow absolute -top-2 right-0 flex items-center gap-3 rounded-2xl border border-white/10 bg-navy-deep p-4 shadow-xl">
             <span className="flex h-11 w-11 items-center justify-center rounded-full bg-gold/15">
-              <Trophy className="h-5 w-5 text-gold" />
+              <Newspaper className="h-5 w-5 text-gold" />
             </span>
             <div>
-              <p className="font-display text-2xl font-bold text-ivory">100+</p>
-              <p className="text-xs text-ivory/60">Successful selections</p>
+              <p className="font-display text-base font-bold text-ivory">Daily brief</p>
+              <p className="text-xs text-ivory/60">The Hindu, PIB &amp; more</p>
             </div>
           </div>
 
-          <div className="animate-float-slower absolute bottom-14 left-0 flex items-center gap-3 rounded-2xl border border-white/10 bg-navy-deep/90 p-4 shadow-xl backdrop-blur">
+          <div className="animate-float-slower absolute bottom-14 left-0 flex items-center gap-3 rounded-2xl border border-white/10 bg-navy-deep p-4 shadow-xl">
             <span className="flex h-11 w-11 items-center justify-center rounded-full bg-gold/15">
               <Users className="h-5 w-5 text-gold" />
             </span>
@@ -195,7 +195,7 @@ function Hero() {
             </div>
           </div>
 
-          <div className="animate-float-slowest absolute bottom-0 right-6 flex items-center gap-3 rounded-2xl border border-gold/30 bg-navy-deep/90 p-4 shadow-xl backdrop-blur">
+          <div className="animate-float-slowest absolute bottom-0 right-6 flex items-center gap-3 rounded-2xl border border-gold/30 bg-navy-deep p-4 shadow-xl">
             <span className="flex h-11 w-11 items-center justify-center rounded-full bg-gold/15">
               <BrainCircuit className="h-5 w-5 text-gold" />
             </span>
@@ -217,7 +217,7 @@ function TrustStrip() {
   return (
     <section className="border-y border-border bg-card" aria-label="News sources">
       <div className="mx-auto flex max-w-7xl flex-col items-center gap-4 px-4 py-6 sm:px-6 lg:flex-row lg:justify-between lg:px-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           Daily current affairs curated from
         </p>
         <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-2">
@@ -251,7 +251,7 @@ const FRAMEWORK = [
     step: "03",
     icon: ClipboardCheck,
     title: "Evaluate",
-    text: "AI Mains evaluation scores your answers like a UPSC examiner — content, structure, analysis, examples, presentation.",
+    text: "AI Mains evaluation scores your answers like a UPSC examiner, content, structure, analysis, examples, presentation.",
   },
   {
     step: "04",
@@ -266,9 +266,8 @@ function FrameworkSection() {
     <section className="py-20" aria-label="Our framework">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeading
-          eyebrow="The Niyatee Method"
           title="A 4-Step Framework That Turns Effort into Ranks"
-          description="Most aspirants study hard. Our toppers study in the right sequence — and every stage is measured."
+          description="Most aspirants study hard. Our toppers study in the right sequence, and every stage is measured."
         />
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {FRAMEWORK.map((f, i) => (
@@ -277,9 +276,9 @@ function FrameworkSection() {
                 <CardContent className="flex h-full flex-col p-6">
                   <div className="mb-5 flex items-center justify-between">
                     <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-secondary/15 transition-colors group-hover:bg-secondary/25">
-                      <f.icon className="h-6 w-6 text-secondary" aria-hidden />
+                      <f.icon className="h-6 w-6 text-gold-ink" aria-hidden />
                     </span>
-                    <span className="font-display text-4xl font-bold text-primary/10 transition-colors group-hover:text-secondary/30">
+                    <span className="font-display text-4xl font-bold text-primary/10 transition-colors group-hover:text-gold-ink/30">
                       {f.step}
                     </span>
                   </div>
@@ -306,12 +305,12 @@ const WHY = [
   {
     icon: Users,
     title: "Expert Faculty",
-    text: "Mentors who have guided 100+ selections, teaching in small batches with personal attention in Bhubaneswar.",
+    text: "Mentors who teach in small batches in Bhubaneswar, with personal attention and scheduled one-on-one mentorship.",
   },
   {
     icon: Compass,
     title: "Prelims-to-Interview Support",
-    text: "One roof for the entire journey — GS foundation, CSAT, optional guidance, test series and a mock interview board.",
+    text: "One roof for the entire journey: GS foundation, CSAT, optional guidance, test series and a mock interview board.",
   },
   {
     icon: LineChart,
@@ -325,8 +324,7 @@ function WhySection() {
     <section className="bg-muted/50 py-20" aria-label="Why choose Niyatee">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeading
-          eyebrow="Why Niyatee"
-          title="Coaching That Adapts to You — Not the Other Way Round"
+          title="Coaching That Adapts to You, Not the Other Way Round"
           description="Technology where it helps, mentors where it matters."
         />
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
@@ -404,16 +402,15 @@ function FeaturedCourses() {
     <section className="py-20" aria-label="Featured courses">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeading
-          eyebrow="Flagship Programmes"
           title="Courses Built Around the UPSC Calendar"
-          description="Foundation, Prelims target, Mains answer writing, Interview guidance and OPSC batches — offline in Bhubaneswar, live online, or self-paced."
+          description="Foundation, Prelims target, Mains answer writing, Interview guidance and OPSC batches, offline in Bhubaneswar, live online, or self-paced."
         />
         {isLoading ? (
           <CardsSkeleton />
         ) : isError ? (
           <ErrorCard message="Could not load courses." onRetry={() => void refetch()} />
         ) : featured.length === 0 ? (
-          <ErrorCard message="No courses published yet — please check back soon." />
+          <ErrorCard message="No courses published yet, please check back soon." />
         ) : (
           <Carousel opts={{ align: "start", loop: true }} className="w-full">
             <CarouselContent className="-ml-6">
@@ -430,7 +427,7 @@ function FeaturedCourses() {
                       <ul className="mt-4 space-y-1.5 text-sm text-foreground/80">
                         {c.features.slice(0, 3).map((f) => (
                           <li key={f} className="flex items-start gap-2">
-                            <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-secondary" aria-hidden />
+                            <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-gold-ink" aria-hidden />
                             {f}
                           </li>
                         ))}
@@ -488,16 +485,15 @@ function NewsPreview() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeading
           align="left"
-          eyebrow="Current Affairs"
           title="Today's News, UPSC-Ready"
-          description="Every day our mentors read The Hindu, Indian Express and PIB so you don't have to — each article is tagged to a GS paper and subject."
+          description="Every day our mentors read The Hindu, Indian Express and PIB so you don't have to, each article is tagged to a GS paper and subject."
         />
         {isLoading ? (
           <ListSkeleton rows={4} />
         ) : isError ? (
           <ErrorCard message="Could not load the latest news." onRetry={() => void refetch()} />
         ) : articles.length === 0 ? (
-          <ErrorCard message="No articles published yet — the newsroom is warming up." />
+          <ErrorCard message="No articles published yet, the newsroom is warming up." />
         ) : (
           <div className="grid gap-4">
             {articles.map((a, i) => (
@@ -514,7 +510,7 @@ function NewsPreview() {
                 >
                   <CardContent className="flex items-start gap-4 p-4 sm:p-5">
                     <span className="hidden h-12 w-12 shrink-0 flex-col items-center justify-center rounded-xl bg-primary text-ivory sm:flex" aria-hidden>
-                      <Newspaper className="h-5 w-5 text-gold" />
+                      <Newspaper className="h-5 w-5 text-gold-ink" />
                     </span>
                     <div className="min-w-0 flex-1">
                       <div className="mb-1.5 flex flex-wrap items-center gap-2">
@@ -561,7 +557,6 @@ function AIToolsBand() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeading
           dark
-          eyebrow="The AI Edge"
           title="Four AI Tools That Study With You"
           description="Free to try for every registered aspirant. Enrolled students get unlimited credits."
         />
@@ -577,11 +572,11 @@ function AIToolsBand() {
                   aria-label={`Open ${t.title}`}
                 >
                   <span className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gold/15 transition-colors group-hover:bg-gold/25">
-                    <Icon className="h-6 w-6 text-gold" aria-hidden />
+                    <Icon className="h-6 w-6 text-gold-ink" aria-hidden />
                   </span>
                   <h3 className="font-display text-lg font-bold text-ivory">{t.title}</h3>
                   <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-ivory/65">{t.blurb}</p>
-                  <span className="mt-auto flex items-center gap-1.5 pt-4 text-sm font-semibold text-gold">
+                  <span className="mt-auto flex items-center gap-1.5 pt-4 text-sm font-semibold text-gold-ink">
                     Open tool <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden />
                   </span>
                 </button>
@@ -597,7 +592,7 @@ function AIToolsBand() {
 /* --------------------------------- Videos ---------------------------------- */
 
 const VIDEOS = [
-  { title: "How to start UPSC preparation from zero — 2026 roadmap", minutes: 18 },
+  { title: "How to start UPSC preparation from zero, 2026 roadmap", minutes: 18 },
   { title: "Daily current affairs drill: The Hindu in 20 minutes", minutes: 22 },
   { title: "Mains answer writing live: GS-2 Polity demo evaluation", minutes: 31 },
 ];
@@ -607,9 +602,8 @@ function VideosSection() {
     <section className="py-20" aria-label="Video classes">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeading
-          eyebrow="Watch & Learn"
           title="Free Classes on YouTube"
-          description="Strategy sessions, current-affairs drills and live answer evaluations — free on the Niyatee IAS Academy channel."
+          description="Strategy sessions, current-affairs drills and live answer evaluations, free on the Niyatee IAS Academy channel."
         />
         <div className="grid gap-6 md:grid-cols-3">
           {VIDEOS.map((v, i) => (
@@ -630,7 +624,7 @@ function VideosSection() {
                     </span>
                   </div>
                   <CardContent className="p-5">
-                    <p className="text-xs font-semibold uppercase tracking-wider text-secondary">Niyatee IAS Academy</p>
+                    <p className="text-xs font-semibold uppercase tracking-wider text-gold-ink">Niyatee IAS Academy</p>
                     <h3 className="mt-1.5 line-clamp-2 font-medium leading-snug text-foreground group-hover:text-primary">
                       {v.title}
                     </h3>
@@ -664,7 +658,7 @@ function RankersMarquee() {
   return (
     <section className="border-y border-border bg-card py-10" aria-label="Our rankers">
       <div className="mx-auto mb-6 flex max-w-7xl items-center gap-3 px-4 sm:px-6 lg:px-8">
-        <Trophy className="h-5 w-5 text-secondary" aria-hidden />
+        <Trophy className="h-5 w-5 text-gold-ink" aria-hidden />
         <h2 className="font-display text-xl font-bold text-primary">Proud Niyatee Rankers</h2>
       </div>
       <div className="marquee-paused overflow-hidden" role="marquee" aria-label="Scrolling list of successful candidates">
@@ -702,7 +696,6 @@ function TestimonialsSection() {
     <section className="bg-muted/50 py-20" aria-label="Student testimonials">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeading
-          eyebrow="Voices of Aspirants"
           title="What Our Students Say"
         />
         {isLoading ? (
@@ -718,7 +711,7 @@ function TestimonialsSection() {
                 <CarouselItem key={t.id} className="pl-6 sm:basis-1/2 lg:basis-1/3">
                   <Card className="flex h-full flex-col">
                     <CardContent className="flex h-full flex-col p-6">
-                      <Quote className="mb-4 h-7 w-7 text-secondary/60" aria-hidden />
+                      <Quote className="mb-4 h-7 w-7 text-gold-ink/60" aria-hidden />
                       <p className="flex-1 text-sm leading-relaxed text-foreground/85">&ldquo;{t.quote}&rdquo;</p>
                       <div className="mt-5 flex items-center justify-between border-t border-border pt-4">
                         <div>
@@ -762,9 +755,8 @@ function FaqSection() {
     <section className="py-20" aria-label="Frequently asked questions">
       <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
         <SectionHeading
-          eyebrow="Questions?"
           title="Frequently Asked Questions"
-          description="Everything aspirants ask us before joining — fees, modes, batches and the AI ecosystem."
+          description="Everything aspirants ask us before joining, fees, modes, batches and the AI ecosystem."
         />
         {isLoading ? (
           <ListSkeleton rows={4} />
@@ -826,7 +818,7 @@ function CtaBanner() {
       <div className="mx-auto max-w-5xl px-4 text-center sm:px-6">
         <GraduationCap className="mx-auto mb-5 h-10 w-10 text-gold" aria-hidden />
         <h2 className="font-display text-3xl leading-tight text-balance sm:text-4xl">
-          Your <span className="text-gold">नियती</span> — your destiny — starts with one decision.
+          Your <span className="text-gold">नियती</span> (your destiny) starts with one decision.
         </h2>
         <p className="mx-auto mt-4 max-w-2xl text-ivory/70">
           Register free to unlock the AI Doubt Agent, one free Mains evaluation, daily news and a
@@ -844,7 +836,7 @@ function CtaBanner() {
             size="lg"
             variant="outline"
             onClick={() => navigate("contact")}
-            className="min-h-12 border-ivory/30 px-8 text-base text-ivory hover:bg-white/10 hover:text-ivory"
+            className="min-h-12 border-ivory/50 bg-transparent px-8 text-base font-semibold text-ivory hover:bg-ivory/10 hover:text-ivory"
           >
             Book Free Counselling
           </Button>

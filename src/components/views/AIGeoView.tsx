@@ -107,7 +107,7 @@ function buildFallbackQuiz(active: Set<GeoCategoryKey>): QuizQuestion[] {
           question: `Where on the map is "${item.name}"?`,
           options,
           correctIndex: options.indexOf(item.region),
-          explanation: `${item.name} — ${item.facts[0] ?? "Key UPSC map location."}`,
+          explanation: `${item.name}, ${item.facts[0] ?? "Key UPSC map location."}`,
           locationId: item.id,
           mcqOnly: true,
         };
@@ -275,7 +275,7 @@ export function AIGeoView() {
       setQuestions(buildFallbackQuiz(activeCats));
       setQuizSource("local");
       setQuizPhase("active");
-      toast.info("AI quiz unavailable right now — serving the practice bank instead.");
+      toast.info("AI quiz unavailable right now, serving the practice bank instead.");
     }
   }, [activeCats]);
 
@@ -309,7 +309,7 @@ export function AIGeoView() {
         setScore((s) => s + 0.5);
         setStreak(0);
         setTally((t) => ({ ...t, close: t.close + 1 }));
-        toast.info(`Close! ${fmtKm(dist)} away — half credit.`);
+        toast.info(`Close! ${fmtKm(dist)} away, half credit.`);
       } else {
         setResult({ kind: "wrong", distanceKm: dist, clickedNear });
         setStreak(0);
@@ -407,9 +407,8 @@ export function AIGeoView() {
     <div className="py-12">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeading
-          eyebrow="AI Tool 04"
-          title="AI Geo Maps — Interactive 3D World Atlas"
-          description="Spin a 3D globe of 130+ UPSC-curated locations — places in news, rivers, mountain ranges, straits & chokepoints, ports, dams, UNESCO heritage and ecology hotspots. Toggle layers, search, fly to any location, then test yourself with the AI map quiz."
+          title="AI Geo Maps: Interactive 3D World Atlas"
+          description="Spin a 3D globe of 130+ UPSC-curated locations, places in news, rivers, mountain ranges, straits & chokepoints, ports, dams, UNESCO heritage and ecology hotspots. Toggle layers, search, fly to any location, then test yourself with the AI map quiz."
         />
 
         {/* ------------------------------- Toolbar ------------------------------ */}
@@ -541,7 +540,7 @@ export function AIGeoView() {
               ) : null}
             </div>
             <p className="flex items-start gap-2 border-t border-primary/10 bg-card px-4 py-3 text-xs leading-relaxed text-muted-foreground">
-              <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-secondary" aria-hidden />
+              <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-gold-ink" aria-hidden />
               Coordinates are indicative learning aids, not authoritative boundaries. For definitive
               maps always refer to the Survey of India / NCERT Atlas.
             </p>
@@ -600,15 +599,15 @@ export function AIGeoView() {
                       </dl>
 
                       <p className="mt-4 flex items-center justify-center gap-1.5 text-sm text-muted-foreground">
-                        <Flame className="h-4 w-4 text-secondary" aria-hidden />
+                        <Flame className="h-4 w-4 text-gold-ink" aria-hidden />
                         Best streak: <strong className="text-primary">{bestStreak}</strong>
                       </p>
                       <p className="mt-2 text-sm leading-relaxed text-foreground/75">
                         {tally.correct >= questions.length * 0.7
-                          ? "Atlas-level accuracy — the map is your friend. Keep it up for Prelims!"
+                          ? "Atlas-level accuracy, the map is your friend. Keep it up for Prelims!"
                           : tally.correct + tally.close >= questions.length * 0.5
                             ? "Solid map-work. Revisit the missed layers on the globe and go again."
-                            : "Map-work pays the freest marks in Prelims — explore the layers, then retry."}
+                            : "Map-work pays the freest marks in Prelims, explore the layers, then retry."}
                       </p>
 
                       <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:justify-center">
@@ -640,11 +639,11 @@ export function AIGeoView() {
                             Question {qIndex + 1}/{questions.length}
                           </span>
                           <span className="flex items-center gap-1 text-primary">
-                            <Crosshair className="h-3.5 w-3.5 text-secondary" aria-hidden />
+                            <Crosshair className="h-3.5 w-3.5 text-gold-ink" aria-hidden />
                             Score {score.toLocaleString("en-IN")}
                           </span>
                           <span className="flex items-center gap-1">
-                            <Flame className="h-3.5 w-3.5 text-secondary" aria-hidden />
+                            <Flame className="h-3.5 w-3.5 text-gold-ink" aria-hidden />
                             {streak}
                           </span>
                         </div>
@@ -664,8 +663,8 @@ export function AIGeoView() {
 
                       {!result && locateMode ? (
                         <p className="mt-3 flex items-center gap-2 rounded-xl border border-dashed border-secondary/50 bg-secondary/5 p-3 text-sm font-medium text-foreground/80">
-                          <MousePointerClick className="h-4 w-4 shrink-0 text-secondary" aria-hidden />
-                          Click the location on the globe — a pin or its coastline, within {fmtKm(BULLSEYE_KM)} is a bullseye.
+                          <MousePointerClick className="h-4 w-4 shrink-0 text-gold-ink" aria-hidden />
+                          Click the location on the globe, a pin or its coastline, within {fmtKm(BULLSEYE_KM)} is a bullseye.
                         </p>
                       ) : null}
 
@@ -700,16 +699,16 @@ export function AIGeoView() {
                             <p className="font-bold text-primary">
                               {result.kind === "bullseye" && "🎯 Bullseye!"}
                               {result.kind === "correct" && "✅ Correct!"}
-                              {result.kind === "close" && "🧭 Close — half credit!"}
+                              {result.kind === "close" && "🧭 Close, half credit!"}
                               {result.kind === "wrong" && "❌ Not quite."}
                               {result.kind === "wrong-option" && "❌ Not quite."}
                             </p>
                             <p className="mt-1 text-sm leading-relaxed text-foreground/80">
                               {result.kind === "bullseye" && `You pinned it within ${fmtKm(result.distanceKm)}.`}
                               {result.kind === "close" &&
-                                `${fmtKm(result.distanceKm)} off — that still earns half a mark (streak resets).`}
+                                `${fmtKm(result.distanceKm)} off, that still earns half a mark (streak resets).`}
                               {result.kind === "wrong" && `You were ${fmtKm(result.distanceKm ?? 0)} away.`}
-                              {result.kind === "correct" && "Option locked in — one more mark on the board."}
+                              {result.kind === "correct" && "Option locked in, one more mark on the board."}
                               {result.kind === "wrong-option" && "The correct option is highlighted below."}
                               {"clickedNear" in result && result.clickedNear ? (
                                 <span className="block text-xs text-muted-foreground">
@@ -752,7 +751,7 @@ export function AIGeoView() {
                                 className="mt-3 min-h-9 border-secondary/60 text-primary hover:bg-secondary/10"
                                 onClick={() => setSelectedId(currentTarget.id)}
                               >
-                                <Compass className="mr-1.5 h-3.5 w-3.5 text-secondary" aria-hidden />
+                                <Compass className="mr-1.5 h-3.5 w-3.5 text-gold-ink" aria-hidden />
                                 Show on map
                               </Button>
                             </div>
@@ -833,7 +832,7 @@ export function AIGeoView() {
                     <h3 className="mt-3 font-display text-2xl font-bold text-primary">{selectedItem.name}</h3>
                     {selectedItem.region ? (
                       <p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
-                        <MapPin className="h-3.5 w-3.5 text-secondary" aria-hidden /> {selectedItem.region}
+                        <MapPin className="h-3.5 w-3.5 text-gold-ink" aria-hidden /> {selectedItem.region}
                       </p>
                     ) : null}
 

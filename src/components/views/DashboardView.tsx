@@ -62,7 +62,7 @@ export function DashboardView() {
       await toast.promise(fetch("/api/auth/logout", { method: "POST" }), {
         loading: "Logging out…",
         success: "Logged out.",
-        error: "Logout failed on server — cleared locally.",
+        error: "Logout failed on server. Cleared locally.",
       });
     } catch {
       /* ignore */
@@ -77,7 +77,7 @@ export function DashboardView() {
         <div className="mx-auto max-w-md px-4 text-center">
           <EmptyState
             className="border-0 bg-transparent"
-            icon={<GraduationCap className="h-6 w-6 text-secondary" />}
+            icon={<GraduationCap className="h-6 w-6 text-gold-ink" />}
             title="Your dashboard is one login away"
             hint="Log in or create a free account to see bookmarks, quiz history and AI credits."
           />
@@ -101,12 +101,11 @@ export function DashboardView() {
         <FadeIn>
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-secondary">Student Dashboard</p>
               <h1 className="mt-2 font-display text-3xl font-bold text-primary sm:text-4xl">
                 Namaste, {user.name.split(" ")[0]} 🙏
               </h1>
               <p className="mt-1.5 text-sm text-muted-foreground">
-                Consistency beats intensity — here&apos;s where you stand today.
+                Consistency beats intensity. Here&apos;s where you stand today.
               </p>
             </div>
             <Button variant="outline" onClick={() => void logout()} className="min-h-11">
@@ -163,7 +162,7 @@ export function DashboardView() {
           <Card>
             <CardContent className="p-6">
               <h2 className="flex items-center gap-2 font-display text-xl font-bold text-primary">
-                <BookMarked className="h-5 w-5 text-secondary" aria-hidden /> My Bookmarks
+                <BookMarked className="h-5 w-5 text-gold-ink" aria-hidden /> My Bookmarks
               </h2>
               <Separator className="my-4" />
               {bookmarksQuery.isLoading ? (
@@ -249,7 +248,7 @@ export function DashboardView() {
                 <Button
                   variant="outline"
                   onClick={() => {
-                    toast.success("Loading your enquiry — our mentors have your latest submission.");
+                    toast.success("Loading your enquiry, our mentors have your latest submission.");
                     navigate("contact");
                   }}
                   className="mt-5 min-h-11 w-full"

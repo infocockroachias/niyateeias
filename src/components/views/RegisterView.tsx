@@ -13,7 +13,7 @@ import { SITE } from "@/lib/site";
 import { toast } from "sonner";
 
 const PERKS = [
-  "AI Doubt Agent — ask anything, anytime",
+  "AI Doubt Agent: ask anything, anytime",
   "1 free AI Mains answer evaluation",
   "Daily GS-tagged current affairs",
   "Bookmarks synced to your dashboard",
@@ -113,12 +113,12 @@ export function RegisterView() {
 
                 <p className="mt-6 text-center text-sm text-muted-foreground">
                   Already registered?{" "}
-                  <button type="button" onClick={() => navigate("login")} className="inline-flex items-center gap-1 font-semibold text-secondary hover:underline">
+                  <button type="button" onClick={() => navigate("login")} className="inline-flex items-center gap-1 font-semibold text-gold-ink hover:underline">
                     Log in <ArrowRight className="h-3.5 w-3.5" aria-hidden />
                   </button>
                 </p>
                 <p className="mt-4 flex items-center justify-center gap-1.5 text-center text-xs text-muted-foreground">
-                  <LogIn className="h-3.5 w-3.5 text-secondary" aria-hidden />
+                  <LogIn className="h-3.5 w-3.5 text-gold-ink" aria-hidden />
                   By registering you agree to receive study updates. No spam, ever.
                 </p>
               </motion.div>

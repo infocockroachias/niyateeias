@@ -74,7 +74,7 @@ export function Footer() {
               <img src="/brand/logo.png" alt="Niyatee IAS logo" className="h-10 w-auto rounded-md bg-white/5 p-1" />
             </div>
             <p className="mt-4 font-hindi text-lg font-bold text-gold" lang="hi">
-              नियती — <span className="text-ivory/80">Destiny</span>
+              नियती, <span className="text-ivory/80">Destiny</span>
             </p>
             <p className="mt-2 text-sm leading-relaxed text-ivory/70">
               {SITE.positioning}. Guiding aspirants from Prelims to Interview with expert mentorship and an
@@ -183,14 +183,14 @@ export function Footer() {
           <div className="flex items-center gap-5">
             <button
               type="button"
-              onClick={() => toast.info("Privacy Policy — coming soon.")}
+              onClick={() => toast.info("Privacy Policy, coming soon.")}
               className="min-h-11 hover:text-gold"
             >
               Privacy Policy
             </button>
             <button
               type="button"
-              onClick={() => toast.info("Terms of Use — coming soon.")}
+              onClick={() => toast.info("Terms of Use, coming soon.")}
               className="min-h-11 hover:text-gold"
             >
               Terms of Use

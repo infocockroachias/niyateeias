@@ -14,7 +14,7 @@ A complete rebuild of [niyateeias.com](https://niyateeias.com) — the digital h
 
 ## About the project
 
-Niyatee Civil Services Academy is Eastern India's emerging IAS academy and **Odisha's first AI-integrated UPSC coaching institute**. This repository rebuilds the academy's web platform with the same feature set as the original site — news, resources, AI tools, courses, plans and a student portal — redesigned from the ground up for correct functionality, clean UI/UX and a professional visual identity rooted in the brand (navy `#0A1B3D`, gold `#C9A24B`, ivory `#FAF8F2`).
+Niyatee Civil Services Academy is Eastern India's emerging IAS academy and **Odisha's first AI-integrated UPSC coaching institute**. This repository rebuilds the academy's web platform with the same feature set as the original site — news, resources, AI tools, courses, plans and a student portal — redesigned from the ground up for correct functionality, clean UI/UX and a professional visual identity rooted in the brand (navy `#0A1B3D`, gold `#C9A24B`, silver-paper `#F4F5F7`). Results language is kept honest: the academy is new, so no selection claims are made anywhere.
 
 ## Features
 
@@ -28,18 +28,23 @@ Niyatee Civil Services Academy is Eastern India's emerging IAS academy and **Odi
 | **Courses** | 10 programmes across UPSC & OPSC — GS Foundation (offline / live online / recorded), Prelims Target, CSAT Bootcamp, Mains Answer Writing, Ethics & Essay, Interview Guidance, OPSC OCS, Sociology optional — with filters, detail pages and enquiry CTAs |
 | **Books Shop** | Niyatee Press titles with ratings, discounts and a working cart |
 | **Test Series** | Prelims / CSAT / Mains / OPSC series cards |
-| **Rankers & Testimonials** | Hall of fame grouped by year + student voices |
+| **Rankers & Testimonials** | Results wall grouped by year (names masked as xxxx until officially published) + student voices |
 | **Student Portal** | Register / login with secure sessions, dashboard with bookmarks and quiz analytics |
 | **Contact** | Enquiry form (saved to DB), counselling CTA, socials, newsletter |
 
 ## Tech stack
 
 - **Framework** — Next.js 16 (App Router), React 19, TypeScript
-- **Styling** — Tailwind CSS 4 + shadcn/ui (New York), custom navy/gold design tokens, Playfair Display + Inter + Noto Sans Devanagari via `next/font`
+- **Styling** — Tailwind CSS 4 + shadcn/ui (New York), custom navy/gold design tokens, **Cabinet Grotesk + Satoshi + Noto Sans Devanagari** (self-hosted via `next/font/local`, see `src/fonts/`)
+- **Design system** — see [`DESIGN.md`](./DESIGN.md): typography roles, AA contrast rules, motion curve, anti-slop copy rules (zero em-dashes, no eyebrow labels, no invented claims)
 - **Database** — Prisma ORM with SQLite (single `db/custom.db` file)
 - **State** — Zustand (SPA view routing via hash + cart + auth state), TanStack Query (server data)
 - **AI** — `z-ai-web-dev-sdk` (server-side only) powering evaluation, chat and MCQ generation
 - **Motion** — Framer Motion page transitions and micro-interactions
+
+## Fonts & licenses
+
+Cabinet Grotesk and Satoshi are by the **Indian Type Foundry**, used under the ITF Free Font License via Fontshare (free for personal and commercial use). The woff2 files are self-hosted in `src/fonts/` so the site has no runtime font-CDN dependency.
 
 ## Getting started
 

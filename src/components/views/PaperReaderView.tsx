@@ -68,7 +68,7 @@ function PaperHeader({
         </div>
         {legacyYear && legacyYear !== 2026 ? (
           <p className="mt-3 rounded-lg border border-gold/30 bg-gold/10 px-3 py-2 text-xs text-ivory/85">
-            You opened a <strong>{legacyYear}</strong> archive item — the on-screen reader currently
+            You opened a <strong>{legacyYear}</strong> archive item, the on-screen reader currently
             carries the <strong>2026</strong> paper series. Use the sources below to reach that year&apos;s
             official paper.
           </p>
@@ -216,7 +216,7 @@ function PrelimsReader({ items }: { items: PrelimsItem[] }) {
             {stats.answered}/{items.length} answered
           </span>
           <span className="ml-auto inline-flex items-center gap-1.5 text-sm font-semibold text-primary" aria-label={`Time elapsed ${fmtElapsed(elapsed)}`}>
-            <Clock3 className="h-4 w-4 text-secondary" aria-hidden /> {fmtElapsed(elapsed)}
+            <Clock3 className="h-4 w-4 text-gold-ink" aria-hidden /> {fmtElapsed(elapsed)}
           </span>
           <Button variant="outline" size="sm" onClick={reset} className="min-h-10">
             <RotateCcw className="mr-1.5 h-4 w-4" aria-hidden /> Reset
@@ -307,7 +307,7 @@ function PrelimsReader({ items }: { items: PrelimsItem[] }) {
             </div>
 
             {isRevealed ? (
-              <div className="mt-5 rounded-xl border-l-4 border-secondary bg-secondary/5 p-4">
+              <div className="mt-5 rounded-xl border border-gold-ink/25 bg-gold-soft/40 p-4">
                 <p className="mb-1 text-xs font-bold uppercase tracking-wider text-[#7a5c2e]">
                   Correct answer: {LETTERS[q.answerIndex]}
                 </p>
@@ -412,7 +412,7 @@ function MainsReader({ items }: { items: MainsItem[] }) {
               </Button>
             </div>
             {open.has(q.n) ? (
-              <div className="mt-4 rounded-xl border-l-4 border-secondary bg-secondary/5 p-4">
+              <div className="mt-4 rounded-xl border border-gold-ink/25 bg-gold-soft/40 p-4">
                 <p className="mb-2 text-xs font-bold uppercase tracking-wider text-[#7a5c2e]">Model outline</p>
                 <ul className="list-disc space-y-1.5 pl-5 text-sm leading-relaxed text-foreground/90">
                   {q.modelOutline.map((o, i) => (
@@ -436,9 +436,8 @@ function PaperPicker() {
     <div>
       <SectionHeading
         align="left"
-        eyebrow="PYQ Library · On-Screen"
-        title="UPSC CSE 2026 — Digital Question Papers"
-        description="Read Prelims and Mains 2026 papers right here — practice MCQs with instant reveal & explanations, mains questions with model outlines. No downloads."
+        title="UPSC CSE 2026: Digital Question Papers"
+        description="Read Prelims and Mains 2026 papers right here, practice MCQs with instant reveal & explanations, mains questions with model outlines. No downloads."
       />
       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {PYQ_PAPERS.map((p) => (
@@ -493,7 +492,7 @@ export function PaperReaderView() {
         <button
           type="button"
           onClick={() => navigate("pyq-reader")}
-          className="mb-4 inline-flex min-h-10 items-center gap-1 text-sm font-medium text-secondary transition-colors hover:text-primary"
+          className="mb-4 inline-flex min-h-10 items-center gap-1 text-sm font-medium text-gold-ink transition-colors hover:text-primary"
         >
           <ChevronLeft className="h-4 w-4" aria-hidden /> All 2026 papers
         </button>
@@ -505,9 +504,9 @@ export function PaperReaderView() {
         </div>
 
         <p className="mt-8 flex flex-wrap items-center justify-center gap-2 text-center text-sm text-muted-foreground">
-          <BookOpenText className="h-4 w-4 text-secondary" aria-hidden />
+          <BookOpenText className="h-4 w-4 text-gold-ink" aria-hidden />
           Cross-check with the free official &amp; coaching sources above · papers also listed in{" "}
-          <button type="button" onClick={() => navigate("resources")} className="font-semibold text-secondary hover:underline">
+          <button type="button" onClick={() => navigate("resources")} className="font-semibold text-gold-ink hover:underline">
             Resources
           </button>
         </p>

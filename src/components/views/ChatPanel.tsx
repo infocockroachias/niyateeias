@@ -23,7 +23,7 @@ interface LocalMsg extends ChatMessage {
 const GREETING: LocalMsg = {
   role: "assistant",
   content:
-    "Namaste! I'm the Niyatee Doubt Agent — your 24×7 UPSC mentor. Ask me anything about polity, economy, history, geography, strategy or the syllabus. For best answers, mention your attempt year and stage (Prelims/Mains).",
+    "Namaste! I'm the Niyatee Doubt Agent, your 24×7 UPSC mentor. Ask me anything about polity, economy, history, geography, strategy or the syllabus. For best answers, mention your attempt year and stage (Prelims/Mains).",
 };
 
 export function ChatPanel({ compact = false }: { compact?: boolean }) {
@@ -62,7 +62,7 @@ export function ChatPanel({ compact = false }: { compact?: boolean }) {
         {
           role: "assistant",
           mode: "kb",
-          content: "I couldn't reach the mentor network just now. Please retry — meanwhile you can browse today's curated current affairs in the News Room.",
+          content: "I couldn't reach the mentor network just now. Please retry. Meanwhile, you can browse today's curated current affairs in the News Room.",
         },
       ]);
     } finally {
@@ -99,7 +99,7 @@ export function ChatPanel({ compact = false }: { compact?: boolean }) {
               )}
             >
               {m.role === "assistant" && i === 0 ? (
-                <span className="mb-1 flex items-center gap-1.5 text-xs font-bold text-secondary">
+                <span className="mb-1 flex items-center gap-1.5 text-xs font-bold text-gold-ink">
                   <Sparkles className="h-3.5 w-3.5" aria-hidden /> Niyatee Doubt Agent
                 </span>
               ) : null}

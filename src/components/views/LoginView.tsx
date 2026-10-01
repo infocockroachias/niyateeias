@@ -31,7 +31,7 @@ function AuthAside() {
             68 marks between attempts.&rdquo;
           </p>
         </div>
-        <p className="text-xs text-ivory/50">— A student who stopped guessing and started measuring.</p>
+        <p className="text-xs text-ivory/50">- A student who stopped guessing and started measuring.</p>
         <ul className="space-y-2 pt-4 text-sm text-ivory/75">
           <li>✓ AI evaluation on every answer</li>
           <li>✓ 24×7 doubt agent</li>
@@ -74,7 +74,7 @@ export function LoginView() {
               <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
                 <h1 className="font-display text-3xl font-bold text-primary">Welcome back, aspirant</h1>
                 <p className="mt-2 text-sm text-muted-foreground">
-                  Log in to reach your dashboard — bookmarks, quiz history and AI credits.
+                  Log in to reach your dashboard: bookmarks, quiz history and AI credits.
                 </p>
 
                 <form onSubmit={submit} className="mt-8 space-y-5" aria-label="Login form">
@@ -111,13 +111,13 @@ export function LoginView() {
 
                 <p className="mt-6 text-center text-sm text-muted-foreground">
                   New to Niyatee?{" "}
-                  <button type="button" onClick={() => navigate("register")} className="inline-flex items-center gap-1 font-semibold text-secondary hover:underline">
+                  <button type="button" onClick={() => navigate("register")} className="inline-flex items-center gap-1 font-semibold text-gold-ink hover:underline">
                     Create a free account <ArrowRight className="h-3.5 w-3.5" aria-hidden />
                   </button>
                 </p>
                 <p className="mt-4 flex items-center justify-center gap-1.5 text-center text-xs text-muted-foreground">
-                  <GraduationCap className="h-3.5 w-3.5 text-secondary" aria-hidden />
-                  Demo tip: register first, then log in — accounts persist on the server.
+                  <GraduationCap className="h-3.5 w-3.5 text-gold-ink" aria-hidden />
+                  Demo tip: register first, then log in. Accounts persist on the server.
                 </p>
               </motion.div>
             </CardContent>

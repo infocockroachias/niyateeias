@@ -59,7 +59,7 @@ export async function GET(_req: NextRequest) {
         date,
         brief,
         live,
-        sources: ['The Hindu — National / World / Business / Editorial', 'Indian Express', 'PIB', 'Yojana'],
+        sources: ['The Hindu, National / World / Business / Editorial', 'Indian Express', 'PIB', 'Yojana'],
       },
       { headers: { 'Cache-Control': 'public, s-maxage=120, stale-while-revalidate=600' } }
     )

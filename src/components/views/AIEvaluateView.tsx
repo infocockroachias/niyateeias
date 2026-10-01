@@ -126,7 +126,7 @@ function ResultPanel({ evaluation }: { evaluation: Evaluation }) {
                 {verdictGood ? (
                   <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" aria-hidden />
                 ) : (
-                  <CircleAlert className="mt-0.5 h-4 w-4 shrink-0 text-secondary" aria-hidden />
+                  <CircleAlert className="mt-0.5 h-4 w-4 shrink-0 text-gold-ink" aria-hidden />
                 )}
                 {evaluation.verdict}
               </p>
@@ -214,7 +214,7 @@ export function AIEvaluateView() {
       return;
     }
     if (words < 40) {
-      toast.error("That's too short for a Mains answer — write at least ~40 words so the evaluator has substance.");
+      toast.error("That's too short for a Mains answer, write at least ~40 words so the evaluator has substance.");
       return;
     }
     setBusy(true);
@@ -226,7 +226,7 @@ export function AIEvaluateView() {
         paperType: paper,
       });
       setResult(data.evaluation);
-      toast.success("Evaluation ready — study the feedback before your next attempt.");
+      toast.success("Evaluation ready, study the feedback before your next attempt.");
     } catch (err) {
       toast.error(toErrorMessage(err));
     } finally {
@@ -238,7 +238,6 @@ export function AIEvaluateView() {
     <div className="py-12">
       <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
         <div className="mb-10 text-center">
-          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.22em] text-secondary">AI Tool 01</p>
           <h1 className="font-display text-4xl text-balance text-primary sm:text-5xl">AI Mains Answer Evaluation</h1>
           <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
             Paste a PYQ or classroom question, write your answer, and get a UPSC-examiner-style score
@@ -255,7 +254,7 @@ export function AIEvaluateView() {
                 <button
                   type="button"
                   onClick={() => setQuestion(SAMPLE_QUESTION)}
-                  className="min-h-9 text-xs font-medium text-secondary hover:underline"
+                  className="min-h-9 text-xs font-medium text-gold-ink hover:underline"
                 >
                   Load sample PYQ
                 </button>
@@ -304,7 +303,7 @@ export function AIEvaluateView() {
                 value={answer}
                 onChange={(e) => setAnswer(e.target.value)}
                 rows={12}
-                placeholder="Write your Mains answer here — intro, body with arguments & examples, and a forward-looking conclusion…"
+                placeholder="Write your Mains answer here: intro, body with arguments & examples, and a forward-looking conclusion…"
                 className="bg-card leading-relaxed"
                 aria-required="true"
               />
@@ -326,8 +325,8 @@ export function AIEvaluateView() {
               )}
             </Button>
             <p className="text-center text-xs text-muted-foreground">
-              <Sparkles className="mr-1 inline h-3.5 w-3.5 text-secondary" aria-hidden />
-              Free users get limited evaluations — enrolled students have unlimited credits.
+              <Sparkles className="mr-1 inline h-3.5 w-3.5 text-gold-ink" aria-hidden />
+              Free users get limited evaluations. Enrolled students have unlimited credits.
             </p>
           </form>
 
@@ -355,7 +354,7 @@ export function AIEvaluateView() {
                   </CardContent>
                 </Card>
                 <p className="text-center text-sm text-muted-foreground">
-                  <BookOpenCheck className="mr-1.5 inline h-4 w-4 text-secondary" aria-hidden />
+                  <BookOpenCheck className="mr-1.5 inline h-4 w-4 text-gold-ink" aria-hidden />
                   The examiner AI is reading every line…
                 </p>
               </div>
@@ -365,12 +364,12 @@ export function AIEvaluateView() {
               <Card className="border-dashed">
                 <CardContent className="flex h-full min-h-80 flex-col items-center justify-center gap-4 p-8 text-center">
                   <span className="flex h-16 w-16 items-center justify-center rounded-2xl bg-secondary/15">
-                    <PenLine className="h-8 w-8 text-secondary" aria-hidden />
+                    <PenLine className="h-8 w-8 text-gold-ink" aria-hidden />
                   </span>
                   <p className="font-display text-xl font-bold text-primary">Your evaluation appears here</p>
                   <p className="max-w-sm text-sm text-muted-foreground">
                     Score out of 10, five-parameter breakdown, strengths, improvements and a model
-                    outline — the exact feedback loop our toppers use daily.
+                    outline, the exact feedback loop our toppers use daily.
                   </p>
                 </CardContent>
               </Card>

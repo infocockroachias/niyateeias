@@ -23,7 +23,6 @@ export function TestSeriesView() {
     <div className="py-12">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeading
-          eyebrow="Test Series"
           title="Prelims & Mains Test Series"
           description="Exam-day simulation with All-Odisha ranking, detailed solutions and AI-assisted copy evaluation for Mains."
         />
@@ -33,7 +32,7 @@ export function TestSeriesView() {
         ) : isError ? (
           <ErrorCard message="Could not load test series." onRetry={() => void refetch()} />
         ) : series.length === 0 ? (
-          <ErrorCard message="No test series published yet — the question bank team is at work." />
+          <ErrorCard message="No test series published yet. The question bank team is at work." />
         ) : (
           <div className="grid gap-6 lg:grid-cols-3">
             {series.map((s, i) => (
@@ -54,7 +53,7 @@ export function TestSeriesView() {
 
                     <div className="mt-4 flex items-center gap-4 rounded-lg bg-muted/60 p-3 text-sm">
                       <span className="flex items-center gap-1.5 font-semibold text-primary">
-                        <FileQuestion className="h-4 w-4 text-secondary" aria-hidden />
+                        <FileQuestion className="h-4 w-4 text-gold-ink" aria-hidden />
                         {s.totalTests} tests
                       </span>
                     </div>
@@ -62,7 +61,7 @@ export function TestSeriesView() {
                     <ul className="mt-4 space-y-2 text-sm text-foreground/80">
                       {s.features.map((f) => (
                         <li key={f} className="flex items-start gap-2">
-                          <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-secondary" aria-hidden />
+                          <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-gold-ink" aria-hidden />
                           {f}
                         </li>
                       ))}

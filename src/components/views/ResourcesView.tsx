@@ -132,10 +132,10 @@ export function ResourcesView() {
     }
 
     if (r.fileType === "page") {
-      toast.info(`Opening “${r.title}” — full reading view.`);
+      toast.info(`Opening “${r.title}”: full reading view.`);
       return;
     }
-    toast.info("Opens on screen — full versions for enrolled students.");
+    toast.info("Opens on screen, full versions for enrolled students.");
     void markBookmarked();
   };
 
@@ -144,9 +144,8 @@ export function ResourcesView() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeading
           align="left"
-          eyebrow="Free Resources"
-          title="PYQs, Notes, Answer Keys & More — All On Screen"
-          description="UPSC 2026 Prelims & Mains papers in a digital reader with instant solutions, 20+ years of PYQs, mentor-approved booklists, GS notes and official answer keys — no downloads needed."
+          title="PYQs, Notes, Answer Keys & More, All On Screen"
+          description="UPSC 2026 Prelims & Mains papers in a digital reader with instant solutions, 20+ years of PYQs, mentor-approved booklists, GS notes and official answer keys, no downloads needed."
         />
 
         {/* Filters */}
@@ -196,7 +195,7 @@ export function ResourcesView() {
         ) : isError ? (
           <ErrorCard message="Could not load resources. The library may still be waking up." onRetry={() => void refetch()} />
         ) : filtered.length === 0 ? (
-          <ErrorCard message="No resources match this filter yet — try another category or exam." />
+          <ErrorCard message="No resources match this filter yet, try another category or exam." />
         ) : (
           <div className="max-h-[42rem] overflow-y-auto pr-1 nice-scroll" aria-label="Resource list">
             <div className="grid gap-6 pb-2 sm:grid-cols-2 lg:grid-cols-3">
@@ -219,7 +218,7 @@ export function ResourcesView() {
                             className="flex min-h-11 min-w-11 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-accent hover:text-primary"
                           >
                             {isBookmarked ? (
-                              <BookmarkCheck className="h-5 w-5 text-secondary" aria-hidden />
+                              <BookmarkCheck className="h-5 w-5 text-gold-ink" aria-hidden />
                             ) : (
                               <BookmarkIcon className="h-5 w-5" aria-hidden />
                             )}
@@ -272,9 +271,9 @@ export function ResourcesView() {
         )}
 
         <p className="mt-8 flex items-center justify-center gap-2 text-center text-sm text-muted-foreground">
-          <Globe2 className="h-4 w-4 text-secondary" aria-hidden />
-          Every enrolled student gets the full archive with solutions — {" "}
-          <button type="button" onClick={() => navigate("plans")} className="font-semibold text-secondary hover:underline">
+          <Globe2 className="h-4 w-4 text-gold-ink" aria-hidden />
+          Every enrolled student gets the full archive with solutions, {" "}
+          <button type="button" onClick={() => navigate("plans")} className="font-semibold text-gold-ink hover:underline">
             see plans
           </button>
         </p>

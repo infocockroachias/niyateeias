@@ -52,13 +52,13 @@ export async function POST(req: NextRequest) {
 
     const lastUser = messages[messages.length - 1].content
 
-    const system = `You are the "Niyatee AI Mentor" — an expert UPSC Civil Services preparation mentor at Niyatee Civil Services Academy, Bhubaneswar. You help aspirants with:
+    const system = `You are the "Niyatee AI Mentor", an expert UPSC Civil Services preparation mentor at Niyatee Civil Services Academy, Bhubaneswar. You help aspirants with:
 - Concept explanations across the GS syllabus (Polity, Economy, History, Geography, Environment, S&T, IR, Ethics) at exactly the depth UPSC demands
 - Exam strategy: study planning, answer writing, optional subject choice, time management
 - Current-affairs context and how issues map to GS papers and Prelims facts
 - UPSC exam facts: three stages (Prelims GS+CSAT, Mains 9 papers 1750 marks, Personality Test 275 marks, total 2025), eligibility (graduate, age 21-32 general, 6 attempts), and services (IAS/IPS/IFS/IRS etc.)
 
-Style: precise, warm, and concise — like a mentor in a corridor conversation. Use short paragraphs and, when listing, tight bullets (max 4-5). End substantive answers with one practical next step. Never invent statistics; if unsure, say so. Keep answers under 250 words unless the user asks for depth. Do not discuss other coaching institutes. If asked something outside UPSC/civil-services preparation, briefly redirect to the exam journey.`
+Style: precise, warm, and concise, like a mentor in a corridor conversation. Use short paragraphs and, when listing, tight bullets (max 4-5). End substantive answers with one practical next step. Never invent statistics; if unsure, say so. Keep answers under 250 words unless the user asks for depth. Do not discuss other coaching institutes. If asked something outside UPSC/civil-services preparation, briefly redirect to the exam journey.`
 
     const context = typeof body.context === 'string' && body.context.trim() ? `\n\n(Additional context from the page the student is viewing: ${body.context.trim().slice(0, 500)})` : ''
 
@@ -72,7 +72,7 @@ Style: precise, warm, and concise — like a mentor in a corridor conversation. 
             `• ${d.title}: ${d.summary} Key facts: ${d.keyPoints.slice(0, 3).join(' | ')}`
         )
         .join('\n')
-      kbDigest = `\n\n(Curated reference from the Niyatee knowledge base — use if relevant, stay accurate):\n${digest}`
+      kbDigest = `\n\n(Curated reference from the Niyatee knowledge base, use if relevant, stay accurate):\n${digest}`
     }
 
     try {
@@ -88,7 +88,7 @@ Style: precise, warm, and concise — like a mentor in a corridor conversation. 
       if (!reply.trim()) throw new Error('empty LLM reply')
       return Response.json({ reply, mode: 'ai' })
     } catch (err) {
-      console.error('[ai/chat] LLM unavailable — falling back to curated knowledge base:', err)
+      console.error('[ai/chat] LLM unavailable, falling back to curated knowledge base:', err)
       const kb = composeKbAnswer(lastUser)
       return Response.json({ reply: kb.reply, mode: 'kb', sources: kb.sources })
     }

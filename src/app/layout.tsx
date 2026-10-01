@@ -1,17 +1,30 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Playfair_Display, Noto_Sans_Devanagari } from "next/font/google";
+import localFont from "next/font/local";
+import { Noto_Sans_Devanagari } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
+/* Body: Satoshi (Indian Type Foundry via Fontshare, self-hosted).
+   Chosen over Inter for warmer, humanist proportions. */
+const satoshi = localFont({
+  src: [
+    { path: "../fonts/Satoshi-Regular.woff2", weight: "400", style: "normal" },
+    { path: "../fonts/Satoshi-Medium.woff2", weight: "500", style: "normal" },
+    { path: "../fonts/Satoshi-Bold.woff2", weight: "700", style: "normal" },
+  ],
+  variable: "--font-satoshi",
   display: "swap",
 });
 
-const playfair = Playfair_Display({
-  variable: "--font-playfair",
-  subsets: ["latin"],
+/* Display: Cabinet Grotesk (ITF/Fontshare, self-hosted).
+   Distinctive grotesque voice; not the reflex Playfair/Inter pairing. */
+const cabinet = localFont({
+  src: [
+    { path: "../fonts/CabinetGrotesk-Medium.woff2", weight: "500", style: "normal" },
+    { path: "../fonts/CabinetGrotesk-Bold.woff2", weight: "700", style: "normal" },
+    { path: "../fonts/CabinetGrotesk-Extrabold.woff2", weight: "800", style: "normal" },
+  ],
+  variable: "--font-cabinet",
   display: "swap",
 });
 
@@ -25,7 +38,7 @@ const devanagari = Noto_Sans_Devanagari({
 export const metadata: Metadata = {
   title: "Best UPSC Coaching in Odisha | Niyatee Civil Services Academy Bhubaneswar",
   description:
-    "Niyatee Civil Services Academy (Niyatee IAS), Bhubaneswar — Odisha's first AI-integrated UPSC coaching institute. Expert faculty, structured Prelims-to-Interview framework, daily current affairs from The Hindu & PIB, AI Mains answer evaluation, AI MCQ practice, 20+ years PYQs and curated books. नियती — From Aspirations to Achievements.",
+    "Niyatee Civil Services Academy (Niyatee IAS), Bhubaneswar. Odisha's first AI-integrated UPSC coaching institute: expert faculty, a structured Prelims-to-Interview framework, daily current affairs from The Hindu and PIB, AI Mains answer evaluation, AI MCQ practice, 20+ years of PYQs on screen, and curated books. नियती: From Aspirations to Achievements.",
   keywords: [
     "UPSC coaching Odisha",
     "IAS coaching Bhubaneswar",
@@ -64,7 +77,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${inter.variable} ${playfair.variable} ${devanagari.variable} antialiased bg-background text-foreground font-sans`}
+        className={`${satoshi.variable} ${cabinet.variable} ${devanagari.variable} antialiased bg-background text-foreground font-sans`}
       >
         {children}
         <Toaster position="top-right" richColors closeButton />

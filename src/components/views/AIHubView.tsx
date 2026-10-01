@@ -31,20 +31,20 @@ export function AIHubView() {
       {/* Hero band */}
       <section className="bg-navy py-16 text-ivory" aria-label="AI tools introduction">
         <div className="mx-auto max-w-4xl px-4 text-center sm:px-6">
-          <Sparkles className="mx-auto mb-4 h-10 w-10 text-gold" aria-hidden />
+          <Sparkles className="mx-auto mb-4 h-10 w-10 text-gold-ink" aria-hidden />
           <h1 className="font-display text-4xl text-balance sm:text-5xl">
-            The <span className="text-gold">Niyatee AI</span> Toolkit
+            The <span className="text-gold-ink">Niyatee AI</span> Toolkit
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-ivory/70">
-            Four purpose-built tools — trained on the UPSC pattern, tuned by our mentors — that give
+            Four purpose-built tools (trained on the UPSC pattern, tuned by our mentors) that give
             you examiner-grade feedback and answers around the clock.
           </p>
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3 text-sm text-ivory/75">
             <span className="flex items-center gap-1.5">
-              <BadgeCheck className="h-4 w-4 text-gold" aria-hidden /> Free for enrolled students
+              <BadgeCheck className="h-4 w-4 text-gold-ink" aria-hidden /> Free for enrolled students
             </span>
             <span className="flex items-center gap-1.5">
-              <GraduationCap className="h-4 w-4 text-gold" aria-hidden /> No card required to try
+              <GraduationCap className="h-4 w-4 text-gold-ink" aria-hidden /> No card required to try
             </span>
           </div>
         </div>
@@ -70,12 +70,12 @@ export function AIHubView() {
                   >
                     <CardContent className="flex h-full gap-5 p-6 sm:p-7">
                       <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary transition-transform duration-300 group-hover:scale-105">
-                        <Icon className="h-7 w-7 text-gold" aria-hidden />
+                        <Icon className="h-7 w-7 text-gold-ink" aria-hidden />
                       </span>
                       <div className="flex-1">
                         <h2 className="font-display text-xl font-bold text-primary">{t.title}</h2>
                         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{t.blurb}</p>
-                        <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-secondary">
+                        <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-gold-ink">
                           Open tool
                           <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden />
                         </span>
@@ -95,7 +95,7 @@ export function AIHubView() {
                   Need more evaluations &amp; quizzes?
                 </h2>
                 <p className="mt-2 text-sm leading-relaxed text-ivory/70">
-                  Plans scale your AI credits — or get unlimited access included with any classroom
+                  Plans scale your AI credits, or get unlimited access included with any classroom
                   course. Registered users start with free credits every month.
                 </p>
               </div>
@@ -109,7 +109,7 @@ export function AIHubView() {
                 <Button
                   variant="outline"
                   onClick={() => navigate("courses")}
-                  className="min-h-12 border-ivory/30 px-6 text-ivory hover:bg-white/10 hover:text-ivory"
+                  className="min-h-12 border-ivory/50 bg-transparent px-6 font-semibold text-ivory hover:bg-ivory/10 hover:text-ivory"
                 >
                   Enroll &amp; Get It Free
                 </Button>

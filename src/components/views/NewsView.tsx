@@ -72,9 +72,9 @@ function istTimeOf(iso: string): string {
 function PrelimsBlock({ points }: { points: string[] }) {
   if (!points.length) return null;
   return (
-    <div className="rounded-xl border-l-4 border-secondary bg-secondary/5 p-4" data-testid="prelims-points">
+    <div className="rounded-xl border border-gold-ink/25 bg-gold-soft/40 p-4" data-testid="prelims-points">
       <p className="mb-2 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#7a5c2e]">
-        <Target className="h-4 w-4" aria-hidden /> Prelims Points — remember these one-liners
+        <Target className="h-4 w-4" aria-hidden /> Prelims Points: remember these one-liners
       </p>
       <ul className="list-disc space-y-1.5 pl-5 text-sm leading-relaxed text-foreground/90">
         {points.map((p, i) => (
@@ -88,9 +88,9 @@ function PrelimsBlock({ points }: { points: string[] }) {
 function MainsBlock({ points }: { points: string[] }) {
   if (!points.length) return null;
   return (
-    <div className="rounded-xl border-l-4 border-primary bg-primary/5 p-4" data-testid="mains-points">
+    <div className="rounded-xl border border-primary/25 bg-primary/5 p-4" data-testid="mains-points">
       <p className="mb-2 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-primary">
-        <PenLine className="h-4 w-4" aria-hidden /> Mains Angles — build your answers around these
+        <PenLine className="h-4 w-4" aria-hidden /> Mains Angles: build your answers around these
       </p>
       <ul className="list-disc space-y-1.5 pl-5 text-sm leading-relaxed text-foreground/90">
         {points.map((p, i) => (
@@ -139,7 +139,7 @@ function MainsQuestionBlock({ q, title }: { q: MainsPracticeQuestion; title: str
           <PenLine className="mr-1.5 h-3.5 w-3.5" aria-hidden /> Write &amp; get it evaluated
         </Button>
       </div>
-      <p className="mt-2 text-[11px] text-ivory/60">Frame your answer on the Mains angles above — topic: {title.slice(0, 60)}…</p>
+      <p className="mt-2 text-[11px] text-ivory/60">Frame your answer on the Mains angles above, topic: {title.slice(0, 60)}…</p>
     </div>
   );
 }
@@ -155,7 +155,7 @@ function LiveWireStrip({
     <div className="mt-4 rounded-xl border border-ivory/15 bg-navy-800/50 p-4" data-testid="live-wire">
       <p className="mb-2.5 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-gold">
         <Radio className="h-3.5 w-3.5 animate-pulse" aria-hidden />
-        Live Wire — today&apos;s headlines, fetched fresh
+        Live Wire: today&apos;s headlines, fetched fresh
         <span className="ml-auto font-medium normal-case text-ivory/50">updated {istTimeOf(live.fetchedAt)} IST</span>
       </p>
       <ul className="max-h-44 space-y-2 overflow-y-auto pr-1 nice-scroll" aria-label="Live news headlines">
@@ -442,7 +442,7 @@ function MonthlyDigestSection({ year }: { year: number }) {
       return;
     }
     if (!m.fileUrl || m.fileUrl === "#") {
-      toast.info("PDF is being compiled — check back in a day.");
+      toast.info("PDF is being compiled, check back in a day.");
       return;
     }
     toast.success(`Downloading ${m.fileName}`);
@@ -452,11 +452,11 @@ function MonthlyDigestSection({ year }: { year: number }) {
     <Card>
       <CardContent className="p-6">
         <h2 className="flex items-center gap-2 font-display text-xl font-bold text-primary">
-          <FileDown className="h-5 w-5 text-secondary" aria-hidden />
+          <FileDown className="h-5 w-5 text-gold-ink" aria-hidden />
           Monthly Compilations {year}
         </h2>
         <p className="mt-1.5 text-sm text-muted-foreground">
-          One PDF per month — every curated article, tagged by GS paper. Perfect for revision.
+          One PDF per month: every curated article, tagged by GS paper. Perfect for revision.
         </p>
         {isLoading ? (
           <ListSkeleton rows={3} className="mt-4" />
@@ -493,7 +493,7 @@ function MonthlyDigestSection({ year }: { year: number }) {
                         href={m.fileUrl}
                         download={m.fileName}
                         onClick={() => handleDownload(m)}
-                        className="inline-flex min-h-11 items-center gap-1.5 rounded-md border border-primary/20 px-3 text-sm font-semibold text-primary transition-colors hover:border-secondary hover:text-secondary"
+                        className="inline-flex min-h-11 items-center gap-1.5 rounded-md border border-primary/20 px-3 text-sm font-semibold text-primary transition-colors hover:border-secondary hover:text-gold-ink"
                         aria-label={`Download ${m.fileName}`}
                       >
                         <FileDown className="h-4 w-4" aria-hidden /> PDF
@@ -595,12 +595,11 @@ export function NewsView() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeading
           align="left"
-          eyebrow="News Room"
           title="Daily Current Affairs for UPSC & OPSC"
-          description="Structured every morning from today's The Hindu, Indian Express, PIB and Yojana editions — with Prelims points, Mains angles, keywords and practice questions for every story."
+          description="Structured every morning from today's The Hindu, Indian Express, PIB and Yojana editions, with Prelims points, Mains angles, keywords and practice questions for every story."
         />
 
-        {/* Today's Brief — structured front page */}
+        {/* Today's Brief, structured front page */}
         <TodayBrief onOpen={(a) => setSelectedArticle(a)} />
 
         {/* Detail overlay panel when an article is selected */}
@@ -651,7 +650,7 @@ export function NewsView() {
               <CardContent className="p-6">
                 <h3 className="font-display text-lg font-bold">Read it. Now test it.</h3>
                 <p className="mt-2 text-sm text-ivory/70">
-                  Convert today&apos;s reading into Prelims marks — generate an AI quiz from the same topics.
+                  Convert today&apos;s reading into Prelims marks: generate an AI quiz from the same topics.
                 </p>
                 <Button
                   onClick={() => navigate("ai-mcq")}
@@ -667,7 +666,7 @@ export function NewsView() {
           <div className="space-y-6">
             <div className="flex items-center justify-between gap-3">
               <h2 className="flex items-center gap-2 font-display text-xl font-bold text-primary">
-                <CalendarDays className="h-5 w-5 text-secondary" aria-hidden />
+                <CalendarDays className="h-5 w-5 text-gold-ink" aria-hidden />
                 {selectedDate ? fmtDate(selectedDate) : `All of ${MONTH_NAMES[month]} ${year}`}
               </h2>
               <span className="text-sm text-muted-foreground" aria-live="polite">
@@ -740,10 +739,10 @@ export function NewsView() {
                 <CardContent className="flex min-h-40 flex-col items-center justify-center gap-3 p-8 text-center">
                   <Newspaper className="h-8 w-8 text-muted-foreground/50" aria-hidden />
                   <p className="max-w-sm text-sm text-muted-foreground">
-                    Open any article — today&apos;s briefs include Prelims points, Mains angles, keywords
+                    Open any article: today&apos;s briefs include Prelims points, Mains angles, keywords
                     and a Mains practice question with one-click AI evaluation.
                   </p>
-                  <Button variant="ghost" onClick={() => navigate("resources")} className="min-h-11 text-secondary">
+                  <Button variant="ghost" onClick={() => navigate("resources")} className="min-h-11 text-gold-ink">
                     Looking for PYQs? Open Resources <ArrowRight className="ml-1.5 h-4 w-4" aria-hidden />
                   </Button>
                 </CardContent>

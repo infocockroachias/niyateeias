@@ -40,9 +40,8 @@ export function CoursesView() {
     <section className="py-14" aria-label="Courses">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeading
-          eyebrow="Programmes"
           title="UPSC & OPSC Courses for Every Stage"
-          description="Offline classroom in Bhubaneswar, live online batches and self-paced recorded programmes — all with AI tools included."
+          description="Offline classroom in Bhubaneswar, live online batches and self-paced recorded programmes, all with AI tools included."
         />
 
         {/* Filter chips */}
@@ -71,7 +70,7 @@ export function CoursesView() {
         ) : isError ? (
           <ErrorCard message="Could not load courses. The backend may still be waking up." onRetry={() => void refetch()} />
         ) : filtered.length === 0 ? (
-          <ErrorCard message="No courses in this category yet — try another filter." />
+          <ErrorCard message="No courses in this category yet, try another filter." />
         ) : (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {filtered.map((c, i) => (
@@ -102,7 +101,7 @@ export function CoursesView() {
                     <ul className="mt-4 space-y-1.5 text-sm text-foreground/80">
                       {c.features.slice(0, 3).map((f) => (
                         <li key={f} className="flex items-start gap-2">
-                          <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-secondary" aria-hidden />
+                          <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-gold-ink" aria-hidden />
                           <span className="line-clamp-1">{f}</span>
                         </li>
                       ))}
@@ -110,13 +109,13 @@ export function CoursesView() {
 
                     <div className="mt-5 grid grid-cols-2 gap-2 text-xs text-muted-foreground">
                       <span className="flex items-center gap-1.5">
-                        <Clock3 className="h-3.5 w-3.5 text-secondary" aria-hidden /> {c.duration}
+                        <Clock3 className="h-3.5 w-3.5 text-gold-ink" aria-hidden /> {c.duration}
                       </span>
                       <span className="flex items-center gap-1.5">
-                        <Users className="h-3.5 w-3.5 text-secondary" aria-hidden /> {c.batchSize}
+                        <Users className="h-3.5 w-3.5 text-gold-ink" aria-hidden /> {c.batchSize}
                       </span>
                       <span className="col-span-2 flex items-center gap-1.5">
-                        <CalendarDays className="h-3.5 w-3.5 text-secondary" aria-hidden /> Batch starts {fmtDateShort(c.startDate)} · {c.sessionsPerWeek} sessions/week
+                        <CalendarDays className="h-3.5 w-3.5 text-gold-ink" aria-hidden /> Batch starts {fmtDateShort(c.startDate)} · {c.sessionsPerWeek} sessions/week
                       </span>
                     </div>
 
@@ -129,7 +128,7 @@ export function CoursesView() {
                           </span>
                         ) : null}
                       </p>
-                      <span className="flex items-center gap-1 pt-4 text-sm font-semibold text-secondary">
+                      <span className="flex items-center gap-1 pt-4 text-sm font-semibold text-gold-ink">
                         Details <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden />
                       </span>
                     </div>
@@ -150,11 +149,11 @@ export function CoursesView() {
           <button
             type="button"
             onClick={() => navigate("contact")}
-            className="font-semibold text-secondary underline-offset-4 hover:underline"
+            className="font-semibold text-gold-ink underline-offset-4 hover:underline"
           >
             Book a free counselling call
           </button>{" "}
-          — mentors will map a plan to your attempt year.
+         , mentors will map a plan to your attempt year.
         </motion.p>
       </div>
     </section>

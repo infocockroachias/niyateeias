@@ -139,12 +139,12 @@ export function CourseDetailView() {
             <Card>
               <CardContent className="p-6">
                 <h2 className="flex items-center gap-2 font-display text-xl font-bold text-primary">
-                  <ListChecks className="h-5 w-5 text-secondary" aria-hidden /> Syllabus highlights
+                  <ListChecks className="h-5 w-5 text-gold-ink" aria-hidden /> Syllabus highlights
                 </h2>
                 <ul className="mt-4 grid gap-2.5 sm:grid-cols-2">
                   {course.syllabusHighlights.map((s) => (
                     <li key={s} className="flex items-start gap-2 rounded-lg bg-muted/50 p-3 text-sm text-foreground/85">
-                      <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-secondary" aria-hidden />
+                      <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-gold-ink" aria-hidden />
                       {s}
                     </li>
                   ))}
@@ -158,7 +158,7 @@ export function CourseDetailView() {
                 <ul className="mt-4 space-y-2.5">
                   {course.features.map((f) => (
                     <li key={f} className="flex items-start gap-2.5 text-sm text-foreground/85">
-                      <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-secondary" aria-hidden />
+                      <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-gold-ink" aria-hidden />
                       {f}
                     </li>
                   ))}
@@ -178,7 +178,7 @@ export function CourseDetailView() {
                 {course.originalFeeInr ? (
                   <p className="mt-1 text-sm text-muted-foreground">
                     <span className="line-through">{inr(course.originalFeeInr)}</span>{" "}
-                    <span className="font-semibold text-secondary">
+                    <span className="font-semibold text-gold-ink">
                       save {inr(course.originalFeeInr - course.feeInr)}
                     </span>
                   </p>
@@ -186,15 +186,15 @@ export function CourseDetailView() {
 
                 <ul className="mt-5 space-y-3 border-t border-border pt-5 text-sm text-foreground/85">
                   <li className="flex items-center gap-2.5">
-                    <CalendarDays className="h-4 w-4 shrink-0 text-secondary" aria-hidden />
+                    <CalendarDays className="h-4 w-4 shrink-0 text-gold-ink" aria-hidden />
                     Batch starts {fmtDate(course.startDate)}
                   </li>
                   <li className="flex items-center gap-2.5">
-                    <Clock3 className="h-4 w-4 shrink-0 text-secondary" aria-hidden />
+                    <Clock3 className="h-4 w-4 shrink-0 text-gold-ink" aria-hidden />
                     {course.duration} · {course.sessionsPerWeek} sessions/week
                   </li>
                   <li className="flex items-center gap-2.5">
-                    <Users className="h-4 w-4 shrink-0 text-secondary" aria-hidden />
+                    <Users className="h-4 w-4 shrink-0 text-gold-ink" aria-hidden />
                     Batch size {course.batchSize}
                   </li>
                 </ul>
@@ -207,7 +207,7 @@ export function CourseDetailView() {
                 </Button>
                 <a
                   href={SITE.phoneHref}
-                  className="mt-4 flex min-h-11 items-center justify-center gap-2 text-sm font-medium text-primary hover:text-secondary"
+                  className="mt-4 flex min-h-11 items-center justify-center gap-2 text-sm font-medium text-primary hover:text-gold-ink"
                 >
                   <Phone className="h-4 w-4" aria-hidden /> {SITE.phone}
                 </a>

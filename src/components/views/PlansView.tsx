@@ -35,9 +35,8 @@ export function PlansView() {
     <div className="py-12">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeading
-          eyebrow="AI Plans"
           title="Unlock the Full Niyatee AI Ecosystem"
-          description="The Doubt Agent answers for free. Heavy lifting — unlimited Mains evaluations and MCQ generation — runs on plan credits."
+          description="The Doubt Agent answers for free. Heavy lifting (unlimited Mains evaluations and MCQ generation) runs on plan credits."
         />
 
         {isLoading ? (
@@ -45,7 +44,7 @@ export function PlansView() {
         ) : isError ? (
           <ErrorCard message="Could not load plans." onRetry={() => void refetch()} />
         ) : plans.length === 0 ? (
-          <ErrorCard message="Plans are being finalised — call +91 97776 43159 in the meantime." />
+          <ErrorCard message="Plans are being finalised, call +91 97776 43159 in the meantime." />
         ) : (
           <div className="mx-auto grid max-w-5xl gap-6 lg:grid-cols-3">
             {plans.map((p, i) => (
@@ -66,7 +65,7 @@ export function PlansView() {
                   <CardContent className="flex h-full flex-col p-6">
                     <div className="flex items-center gap-2">
                       <span className={cn("flex h-10 w-10 items-center justify-center rounded-xl", p.highlight ? "bg-secondary/20" : "bg-muted")}>
-                        {p.highlight ? <Zap className="h-5 w-5 text-[#7a5c2e]" aria-hidden /> : <Sparkles className="h-5 w-5 text-secondary" aria-hidden />}
+                        {p.highlight ? <Zap className="h-5 w-5 text-[#7a5c2e]" aria-hidden /> : <Sparkles className="h-5 w-5 text-gold-ink" aria-hidden />}
                       </span>
                       <h2 className="font-display text-2xl font-bold text-primary">{p.name}</h2>
                     </div>
@@ -85,7 +84,7 @@ export function PlansView() {
                     <ul className="mt-5 flex-1 space-y-2.5 border-t border-border pt-5">
                       {p.features.map((f) => (
                         <li key={f} className="flex items-start gap-2 text-sm text-foreground/85">
-                          <CheckCircle2 className={cn("mt-0.5 h-4 w-4 shrink-0", p.highlight ? "text-secondary" : "text-primary/50")} aria-hidden />
+                          <CheckCircle2 className={cn("mt-0.5 h-4 w-4 shrink-0", p.highlight ? "text-gold-ink" : "text-primary/50")} aria-hidden />
                           {f}
                         </li>
                       ))}
@@ -111,7 +110,7 @@ export function PlansView() {
         )}
 
         <p className="mt-8 text-center text-sm text-muted-foreground">
-          All plans are <strong className="text-primary">free for enrolled classroom students</strong> — your course fee already includes full AI access.
+          All plans are <strong className="text-primary">free for enrolled classroom students</strong>, your course fee already includes full AI access.
         </p>
 
         {/* FAQ mini */}

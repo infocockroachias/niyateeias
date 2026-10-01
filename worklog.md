@@ -201,3 +201,22 @@ Work Log:
 
 Stage Summary:
 - Doubt Agent now works on Vercel with zero LLM (stored RAG knowledge base); PYQs fully on-screen for 2026 Prelims+Mains; News = structured Today's Brief (Prelims/Mains/Keywords/Practice Q) with live today-only wire. db/custom.db re-seeded and bundled for Vercel.
+
+---
+Task ID: 6
+Agent: Orchestrator (Z.ai Code)
+Task: Human-touch design overhaul (impeccable + taste skills), fix invisible CTAs, remove 100+ selections claim
+
+Work Log:
+- Researched & cloned design skill repos: pbakaus/impeccable + h3nryprod01/design-taste (synthesis of design-engineering/impeccable/taste-skill); distilled rules into repo-level DESIGN.md (binding for future UI work) + README section
+- Typography de-AI'd: Inter + Playfair Display (the reflex AI pairing) replaced by Cabinet Grotesk (display) + Satoshi (body), both ITF/Fontshare fonts named in the taste skill; downloaded 6 woff2 files, self-hosted in src/fonts via next/font/local (zero CDN dependency); Noto Sans Devanagari kept for नियती
+- Color de-AI'd: warm cream canvas #faf8f2 (AI "cream+brass" template family) shifted to silver-paper #f4f5f7 matching the silver+gold logo; border/input/muted/accent tokens cooled; muted-foreground darkened to #4a5364 (7:1+); new --color-gold-ink #8a6d2f = AA-safe gold for light surfaces; all ~70 text-secondary usages in views remapped to gold-ink; light-bg gold icons/links converted (AIHub, Home, About, Contact, News)
+- INVISIBLE BUTTONS FIXED: outline variant used bg-background (ivory) so text-ivory outline buttons rendered ivory-on-ivory; outline is now bg-transparent globally; reported CTAs ("Enroll & Get It Free" AIHub, "Book Free Counselling" Home bottom, "Explore Our Courses" hero) strengthened with border-ivory/50 + font-semibold; button base also got transition-[properties] 200ms ease-out + active:scale-[0.98] press feedback (transition:all removed)
+- 100+ selections claim removed everywhere: stats API entry dropped (rankerCount unused now), hero floating Trophy card replaced with honest "Daily brief" chip, why-us copy rewritten, About story rewritten (young academy, founding cohorts, results published when verified), RankersView description reframed; repo README notes honesty policy
+- Anti-slop sweeps: all 20+ SectionHeading eyebrows + custom "AI Tool 01/02/03", "Student Dashboard" micro-labels deleted (component prop removed); ALL 159 em-dashes in UI copy replaced (pairs→parentheses, singles→commas/colons/periods) + en-dash separators fixed in site.ts/ContactView; labels polished to colons (Prelims Points:, Live Wire:, UPSC CSE 2026:, AI Geo Maps:); border-l-4 side-stripe blocks in News/PaperReader restyled as full-border tinted cards (gold-soft/navy-tint); rounded-3xl→2xl; hero glass/backdrop-blur removed for solid navy cards; ChatWidget decorative gold dot removed; TrustStrip caption to sentence case
+- Removed /research scraped-site bundles from git (lint noise + copyright risk)
+- docs: DESIGN.md (adopted rules, pre-flight checklist), README tech-stack + Fonts & licenses (ITF Free Font License)
+- Verified in browser (desktop 1366 + mobile 390): hero/CTAs/About/News/Today's Brief/article blocks restyle all render correctly, both reported buttons clearly visible on navy, zero console errors, lint clean
+
+Stage Summary:
+- Site now runs Cabinet Grotesk + Satoshi on a silver-paper canvas with AA-safe gold; invisible CTAs fixed at the variant level; every unverifiable claim removed; AI-tell patterns (eyebrows, em-dashes, side-stripes, glass, ghost numbers) stripped; design rules codified in DESIGN.md

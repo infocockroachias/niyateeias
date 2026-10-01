@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
     const paperType = typeof body.paperType === 'string' ? body.paperType : 'GS'
 
     if (question.length < 10) return jsonError('Please provide the question you are answering.', 400)
-    if (answer.length < 40) return jsonError('Your answer is too short to evaluate — write at least a few sentences.', 400)
+    if (answer.length < 40) return jsonError('Your answer is too short to evaluate, write at least a few sentences.', 400)
     if (answer.length > 8000) return jsonError('Answer exceeds the evaluation limit (approximately 1000 words).', 400)
 
     const system = `You are a senior UPSC Civil Services Mains examiner and evaluator for Niyatee Civil Services Academy. You evaluate answers strictly the way UPSC evaluators do, against the official GS rubric.
@@ -62,7 +62,7 @@ Evaluate this answer now. Return only the JSON object.`
       const raw = completion.choices[0]?.message?.content ?? ''
       const parsed = extractJson(raw) as Record<string, unknown> | null
       if (!parsed || typeof parsed !== 'object') {
-        return jsonError('The evaluator returned an unreadable response — please try again.', 502)
+        return jsonError('The evaluator returned an unreadable response, please try again.', 502)
       }
 
       const bd = (parsed.breakdown ?? {}) as Record<string, unknown>
@@ -87,7 +87,7 @@ Evaluate this answer now. Return only the JSON object.`
       return Response.json({ evaluation })
     } catch (err) {
       console.error('[ai/evaluate]', err)
-      return jsonError('AI evaluation service is busy right now — please try again in a moment.', 503)
+      return jsonError('AI evaluation service is busy right now, please try again in a moment.', 503)
     }
   }, 'Failed to evaluate answer')
 }

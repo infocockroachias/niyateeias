@@ -54,7 +54,7 @@ function localQuiz(count: number, pool: GeoItem[]): GeoQuizQuestion[] {
         question: `Which country / region is most closely associated with "${item.name}"?`,
         options,
         correctIndex: options.indexOf(item.region),
-        explanation: `${item.name} — ${item.facts[0]}`,
+        explanation: `${item.name}, ${item.facts[0]}`,
         locationId: item.id,
         source: 'local',
       })

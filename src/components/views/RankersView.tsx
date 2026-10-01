@@ -19,9 +19,8 @@ function RankerGroups() {
     <section className="py-16" aria-label="Rankers list">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeading
-          eyebrow="Hall of Fame"
           title="Our Rankers"
-          description="Selections from the Niyatee classrooms — across UPSC CSE and allied services. Candidate names are masked as xxxx until officially published; every rank here began as an aspirant with a plan."
+          description="Results from Niyatee classrooms, across UPSC CSE and allied services, will be published here as our founding cohorts clear their cycles. Candidate names stay masked as xxxx until officially published."
         />
 
         {isLoading ? (
@@ -29,7 +28,7 @@ function RankerGroups() {
         ) : isError ? (
           <ErrorCard message="Could not load the rankers list." onRetry={() => void refetch()} />
         ) : rankers.length === 0 ? (
-          <ErrorCard message="Rankers list is being updated — check back soon." />
+          <ErrorCard message="Rankers list is being updated, check back soon." />
         ) : (
           <div className="space-y-14">
             {years.map((year) => (
@@ -90,7 +89,6 @@ function TestimonialsGrid() {
     <section className="bg-muted/50 py-16" aria-label="Testimonials">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeading
-          eyebrow="In Their Words"
           title="Testimonials from the Classroom"
         />
         {isLoading ? (
@@ -105,7 +103,7 @@ function TestimonialsGrid() {
               <FadeIn key={t.id} delay={(i % 3) * 0.06}>
                 <Card className="flex h-full flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
                   <CardContent className="flex h-full flex-col p-6">
-                    <Quote className="mb-3 h-6 w-6 text-secondary/60" aria-hidden />
+                    <Quote className="mb-3 h-6 w-6 text-gold-ink/60" aria-hidden />
                     <p className="flex-1 text-sm leading-relaxed text-foreground/85">&ldquo;{t.quote}&rdquo;</p>
                     <div className="mt-5 flex items-center justify-between border-t border-border pt-4">
                       <div>
@@ -143,7 +141,7 @@ export function RankersView() {
           <Trophy className="mx-auto mb-4 h-10 w-10 text-gold" aria-hidden />
           <h1 className="font-display text-4xl text-balance sm:text-5xl">From Our Classrooms to the Merit List</h1>
           <p className="mt-4 text-ivory/70">
-            Rankers are not born — they are built by daily answer writing, honest evaluation and
+            Rankers are not born. They are built by daily answer writing, honest evaluation and
             mentors who refuse to let you slack. Meet ours.
           </p>
         </div>
