@@ -1,14 +1,41 @@
+import fs from 'node:fs'
+import path from 'node:path'
 import { PrismaClient } from '@prisma/client'
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Vercel compatibility note:
-// The SQLite file DB (db/custom.db) is ephemeral on serverless platforms like
-// Vercel — Prisma must be cached across hot reloads in development and reused
-// across invocations to avoid exhausting connections. This singleton pattern
-// (globalThis cache) is the recommended approach for serverless/edge deploys.
-// On Vercel, the database should be swapped for a hosted provider (Postgres via
-// Prisma Accelerate or similar); only this file needs to change.
+// Database singleton with Vercel support.
+//
+// Local/dev: SQLite file at DATABASE_URL (see .env → file:../db/custom.db).
+//
+// Vercel: the serverless filesystem is READ-ONLY except /tmp, and only files
+// traced into the lambda bundle exist. next.config.ts includes ./db/custom.db
+// via `outputFileTracingIncludes`, so on cold start we copy the bundled SQLite
+// file to /tmp and point DATABASE_URL there. Reads AND writes then work for
+// the demo deployment (data is per-lambda-instance and resets on redeploy).
+// For production persistence, swap this file for a hosted Postgres provider
+// (Prisma Accelerate / Neon / Supabase) — only db.ts + schema.prisma change.
 // ─────────────────────────────────────────────────────────────────────────────
+
+function ensureSqliteUrl(): void {
+  if (process.env.DATABASE_URL) return
+  if (process.env.VERCEL) {
+    const bundled = path.join(process.cwd(), 'db', 'custom.db')
+    const target = '/tmp/custom.db'
+    try {
+      if (fs.existsSync(bundled) && !fs.existsSync(target)) {
+        fs.copyFileSync(bundled, target)
+      }
+    } catch {
+      // copy failure is non-fatal — Prisma will surface a clearer error
+    }
+    process.env.DATABASE_URL = `file:${target}`
+    return
+  }
+  // Local fallback mirrors .env so the app also boots without dotenv files
+  process.env.DATABASE_URL = 'file:../db/custom.db'
+}
+
+ensureSqliteUrl()
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined

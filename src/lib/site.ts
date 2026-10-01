@@ -48,6 +48,6 @@ export const AI_TOOLS = [
     title: "AI Geography Maps",
     icon: "Map",
     blurb:
-      "Interactive maps of monsoons, rivers, soils, parks and more — visual learning for Geography optional and GS-I.",
+      "A 3D world atlas of 130+ UPSC-curated locations — rivers, straits, ports, places in news, heritage & ecology hotspots — with layers, search, fly-to and an AI map quiz.",
   },
 ] as const;

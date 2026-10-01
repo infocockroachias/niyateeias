@@ -1,358 +1,936 @@
 "use client";
 
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Compass, Info, MapPin, GraduationCap } from "lucide-react";
+/**
+ * AI Geo Maps — Interactive 3D World Atlas.
+ *
+ * Left: a globe.gl 3D world globe (GlobeMap) with category layers, search and
+ * fly-to. Right: an explorer panel (list + location detail) or the AI Map Quiz.
+ */
+
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { motion } from "framer-motion";
+import { toast } from "sonner";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Compass,
+  Crosshair,
+  Flame,
+  Info,
+  ListChecks,
+  MapPin,
+  MousePointerClick,
+  Pause,
+  Play,
+  Search,
+  Sparkles,
+  Trophy,
+} from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
+import { SectionHeading, TagBadge } from "@/components/shared/blocks";
+import { GlobeMap } from "@/components/geo/GlobeMap";
+import {
+  GEO_CATEGORIES,
+  GEO_ITEMS,
+  getCategory,
+  haversineKm,
+  pointItems,
+  searchGeoItems,
+  type GeoCategoryKey,
+  type GeoItem,
+} from "@/lib/geo-data";
 import { cn } from "@/lib/utils";
-import { SectionHeading } from "@/components/shared/blocks";
 
-/* ----------------------------- Topic dataset ------------------------------- */
+/* ------------------------------- quiz types -------------------------------- */
 
-interface GeoMarker {
-  x: number;
-  y: number;
-  label: string;
-  fact: string;
+interface QuizQuestion {
+  id: string;
+  question: string;
+  options: string[];
+  correctIndex: number;
+  explanation: string;
+  locationId?: string;
+  /** client-fallback questions are answered purely by clicking an option */
+  mcqOnly?: boolean;
 }
 
-interface GeoTopic {
-  key: string;
-  title: string;
-  blurb: string;
-  markers: GeoMarker[];
+type QuizResult =
+  | { kind: "bullseye"; distanceKm: number; clickedNear?: string }
+  | { kind: "close"; distanceKm: number; clickedNear?: string }
+  | { kind: "wrong"; distanceKm?: number; clickedNear?: string }
+  | { kind: "correct" }
+  | { kind: "wrong-option" };
+
+const QUIZ_COUNT = 6;
+const BULLSEYE_KM = 1200;
+const CLOSE_KM = 3000;
+
+const CATEGORY_COUNTS: Record<string, number> = Object.fromEntries(
+  GEO_CATEGORIES.map((c) => [c.key, GEO_ITEMS.filter((i) => i.category === c.key).length])
+);
+
+function shuffle<T>(arr: T[]): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
 }
 
-const TOPICS: GeoTopic[] = [
-  {
-    key: "monsoon",
-    title: "Monsoon Winds",
-    blurb: "The seasonal reversal that powers Indian agriculture — and half the GS-I syllabus.",
-    markers: [
-      { x: 150, y: 300, label: "Arabian Sea branch", fact: "The SW monsoon hits the Western Ghats by early June; windward Kerala & Konkan get 200–300+ cm rain, while leeward Deccan stays drier (rain-shadow effect)." },
-      { x: 280, y: 290, label: "Bay of Bengal branch", fact: "Deflected by the Himalayas, this branch swings west over the plains — bringing the June–September rain belt across Bihar, UP and Punjab in a stepwise 'burst'." },
-      { x: 255, y: 385, label: "Retreating (NE) monsoon", fact: "In October–November winds reverse; they pick moisture over the Bay of Bengal and give Tamil Nadu its main rainy season — Chennai's wettest months." },
-      { x: 175, y: 85, label: "Western disturbances", fact: "Mediterranean storms travelling east bring crucial winter rain and snow to NW India — the basis of the rabi wheat crop." },
-    ],
-  },
-  {
-    key: "rivers",
-    title: "Rivers of India",
-    blurb: "Himalayan snow-fed systems vs Peninsular rain-fed rivers — flood behavior and interlinking debates.",
-    markers: [
-      { x: 245, y: 150, label: "Ganga", fact: "Rises from Gangotri glacier (Bhagirathi), flows ~2,525 km to the Bay of Bengal; drains 11 states and carries the largest sediment load of any Indian river." },
-      { x: 222, y: 162, label: "Yamuna", fact: "Longest tributary of the Ganga; joins it at Prayagraj (Triveni Sangam). Delhi, Agra and Mathura draw heavily from it — central to the Cauvery-style water-sharing debates." },
-      { x: 342, y: 178, label: "Brahmaputra", fact: "Called Tsangpo in Tibet, Siang/Dihang in Arunachal; carries more water than the Ganga and is prone to massive Brahmaputra floods in Assam each monsoon." },
-      { x: 272, y: 318, label: "Godavari", fact: "The largest Peninsular river (~1,465 km), called 'Dakshina Ganga'; rises in Trimbakeshwar (Nashik) and empties into the Bay near Rajahmundry." },
-      { x: 238, y: 362, label: "Krishna", fact: "Rises at Mahabaleshwar (Western Ghats); the Nagarjuna Sagar and Almatti dams anchor its basin — frequent Krishna Water Disputes Tribunal references." },
-      { x: 246, y: 402, label: "Kaveri", fact: "Rises at Talakaveri (Brahmagiri hills); the Kaveri delta is the 'rice bowl of the South'. The Kaveri dispute between Karnataka & TN is a classic polity-geography crossover." },
-      { x: 148, y: 268, label: "Narmada", fact: "Flows west through the rift valley between Vindhya & Satpura ranges — one of only three major west-flowing rift rivers (with Tapi and Mahi)." },
-    ],
-  },
-  {
-    key: "soils",
-    title: "Soil Types",
-    blurb: "ICAR's eight-fold classification — crop suitability and conservation issues follow the map.",
-    markers: [
-      { x: 245, y: 205, label: "Alluvial", fact: "Covers ~40% of India across the northern plains; the most fertile and widespread soil — ideal for wheat, rice, sugarcane. Khadar (new) vs Bhangar (old) terraces." },
-      { x: 172, y: 322, label: "Black (Regur)", fact: "Formed from Deccan basalt; retains moisture — perfect for cotton. prone to cracking in summer; also called 'self-ploughing' soil." },
-      { x: 285, y: 335, label: "Red soil", fact: "Formed from crystalline igneous rocks; reddish from iron oxides. Covers eastern Andhra, Odisha interior, Tamil Nadu — needs fertilizer supplementation." },
-      { x: 215, y: 415, label: "Laterite", fact: "Formed in alternating wet-dry tropical climates; leached and acidic — good for tea, coffee, cashew once limed. Common in Western Ghats, Odisha hills, parts of West Bengal." },
-      { x: 132, y: 172, label: "Desert (Arid)", fact: "Western Rajasthan's sandy soils: high calcium, low organic matter, high wind-erosion risk — the Indira Gandhi Canal transformed pockets of it." },
-      { x: 205, y: 60, label: "Mountain soil", fact: "Thin, immature soils of the Himalayan slopes — rich in humus in forested zones; terracing is essential to check erosion." },
-    ],
-  },
-  {
-    key: "parks",
-    title: "National Parks",
-    blurb: "Map-based memory hooks for Environment & Biodiversity questions.",
-    markers: [
-      { x: 252, y: 122, label: "Jim Corbett NP", fact: "India's first national park (1936, Uttarakhand), anchor of Project Tiger (1973) — densest tiger population per unit area." },
-      { x: 352, y: 186, label: "Kaziranga NP", fact: "Assam floodplain UNESCO site — home of ~two-thirds of the world's one-horned rhinos; Brahmaputra floods annually renew its grasslands." },
-      { x: 98, y: 228, label: "Gir NP", fact: "Saurashtra, Gujarat — the only natural habitat of the Asiatic Lion; the nucleus of Project Lion." },
-      { x: 300, y: 238, label: "Sundarbans NP", fact: "Largest mangrove forest on Earth (with Bangladesh); Royal Bengal tiger, swimming-adapted; core of India's first Biosphere Reserve." },
-      { x: 248, y: 262, label: "Kanha NP", fact: "Madhya Pradesh sal-and-bamboo forest that saved the hard-ground barasingha (swamp deer) from extinction." },
-      { x: 212, y: 402, label: "Periyar NP", fact: "Kerala's elephant reserve around Periyar lake — also a Project Elephant site; evergreen Western Ghats biodiversity hotspot." },
-      { x: 182, y: 172, label: "Ranthambore NP", fact: "Rajasthan's dry-deciduous tiger park on a former royal hunting ground — famous 'tigers in fort ruins' imagery." },
-    ],
-  },
-  {
-    key: "minerals",
-    title: "Minerals Belt",
-    blurb: "Where India's industry is anchored — and the mining-vs-tribal-rights debates it creates.",
-    markers: [
-      { x: 295, y: 262, label: "Iron ore — Odisha", fact: "Odisha + Jharkhand + Chhattisgarh hold ~75% of India's hematite reserves; Keonjhar & Sundargarh districts feed the Paradip/Vizag steel corridors." },
-      { x: 300, y: 218, label: "Coal — Jharkhand", fact: "Jharia & Bokaro coalfields (Gondwana coal); India is the world's 2nd-largest coal consumer — anchor of the just-transition debate." },
-      { x: 258, y: 335, label: "Bauxite — East coast", fact: "Bauxite caps the Eastern Ghats plateaus (Koraput, Vishakhapatnam, Kalahandi); the Niyamgiri hills case is a landmark in tribal consent (FRA)." },
-      { x: 190, y: 330, label: "Manganese — Central", fact: "Maharashtra–MP belt (Nagpur, Bhandara, Balaghat) — key ferro-alloy for steel; India holds among the largest reserves globally." },
-      { x: 120, y: 292, label: "Oil — Mumbai High", fact: "Offshore field discovered 1974 on the continental shelf; ONGC's platform network still supplies a major share of domestic crude." },
-      { x: 330, y: 212, label: "Uranium — Jaduguda", fact: "Jharkhand's Jaduguda is India's oldest uranium mine; monazite sands of Kerala coast add thorium — basis of India's three-stage nuclear programme." },
-    ],
-  },
-  {
-    key: "currents",
-    title: "Ocean Currents",
-    blurb: "The Indian Ocean's seasonal heartbeat — monsoon-driven currents unique to our latitudes.",
-    markers: [
-      { x: 100, y: 315, label: "Somali Current", fact: "The only major current on Earth that reverses seasonally with the wind: flows southwest in winter, powerful northeastward 'Somali jet' in summer monsoon." },
-      { x: 150, y: 345, label: "SW Monsoon drift", fact: "June–September winds drive the East Arabian Sea current — historically the highway of Indian Ocean trade to the Malabar coast." },
-      { x: 300, y: 315, label: "Bay of Bengal gyre", fact: "A seasonal clockwise (winter) / anticlockwise (summer) gyre spreads Ganga–Brahmaputra freshwater; low salinity fuels cyclone intensification." },
-      { x: 210, y: 445, label: "Indian Ocean gyre", fact: "South of the equator the gyre couples with trade winds; its warmth makes the Indian Ocean Dipole (IOD) possible — a key El Niño partner in monsoon forecasts." },
-    ],
-  },
-  {
-    key: "borders",
-    title: "India–Neighbours Borders",
-    blurb: "Seven land neighbours, one maritime one — lengths, lines and disputes in one frame.",
-    markers: [
-      { x: 122, y: 148, label: "Pakistan", fact: "Border ~3,323 km incl. the Radcliffe-drawn Punjab line and the 1972 Line of Control in J&K; Sir Creek marsh dispute remains in the Rann of Kutch." },
-      { x: 228, y: 62, label: "China", fact: "Longest border (~3,488 km) across 5 states; contested sectors — Aksai Chin (western) and Arunachal 'MacMahon Line' (eastern); the LAC patrolling framework was agreed in 2005 protocols." },
-      { x: 258, y: 118, label: "Nepal", fact: "~1,751 km open 'Roti-Beti' border; the Kalapani–Lipulekh–Limpiyadhura trijunction dispute flares periodically; 1950 Peace & Friendship Treaty anchors ties." },
-      { x: 302, y: 142, label: "Bhutan", fact: "~699 km border; the 2006–07 updated Friendship Treaty guides security ties — Doklam (2017) showed its strategic depth." },
-      { x: 318, y: 216, label: "Bangladesh", fact: "Longest border (~4,096 km); the 2015 Land Boundary Agreement settled 162 enclaves — a model of negotiated settlement. Tin Bigha corridor and Muhurichar river island remain watchpoints." },
-      { x: 362, y: 198, label: "Myanmar", fact: "~1,643 km border through the 'chicken's neck' sensitive NE states; Free Movement Regime (16 km) is being re-examined for security." },
-      { x: 238, y: 452, label: "Sri Lanka", fact: "No land border — separated by the Palk Strait (~30 km at narrowest); Katchatheevu island and the fisheries dispute dominate maritime talks." },
-    ],
-  },
-  {
-    key: "physiography",
-    title: "Physiographic Divisions",
-    blurb: "The five classic divisions every GS-I answer is built on.",
-    markers: [
-      { x: 215, y: 72, label: "The Himalayas", fact: "Young fold mountains in three ranges (Himadri, Himachal, Shiwalik); five states touch the main Himalaya arc — the 'water tower' of South Asia." },
-      { x: 240, y: 178, label: "Northern Plains", fact: "Formed by Ganga–Indus alluvium over ~2,000 km and 7 lakh sq km — the world's most extensive alluvial tract and India's demographic core." },
-      { x: 205, y: 315, label: "Peninsular Plateau", fact: "The oldest landmass (Archean gneiss) tilted east; Deccan Trap lavas cover ~5 lakh sq km — black soil's parent." },
-      { x: 132, y: 178, label: "Thar Desert", fact: "India's only hot desert (~2.3 lakh sq km); Aravalli range stops its eastward spread — the range is dying from illegal mining." },
-      { x: 178, y: 372, label: "Coastal Plains", fact: "West coast: narrow, jagged, estuaries (Konkan–Malabar). East coast: broad, deltaic (Mahanadi–Kaveri). Contrast is a favourite 10-marker." },
-      { x: 340, y: 420, label: "Island Groups", fact: "Andaman & Nicobar (570 islands, Barren Island hosts South Asia's only active volcano) and Lakshadweep (36 coral atolls) — volcanic vs coral origins." },
-    ],
-  },
-];
+function fmtKm(km: number): string {
+  return `${Math.round(km).toLocaleString("en-IN")} km`;
+}
 
-/* -------------------------------- SVG map ---------------------------------- */
+/* Client-side fallback quiz — a simple multiple-choice round. */
+function buildFallbackQuiz(active: Set<GeoCategoryKey>): QuizQuestion[] {
+  const inScope = GEO_ITEMS.filter((i) => active.has(i.category));
+  const poolPoints = inScope.filter((i) => i.kind === "point");
+  const source = poolPoints.length >= QUIZ_COUNT ? poolPoints : pointItems();
 
-const INDIA_OUTLINE =
-  "M 205 14 Q 235 30 232 52 Q 252 58 262 84 Q 274 100 300 112 Q 306 140 290 158 Q 316 168 352 158 Q 382 166 388 184 Q 368 196 344 200 Q 322 206 306 224 Q 292 244 300 262 Q 278 296 258 330 Q 240 372 226 434 Q 214 442 206 434 Q 196 372 184 318 Q 170 262 148 242 Q 128 232 112 240 Q 84 232 82 214 Q 104 200 130 178 Q 152 148 168 116 Q 182 88 196 76 Q 200 40 205 14 Z";
-
-function IndiaMap({
-  topic,
-  activeMarker,
-  onSelectMarker,
-}: {
-  topic: GeoTopic;
-  activeMarker: number | null;
-  onSelectMarker: (i: number) => void;
-}) {
-  return (
-    <svg
-      viewBox="0 0 420 470"
-      className="h-auto w-full"
-      role="img"
-      aria-label={`Stylized map of India showing ${topic.title}`}
-    >
-      {/* Ocean backdrop */}
-      <rect x="0" y="0" width="420" height="470" rx="12" fill="#faf8f2" />
-      {/* Sri Lanka hint */}
-      <path d="M 244 448 q 8 4 6 14 q -2 8 -10 6 q -7 -3 -5 -12 q 2 -8 9 -8 Z" fill="#0a1b3d" opacity="0.25" />
-      {/* India outline */}
-      <path d={INDIA_OUTLINE} fill="#0a1b3d" stroke="#c9a24b" strokeWidth="2.5" />
-      {/* Texture dots inside map: subtle */}
-      <path d={INDIA_OUTLINE} fill="url(#mapDots)" opacity="0.5" />
-      <defs>
-        <pattern id="mapDots" width="18" height="18" patternUnits="userSpaceOnUse">
-          <circle cx="2" cy="2" r="0.8" fill="#c9a24b" opacity="0.35" />
-        </pattern>
-      </defs>
-
-      {/* Markers */}
-      {topic.markers.map((m, i) => {
-        const active = activeMarker === i;
-        return (
-          <g
-            key={`${topic.key}-${i}`}
-            onClick={() => onSelectMarker(i)}
-            className="cursor-pointer"
-            role="button"
-            aria-label={m.label}
-            tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") onSelectMarker(i);
-            }}
-          >
-            {active ? (
-              <circle cx={m.x} cy={m.y} r="16" fill="#c9a24b" opacity="0.25">
-                <animate attributeName="r" values="12;18;12" dur="1.6s" repeatCount="indefinite" />
-              </circle>
-            ) : null}
-            <circle
-              cx={m.x}
-              cy={m.y}
-              r={active ? 9 : 7}
-              fill={active ? "#c9a24b" : "#faf8f2"}
-              stroke={active ? "#060f26" : "#c9a24b"}
-              strokeWidth="2"
-            />
-            <text
-              x={m.x}
-              y={m.y + 3.5}
-              textAnchor="middle"
-              fontSize="9"
-              fontWeight="700"
-              fill={active ? "#060f26" : "#0a1b3d"}
-              style={{ pointerEvents: "none" }}
-            >
-              {i + 1}
-            </text>
-          </g>
-        );
-      })}
-
-      {/* Compass */}
-      <g transform="translate(378,30)" aria-hidden>
-        <circle r="14" fill="#ffffff" stroke="#0a1b3d" strokeWidth="1.5" />
-        <path d="M 0 -10 L 4 4 L 0 1 L -4 4 Z" fill="#c9a24b" />
-        <text y="-18" textAnchor="middle" fontSize="10" fontWeight="700" fill="#0a1b3d">N</text>
-      </g>
-    </svg>
+  const allRegions = Array.from(
+    new Set(pointItems().map((i) => i.region).filter((r): r is string => Boolean(r)))
   );
+
+  return shuffle(source)
+    .slice(0, QUIZ_COUNT)
+    .map((item) => {
+      if (item.region && allRegions.length >= 4) {
+        const distractors = shuffle(allRegions.filter((r) => r !== item.region)).slice(0, 3);
+        const options = shuffle([item.region, ...distractors]);
+        return {
+          id: `fb-${item.id}`,
+          question: `Where on the map is "${item.name}"?`,
+          options,
+          correctIndex: options.indexOf(item.region),
+          explanation: `${item.name} — ${item.facts[0] ?? "Key UPSC map location."}`,
+          locationId: item.id,
+          mcqOnly: true,
+        };
+      }
+      /* category fallback for items without a region */
+      const cat = getCategory(item.category);
+      const otherCats = shuffle(GEO_CATEGORIES.filter((c) => c.key !== item.category)).slice(0, 3);
+      const options = shuffle([cat.label, ...otherCats.map((c) => c.label)]);
+      return {
+        id: `fb-${item.id}-c`,
+        question: `"${item.name}" belongs to which AI Geo Maps layer?`,
+        options,
+        correctIndex: options.indexOf(cat.label),
+        explanation: `${item.name} is filed under ${cat.label}. ${item.facts[0] ?? ""}`,
+        locationId: item.id,
+        mcqOnly: true,
+      };
+    });
 }
 
-/* ---------------------------------- View ----------------------------------- */
+/* ---------------------------------- view ----------------------------------- */
+
+/* Normalize a name for fuzzy matching ("Bab el-Mandeb" → "babelmandeb"). */
+const normName = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
+
+/**
+ * Resolve a question's target location. API "local" questions carry real
+ * dataset ids; AI questions may carry free-text names ("Bab el-Mandeb"), so
+ * fall back to normalized name matching against the dataset.
+ */
+function resolveQuizTarget(q: QuizQuestion | undefined): GeoItem | null {
+  if (!q?.locationId) return null;
+  const byId = GEO_ITEMS.find((i) => i.id === q.locationId);
+  if (byId) return byId;
+  const lid = normName(q.locationId);
+  if (lid.length < 4) return null;
+  let best: GeoItem | null = null;
+  let bestLen = -1;
+  for (const it of GEO_ITEMS) {
+    const n = normName(it.name);
+    if (n === lid || n.includes(lid) || lid.includes(n)) {
+      const len = Math.min(n.length, lid.length);
+      if (len > bestLen) {
+        best = it;
+        bestLen = len;
+      }
+    }
+  }
+  return best;
+}
 
 export function AIGeoView() {
-  const [topicKey, setTopicKey] = useState(TOPICS[0].key);
-  const [activeMarker, setActiveMarker] = useState<number | null>(null);
+  /* ------------------------------ toolbar state ----------------------------- */
+  const [query, setQuery] = useState("");
+  const [activeCats, setActiveCats] = useState<Set<GeoCategoryKey>>(
+    () => new Set(GEO_CATEGORIES.map((c) => c.key))
+  );
+  const [spinning, setSpinning] = useState(true);
+  const [resetSignal, setResetSignal] = useState(0);
 
-  const topic = TOPICS.find((t) => t.key === topicKey) ?? TOPICS[0];
+  /* ------------------------------ explore state ----------------------------- */
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
-  const selectTopic = (key: string) => {
-    setTopicKey(key);
-    setActiveMarker(null);
-  };
+  /* -------------------------------- quiz state ------------------------------ */
+  const [quizMode, setQuizMode] = useState(false);
+  const [quizPhase, setQuizPhase] = useState<"idle" | "loading" | "active" | "done">("idle");
+  const [quizSource, setQuizSource] = useState<"ai" | "local">("local");
+  const [questions, setQuestions] = useState<QuizQuestion[]>([]);
+  const [qIndex, setQIndex] = useState(0);
+  const [result, setResult] = useState<QuizResult | null>(null);
+  const [score, setScore] = useState(0);
+  const [streak, setStreak] = useState(0);
+  const [bestStreak, setBestStreak] = useState(0);
+  const [tally, setTally] = useState({ correct: 0, close: 0, wrong: 0 });
+
+  /* --------------------------------- derived -------------------------------- */
+
+  const filtered = useMemo(
+    () => searchGeoItems(query, GEO_ITEMS.filter((i) => activeCats.has(i.category))),
+    [query, activeCats]
+  );
+
+  const selectedItem = useMemo(
+    () => (selectedId ? (GEO_ITEMS.find((i) => i.id === selectedId) ?? null) : null),
+    [selectedId]
+  );
+
+  const selectedIdxInFiltered = useMemo(
+    () => (selectedItem ? filtered.findIndex((i) => i.id === selectedItem.id) : -1),
+    [filtered, selectedItem]
+  );
+
+  const currentQuestion = quizPhase === "active" ? questions[qIndex] : undefined;
+  const currentTarget = useMemo(() => resolveQuizTarget(currentQuestion), [currentQuestion]);
+  /* Locate-mode (globe click) vs multiple-choice mode, decided per question. */
+  const locateMode = Boolean(currentTarget && !currentQuestion?.mcqOnly);
+
+  /* ------------------------------ interactions ------------------------------ */
+
+  const toggleCategory = useCallback((key: GeoCategoryKey) => {
+    setActiveCats((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  }, []);
+
+  const selectItem = useCallback((id: string) => setSelectedId(id), []);
+
+  const stepSelection = useCallback(
+    (dir: 1 | -1) => {
+      if (filtered.length === 0) return;
+      const base = selectedIdxInFiltered >= 0 ? selectedIdxInFiltered : 0;
+      const next = (base + dir + filtered.length) % filtered.length;
+      setSelectedId(filtered[next].id);
+    },
+    [filtered, selectedIdxInFiltered]
+  );
+
+  const resetView = useCallback(() => {
+    setSelectedId(null);
+    setResetSignal((s) => s + 1);
+  }, []);
+
+  /* ------------------------------ quiz mechanics ----------------------------- */
+
+  const startQuiz = useCallback(async () => {
+    setQuizMode(true);
+    setSelectedId(null);
+    setQuizPhase("loading");
+    setQIndex(0);
+    setResult(null);
+    setScore(0);
+    setStreak(0);
+    setBestStreak(0);
+    setTally({ correct: 0, close: 0, wrong: 0 });
+    setQuestions([]);
+
+    try {
+      const res = await fetch("/api/ai/geo-quiz", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ count: QUIZ_COUNT, categories: Array.from(activeCats) }),
+      });
+      if (!res.ok) throw new Error(`geo-quiz ${res.status}`);
+      const data = (await res.json()) as { questions?: QuizQuestion[]; source?: "ai" | "local" };
+      const qs = (data.questions ?? [])
+        .filter((q) => q && Array.isArray(q.options) && q.options.length === 4)
+        .map((q) => ({
+          id: String(q.id ?? Math.random().toString(36).slice(2)),
+          question: String(q.question ?? ""),
+          options: q.options.map(String),
+          correctIndex: Math.min(Math.max(Number(q.correctIndex) || 0, 0), 3),
+          explanation: String(q.explanation ?? ""),
+          locationId: q.locationId ? String(q.locationId) : undefined,
+        }))
+        .filter((q) => q.question.length > 0);
+      if (qs.length === 0) throw new Error("empty quiz");
+      setQuestions(qs);
+      setQuizSource(data.source === "ai" ? "ai" : "local");
+      setQuizPhase("active");
+    } catch {
+      /* API unavailable → client-side practice round */
+      setQuestions(buildFallbackQuiz(activeCats));
+      setQuizSource("local");
+      setQuizPhase("active");
+      toast.info("AI quiz unavailable right now — serving the practice bank instead.");
+    }
+  }, [activeCats]);
+
+  const exitQuiz = useCallback(() => {
+    setQuizMode(false);
+    setQuizPhase("idle");
+    setQuestions([]);
+    setResult(null);
+  }, []);
+
+  /** Score a locate answer given the clicked coordinates (or snapped item). */
+  const answerLocate = useCallback(
+    (clicked: { lat: number; lng: number }, clickedNear?: string) => {
+      const q = questions[qIndex];
+      const target = resolveQuizTarget(q);
+      if (!q || !target || result) return;
+
+      const dist = haversineKm([clicked.lat, clicked.lng], target.coords);
+      if (dist <= BULLSEYE_KM) {
+        setResult({ kind: "bullseye", distanceKm: dist, clickedNear });
+        setScore((s) => s + 1);
+        setStreak((s) => {
+          const n = s + 1;
+          setBestStreak((b) => Math.max(b, n));
+          return n;
+        });
+        setTally((t) => ({ ...t, correct: t.correct + 1 }));
+        toast.success(`Bullseye! ${target.name} pinned within ${fmtKm(dist)}.`);
+      } else if (dist <= CLOSE_KM) {
+        setResult({ kind: "close", distanceKm: dist, clickedNear });
+        setScore((s) => s + 0.5);
+        setStreak(0);
+        setTally((t) => ({ ...t, close: t.close + 1 }));
+        toast.info(`Close! ${fmtKm(dist)} away — half credit.`);
+      } else {
+        setResult({ kind: "wrong", distanceKm: dist, clickedNear });
+        setStreak(0);
+        setTally((t) => ({ ...t, wrong: t.wrong + 1 }));
+        toast.error(`Off target by ${fmtKm(dist)}.`);
+      }
+    },
+    [questions, qIndex, result]
+  );
+
+  /** Score an MCQ answer (API questions without a location, fallback round). */
+  const answerOption = useCallback(
+    (optionIdx: number) => {
+      const q = questions[qIndex];
+      if (!q || result) return;
+      if (optionIdx === q.correctIndex) {
+        setResult({ kind: "correct" });
+        setScore((s) => s + 1);
+        setStreak((s) => {
+          const n = s + 1;
+          setBestStreak((b) => Math.max(b, n));
+          return n;
+        });
+        setTally((t) => ({ ...t, correct: t.correct + 1 }));
+        toast.success("Correct!");
+      } else {
+        setResult({ kind: "wrong-option" });
+        setStreak(0);
+        setTally((t) => ({ ...t, wrong: t.wrong + 1 }));
+        toast.error("Not quite.");
+      }
+    },
+    [questions, qIndex, result]
+  );
+
+  /** Globe clicks: nearest point-item snap + distance scoring (locate mode). */
+  const handleGlobeClick = useCallback(
+    (lat: number, lng: number) => {
+      if (!quizMode || quizPhase !== "active" || !locateMode || result) return;
+
+      /* nearest point item among active categories (fallback: all points) */
+      let pool = pointItems().filter((i) => activeCats.has(i.category));
+      if (pool.length === 0) pool = pointItems();
+      let nearest: GeoItem | null = null;
+      let nearestDist = Infinity;
+      for (const it of pool) {
+        const d = haversineKm([lat, lng], it.coords);
+        if (d < nearestDist) {
+          nearestDist = d;
+          nearest = it;
+        }
+      }
+      answerLocate({ lat, lng }, nearest ? nearest.name : undefined);
+    },
+    [quizMode, quizPhase, locateMode, result, activeCats, answerLocate]
+  );
+
+  /** In quiz mode, clicking a pin/path = guessing that location. */
+  const handleMarkerSelect = useCallback(
+    (id: string) => {
+      if (quizMode) {
+        if (!locateMode || result) return;
+        const item = GEO_ITEMS.find((i) => i.id === id);
+        if (!item) return;
+        answerLocate({ lat: item.coords[0], lng: item.coords[1] }, item.name);
+      } else {
+        setSelectedId(id);
+      }
+    },
+    [quizMode, locateMode, result, answerLocate]
+  );
+
+  const nextQuestion = useCallback(() => {
+    setResult(null);
+    if (qIndex + 1 >= questions.length) {
+      setQuizPhase("done");
+    } else {
+      setQIndex((i) => i + 1);
+    }
+  }, [qIndex, questions.length]);
+
+  /* Reset quiz if category scope changes mid-round (keeps pool consistent) */
+  const catsKey = Array.from(activeCats).sort().join(",");
+  const prevCatsKey = useRef(catsKey);
+  useEffect(() => {
+    if (prevCatsKey.current !== catsKey) {
+      prevCatsKey.current = catsKey;
+      if (quizMode) void startQuiz();
+    }
+  }, [catsKey]);
+
+  /* --------------------------------- render ---------------------------------- */
 
   return (
     <div className="py-12">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeading
           eyebrow="AI Tool 04"
-          title="Interactive Geography Maps"
-          description="Map-work is free marks in both Prelims and Mains — click a topic, then tap the numbered markers to learn each location's story."
+          title="AI Geo Maps — Interactive 3D World Atlas"
+          description="Spin a 3D globe of 130+ UPSC-curated locations — places in news, rivers, mountain ranges, straits & chokepoints, ports, dams, UNESCO heritage and ecology hotspots. Toggle layers, search, fly to any location, then test yourself with the AI map quiz."
         />
 
-        {/* Topic chips */}
-        <div className="mb-8 flex flex-wrap justify-center gap-2" role="tablist" aria-label="Map topics">
-          {TOPICS.map((t) => (
-            <button
-              key={t.key}
+        {/* ------------------------------- Toolbar ------------------------------ */}
+        <div className="mb-6 space-y-3" role="group" aria-label="Map controls">
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="relative min-w-[220px] flex-1 sm:max-w-xs">
+              <Search
+                className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+                aria-hidden
+              />
+              <Input
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search 168+ locations, regions, facts…"
+                aria-label="Search locations"
+                className="min-h-11 pl-9"
+              />
+            </div>
+
+            <Button
               type="button"
-              role="tab"
-              aria-selected={t.key === topicKey}
-              onClick={() => selectTopic(t.key)}
-              className={cn(
-                "min-h-11 rounded-full border px-4 py-2 text-sm font-medium transition-all",
-                t.key === topicKey
-                  ? "border-primary bg-primary text-primary-foreground"
-                  : "border-border bg-card text-foreground/70 hover:border-secondary hover:text-primary"
-              )}
+              variant="outline"
+              size="icon"
+              className="min-h-11 w-11 shrink-0"
+              onClick={() => setSpinning((s) => !s)}
+              aria-label={spinning ? "Pause globe rotation" : "Resume globe rotation"}
+              aria-pressed={spinning}
+              title={spinning ? "Pause rotation" : "Resume rotation"}
             >
-              {t.title}
-            </button>
-          ))}
+              {spinning ? <Pause className="h-4 w-4" aria-hidden /> : <Play className="h-4 w-4" aria-hidden />}
+            </Button>
+
+            <Button
+              type="button"
+              variant="outline"
+              className="min-h-11 shrink-0"
+              onClick={resetView}
+              aria-label="Reset view"
+              title="Reset view"
+            >
+              <Compass className="h-4 w-4" aria-hidden />
+              <span className="hidden sm:inline">Reset view</span>
+            </Button>
+
+            <Button
+              type="button"
+              onClick={() => (quizMode ? exitQuiz() : void startQuiz())}
+              className={cn(
+                "min-h-11 shrink-0 bg-secondary font-semibold text-primary hover:bg-gold-bright",
+                quizMode && "ring-2 ring-secondary ring-offset-2"
+              )}
+              aria-pressed={quizMode}
+            >
+              <Trophy className="h-4 w-4" aria-hidden />
+              {quizMode ? "Exit Quiz" : "Map Quiz"}
+            </Button>
+          </div>
+
+          <div className="flex flex-wrap gap-1.5" aria-label="Category layers">
+            {GEO_CATEGORIES.map((c) => {
+              const active = activeCats.has(c.key);
+              return (
+                <button
+                  key={c.key}
+                  type="button"
+                  aria-pressed={active}
+                  title={c.blurb}
+                  onClick={() => toggleCategory(c.key)}
+                  className={cn(
+                    "flex min-h-9 items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition-all",
+                    active
+                      ? "border-secondary bg-secondary/15 text-primary ring-1 ring-secondary"
+                      : "border-border bg-card text-muted-foreground hover:border-secondary/50 hover:text-primary"
+                  )}
+                >
+                  <span
+                    className="h-2.5 w-2.5 shrink-0 rounded-full"
+                    style={{ backgroundColor: c.color }}
+                    aria-hidden
+                  />
+                  {c.short}
+                  <span className="rounded-full bg-primary/5 px-1.5 text-[10px] font-bold text-primary/70">
+                    {CATEGORY_COUNTS[c.key] ?? 0}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
         </div>
 
-        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
-          {/* Map card */}
-          <Card className="overflow-hidden">
-            <CardContent className="p-4 sm:p-6">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={topic.key}
-                  initial={{ opacity: 0, scale: 0.98 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.98 }}
-                  transition={{ duration: 0.25 }}
-                >
-                  <IndiaMap
-                    topic={topic}
-                    activeMarker={activeMarker}
-                    onSelectMarker={(i) => setActiveMarker(activeMarker === i ? null : i)}
-                  />
-                </motion.div>
-              </AnimatePresence>
-              <p className="mt-4 flex items-start gap-2 text-xs text-muted-foreground">
-                <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-secondary" aria-hidden />
-                Stylised map for learning — boundaries are indicative and not to scale. For definitive
-                maps always refer to the Survey of India / NCERT Atlas.
-              </p>
-            </CardContent>
+        {/* -------------------------------- Grid -------------------------------- */}
+        <div className="grid items-start gap-6 lg:grid-cols-[1.35fr_1fr]">
+          {/* ------------------------------ Globe card ----------------------------- */}
+          <Card className="overflow-hidden border-primary/15 p-0">
+            <div
+              className="relative h-[62vh] min-h-[440px] bg-navy lg:h-[72vh] lg:min-h-[520px]"
+            >
+              <GlobeMap
+                items={filtered}
+                activeCategories={Array.from(activeCats)}
+                selectedId={selectedId}
+                onSelect={handleMarkerSelect}
+                spinning={spinning}
+                onGlobeClick={handleGlobeClick}
+                resetSignal={resetSignal}
+              />
+
+              {/* Legend overlay */}
+              <div
+                className="absolute bottom-3 left-3 z-10 hidden min-[420px]:flex max-w-[75%] flex-wrap items-center gap-x-3 gap-y-1 rounded-lg bg-navy-deep/85 px-3 py-2 backdrop-blur-sm"
+                aria-hidden
+              >
+                {GEO_CATEGORIES.map((c) => (
+                  <span key={c.key} className="flex items-center gap-1.5 text-[10px] font-semibold text-ivory/85">
+                    <span className="h-2 w-2 rounded-full" style={{ backgroundColor: c.color }} />
+                    {c.short}
+                  </span>
+                ))}
+              </div>
+
+              {/* Hint overlay */}
+              {quizMode && quizPhase === "active" && locateMode && !result ? (
+                <div className="absolute left-1/2 top-3 z-10 -translate-x-1/2">
+                  <span className="flex items-center gap-2 rounded-full bg-gold px-4 py-2 text-xs font-bold text-primary shadow-lg">
+                    <MousePointerClick className="h-4 w-4" aria-hidden />
+                    Click the location on the globe
+                  </span>
+                </div>
+              ) : null}
+            </div>
+            <p className="flex items-start gap-2 border-t border-primary/10 bg-card px-4 py-3 text-xs leading-relaxed text-muted-foreground">
+              <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-secondary" aria-hidden />
+              Coordinates are indicative learning aids, not authoritative boundaries. For definitive
+              maps always refer to the Survey of India / NCERT Atlas.
+            </p>
           </Card>
 
-          {/* Facts panel */}
+          {/* ----------------------------- Right panel ----------------------------- */}
           <div>
-            <Card className="border-secondary/40">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-3">
-                  <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary">
-                    <MapPin className="h-5 w-5 text-gold" aria-hidden />
-                  </span>
-                  <div>
-                    <h2 className="font-display text-2xl font-bold text-primary">{topic.title}</h2>
-                    <p className="text-sm text-muted-foreground">{topic.blurb}</p>
-                  </div>
-                </div>
+            {quizMode ? (
+              /* ============================== QUIZ ============================== */
+              <Card className="border-secondary/50">
+                <CardContent className="p-5 sm:p-6">
+                  {quizPhase === "loading" ? (
+                    <div className="space-y-4" role="status" aria-label="Loading quiz">
+                      <Skeleton className="h-5 w-32" />
+                      <Skeleton className="h-6 w-4/5" />
+                      <Skeleton className="h-6 w-3/5" />
+                      <div className="grid grid-cols-2 gap-2 pt-2">
+                        <Skeleton className="h-11" />
+                        <Skeleton className="h-11" />
+                        <Skeleton className="h-11" />
+                        <Skeleton className="h-11" />
+                      </div>
+                    </div>
+                  ) : quizPhase === "done" ? (
+                    /* ------------------------------ Summary ------------------------------ */
+                    <motion.div
+                      initial={{ opacity: 0, y: 12 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="text-center"
+                    >
+                      <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-secondary/20" aria-hidden>
+                        <Trophy className="h-7 w-7 text-[#7a5c2e]" />
+                      </span>
+                      <h3 className="mt-3 font-display text-2xl font-bold text-primary">Quiz complete!</h3>
+                      <p className="mt-1 text-4xl font-bold text-primary">
+                        {score.toLocaleString("en-IN")}
+                        <span className="text-lg font-semibold text-muted-foreground"> / {questions.length}</span>
+                      </p>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        (Close calls earn half a mark)
+                      </p>
 
-                <ul className="mt-6 space-y-3">
-                  {topic.markers.map((m, i) => (
-                    <li key={i}>
-                      <button
-                        type="button"
-                        onClick={() => setActiveMarker(activeMarker === i ? null : i)}
-                        className={cn(
-                          "flex w-full gap-3 rounded-xl border p-4 text-left transition-all",
-                          activeMarker === i
-                            ? "border-secondary bg-secondary/10 shadow-sm"
-                            : "border-border bg-card hover:border-secondary/50"
-                        )}
-                        aria-pressed={activeMarker === i}
+                      <dl className="mt-5 grid grid-cols-3 gap-2 text-center">
+                        <div className="rounded-xl bg-muted/60 p-3">
+                          <dt className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Bullseye</dt>
+                          <dd className="mt-0.5 text-xl font-bold text-primary">{tally.correct}</dd>
+                        </div>
+                        <div className="rounded-xl bg-muted/60 p-3">
+                          <dt className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Close</dt>
+                          <dd className="mt-0.5 text-xl font-bold text-primary">{tally.close}</dd>
+                        </div>
+                        <div className="rounded-xl bg-muted/60 p-3">
+                          <dt className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Missed</dt>
+                          <dd className="mt-0.5 text-xl font-bold text-primary">{tally.wrong}</dd>
+                        </div>
+                      </dl>
+
+                      <p className="mt-4 flex items-center justify-center gap-1.5 text-sm text-muted-foreground">
+                        <Flame className="h-4 w-4 text-secondary" aria-hidden />
+                        Best streak: <strong className="text-primary">{bestStreak}</strong>
+                      </p>
+                      <p className="mt-2 text-sm leading-relaxed text-foreground/75">
+                        {tally.correct >= questions.length * 0.7
+                          ? "Atlas-level accuracy — the map is your friend. Keep it up for Prelims!"
+                          : tally.correct + tally.close >= questions.length * 0.5
+                            ? "Solid map-work. Revisit the missed layers on the globe and go again."
+                            : "Map-work pays the freest marks in Prelims — explore the layers, then retry."}
+                      </p>
+
+                      <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:justify-center">
+                        <Button
+                          onClick={() => void startQuiz()}
+                          className="min-h-11 bg-secondary font-semibold text-primary hover:bg-gold-bright"
+                        >
+                          <Trophy className="mr-1 h-4 w-4" aria-hidden /> Play again
+                        </Button>
+                        <Button variant="outline" onClick={exitQuiz} className="min-h-11">
+                          Back to explorer
+                        </Button>
+                      </div>
+                    </motion.div>
+                  ) : currentQuestion ? (
+                    /* ------------------------------ Question ----------------------------- */
+                    <motion.div key={currentQuestion.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <Badge variant="outline" className="gap-1 border-secondary/60 bg-secondary/10 text-[#7a5c2e]">
+                          {quizSource === "ai" ? (
+                            <Sparkles className="h-3 w-3" aria-hidden />
+                          ) : (
+                            <ListChecks className="h-3 w-3" aria-hidden />
+                          )}
+                          {quizSource === "ai" ? "AI-generated" : "Practice bank"}
+                        </Badge>
+                        <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
+                          <span>
+                            Question {qIndex + 1}/{questions.length}
+                          </span>
+                          <span className="flex items-center gap-1 text-primary">
+                            <Crosshair className="h-3.5 w-3.5 text-secondary" aria-hidden />
+                            Score {score.toLocaleString("en-IN")}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Flame className="h-3.5 w-3.5 text-secondary" aria-hidden />
+                            {streak}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Progress bar */}
+                      <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-muted" role="presentation">
+                        <div
+                          className="h-full rounded-full bg-secondary transition-all duration-500"
+                          style={{ width: `${((qIndex + (result ? 1 : 0)) / questions.length) * 100}%` }}
+                        />
+                      </div>
+
+                      <h3 className="mt-4 font-display text-xl font-bold leading-snug text-primary">
+                        {currentQuestion.question}
+                      </h3>
+
+                      {!result && locateMode ? (
+                        <p className="mt-3 flex items-center gap-2 rounded-xl border border-dashed border-secondary/50 bg-secondary/5 p-3 text-sm font-medium text-foreground/80">
+                          <MousePointerClick className="h-4 w-4 shrink-0 text-secondary" aria-hidden />
+                          Click the location on the globe — a pin or its coastline, within {fmtKm(BULLSEYE_KM)} is a bullseye.
+                        </p>
+                      ) : null}
+
+                      {!result && !locateMode ? (
+                        <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                          {currentQuestion.options.map((opt, i) => (
+                            <button
+                              key={`${currentQuestion.id}-${i}`}
+                              type="button"
+                              onClick={() => answerOption(i)}
+                              className="min-h-11 rounded-xl border border-border bg-background p-3 text-left text-sm font-medium text-foreground/85 transition-all hover:border-secondary hover:bg-secondary/10 hover:text-primary"
+                            >
+                              {opt}
+                            </button>
+                          ))}
+                        </div>
+                      ) : null}
+
+                      {result ? (
+                        /* ------------------------------ Reveal ----------------------------- */
+                        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="mt-4 space-y-3">
+                          <div
+                            className={cn(
+                              "rounded-xl border p-4",
+                              result.kind === "bullseye" || result.kind === "correct"
+                                ? "border-secondary bg-secondary/15"
+                                : result.kind === "close"
+                                  ? "border-secondary/50 bg-secondary/5"
+                                  : "border-destructive/40 bg-destructive/5"
+                            )}
+                          >
+                            <p className="font-bold text-primary">
+                              {result.kind === "bullseye" && "🎯 Bullseye!"}
+                              {result.kind === "correct" && "✅ Correct!"}
+                              {result.kind === "close" && "🧭 Close — half credit!"}
+                              {result.kind === "wrong" && "❌ Not quite."}
+                              {result.kind === "wrong-option" && "❌ Not quite."}
+                            </p>
+                            <p className="mt-1 text-sm leading-relaxed text-foreground/80">
+                              {result.kind === "bullseye" && `You pinned it within ${fmtKm(result.distanceKm)}.`}
+                              {result.kind === "close" &&
+                                `${fmtKm(result.distanceKm)} off — that still earns half a mark (streak resets).`}
+                              {result.kind === "wrong" && `You were ${fmtKm(result.distanceKm ?? 0)} away.`}
+                              {result.kind === "correct" && "Option locked in — one more mark on the board."}
+                              {result.kind === "wrong-option" && "The correct option is highlighted below."}
+                              {"clickedNear" in result && result.clickedNear ? (
+                                <span className="block text-xs text-muted-foreground">
+                                  Nearest pin clicked: {result.clickedNear}
+                                </span>
+                              ) : null}
+                            </p>
+                          </div>
+
+                          {/* Correct answer card */}
+                          {currentTarget ? (
+                            <div className="rounded-xl border border-border bg-background p-4">
+                              <div className="flex items-start justify-between gap-2">
+                                <div>
+                                  <span
+                                    className="inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-[11px] font-bold"
+                                    style={{
+                                      backgroundColor: `${getCategory(currentTarget.category).color}22`,
+                                      color: getCategory(currentTarget.category).color,
+                                    }}
+                                  >
+                                    {getCategory(currentTarget.category).label}
+                                  </span>
+                                  <p className="mt-1.5 font-display text-lg font-bold text-primary">
+                                    {currentTarget.name}
+                                  </p>
+                                  {currentTarget.region ? (
+                                    <p className="flex items-center gap-1 text-xs text-muted-foreground">
+                                      <MapPin className="h-3 w-3" aria-hidden /> {currentTarget.region}
+                                    </p>
+                                  ) : null}
+                                </div>
+                              </div>
+                              <p className="mt-2 text-sm leading-relaxed text-foreground/80">
+                                {currentQuestion.explanation || currentTarget.facts[0]}
+                              </p>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="mt-3 min-h-9 border-secondary/60 text-primary hover:bg-secondary/10"
+                                onClick={() => setSelectedId(currentTarget.id)}
+                              >
+                                <Compass className="mr-1.5 h-3.5 w-3.5 text-secondary" aria-hidden />
+                                Show on map
+                              </Button>
+                            </div>
+                          ) : (
+                            <div className="rounded-xl border border-border bg-background p-4">
+                              <p className="font-semibold text-primary">
+                                Correct answer: {currentQuestion.options[currentQuestion.correctIndex]}
+                              </p>
+                              <p className="mt-1 text-sm text-foreground/80">{currentQuestion.explanation}</p>
+                            </div>
+                          )}
+
+                          <Button
+                            onClick={nextQuestion}
+                            className="min-h-11 w-full bg-primary font-semibold text-primary-foreground hover:bg-navy-800"
+                          >
+                            {qIndex + 1 >= questions.length ? "See results" : "Next question"}
+                            <ChevronRight className="ml-1 h-4 w-4" aria-hidden />
+                          </Button>
+                        </motion.div>
+                      ) : null}
+                    </motion.div>
+                  ) : null}
+                </CardContent>
+              </Card>
+            ) : selectedItem ? (
+              /* ========================== EXPLORE DETAIL ========================== */
+              <motion.div
+                key={selectedItem.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.25 }}
+              >
+                <Card className="border-secondary/40">
+                  <CardContent className="p-6">
+                    <div className="flex items-start justify-between gap-2">
+                      <span
+                        className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-[11px] font-bold"
+                        style={{
+                          backgroundColor: `${getCategory(selectedItem.category).color}22`,
+                          color: getCategory(selectedItem.category).color,
+                        }}
                       >
                         <span
-                          className={cn(
-                            "flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold",
-                            activeMarker === i ? "bg-secondary text-primary" : "bg-primary text-gold"
-                          )}
+                          className="h-1.5 w-1.5 rounded-full"
+                          style={{ backgroundColor: getCategory(selectedItem.category).color }}
                           aria-hidden
-                        >
-                          {i + 1}
-                        </span>
-                        <span>
-                          <span className="block font-semibold text-primary">{m.label}</span>
-                          {activeMarker === i ? (
-                            <motion.span
-                              initial={{ opacity: 0, height: 0 }}
-                              animate={{ opacity: 1, height: "auto" }}
-                              className="mt-1 block text-sm leading-relaxed text-foreground/80"
-                            >
-                              {m.fact}
-                            </motion.span>
-                          ) : (
-                            <span className="mt-0.5 block text-xs text-muted-foreground">Tap to reveal the exam fact</span>
-                          )}
-                        </span>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
+                        />
+                        {getCategory(selectedItem.category).label}
+                      </span>
+                      {filtered.length > 1 ? (
+                        <div className="flex items-center gap-1">
+                          <span className="mr-1 text-[11px] font-medium text-muted-foreground">
+                            {selectedIdxInFiltered >= 0 ? selectedIdxInFiltered + 1 : "–"} of {filtered.length}
+                          </span>
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="h-9 w-9"
+                            onClick={() => stepSelection(-1)}
+                            aria-label="Previous location"
+                          >
+                            <ChevronLeft className="h-4 w-4" aria-hidden />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="h-9 w-9"
+                            onClick={() => stepSelection(1)}
+                            aria-label="Next location"
+                          >
+                            <ChevronRight className="h-4 w-4" aria-hidden />
+                          </Button>
+                        </div>
+                      ) : null}
+                    </div>
 
-            <div className="mt-6 flex items-center gap-3 rounded-xl bg-navy p-5 text-ivory">
-              <GraduationCap className="h-8 w-8 shrink-0 text-gold" aria-hidden />
-              <p className="text-sm leading-relaxed text-ivory/80">
-                Map questions appear in nearly every Prelims paper. Enrolled students practice these
-                with mentor-curated atlases in the classroom programme.
-              </p>
-              <Compass className="h-5 w-5 shrink-0 text-gold/60" aria-hidden />
-            </div>
+                    <h3 className="mt-3 font-display text-2xl font-bold text-primary">{selectedItem.name}</h3>
+                    {selectedItem.region ? (
+                      <p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
+                        <MapPin className="h-3.5 w-3.5 text-secondary" aria-hidden /> {selectedItem.region}
+                      </p>
+                    ) : null}
+
+                    {selectedItem.whyNews ? (
+                      <div className="mt-4 rounded-xl border border-secondary/60 bg-secondary/10 p-4">
+                        <p className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-[#7a5c2e]">
+                          <Sparkles className="h-3.5 w-3.5" aria-hidden /> Why in the news
+                        </p>
+                        <p className="mt-1.5 text-sm leading-relaxed text-foreground/85">{selectedItem.whyNews}</p>
+                      </div>
+                    ) : null}
+
+                    <p className="mt-4 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                      Exam facts
+                    </p>
+                    <ul className="mt-2 space-y-2">
+                      {selectedItem.facts.map((f, i) => (
+                        <li key={i} className="flex gap-2.5 text-sm leading-relaxed text-foreground/85">
+                          <span className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-secondary" aria-hidden />
+                          {f}
+                        </li>
+                      ))}
+                    </ul>
+
+                    <div className="mt-4 flex flex-wrap gap-1.5">
+                      {selectedItem.tags.map((t) => (
+                        <TagBadge key={t} tag={t} />
+                      ))}
+                    </div>
+
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="mt-5 min-h-9 text-muted-foreground hover:text-primary"
+                      onClick={() => setSelectedId(null)}
+                    >
+                      <ChevronLeft className="mr-1 h-3.5 w-3.5" aria-hidden /> Back to all locations
+                    </Button>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ) : (
+              /* =========================== EXPLORE LIST =========================== */
+              <Card>
+                <CardContent className="p-4 sm:p-5">
+                  <div className="mb-3 flex items-baseline justify-between gap-2 px-1">
+                    <h3 className="font-display text-lg font-bold text-primary">Explore locations</h3>
+                    <span className="text-xs font-medium text-muted-foreground">
+                      {filtered.length} location{filtered.length === 1 ? "" : "s"}
+                      {query ? ` matching "${query.trim()}"` : ""}
+                    </span>
+                  </div>
+                  {filtered.length === 0 ? (
+                    <div className="rounded-xl border border-dashed border-border bg-muted/40 p-8 text-center">
+                      <p className="font-medium text-foreground">No locations found</p>
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        Try a different search term or enable more category layers.
+                      </p>
+                    </div>
+                  ) : (
+                    <div
+                      className="nice-scroll max-h-[560px] space-y-1 overflow-y-auto pr-1"
+                      role="list"
+                      aria-label="Filtered locations"
+                    >
+                      {filtered.map((item) => {
+                        const cat = getCategory(item.category);
+                        return (
+                          <button
+                            key={item.id}
+                            type="button"
+                            role="listitem"
+                            onClick={() => setSelectedId(item.id)}
+                            className="flex w-full items-center gap-3 rounded-xl border border-transparent p-3 text-left transition-all hover:border-secondary/40 hover:bg-secondary/5"
+                            aria-label={`${item.name}, ${cat.label}${item.region ? `, ${item.region}` : ""}`}
+                          >
+                            <span
+                              className="h-2.5 w-2.5 shrink-0 rounded-full"
+                              style={{ backgroundColor: cat.color }}
+                              aria-hidden
+                            />
+                            <span className="min-w-0 flex-1">
+                              <span className="block truncate text-sm font-semibold text-primary">{item.name}</span>
+                              <span className="block truncate text-xs text-muted-foreground">
+                                {cat.short}
+                                {item.region ? ` · ${item.region}` : ""}
+                              </span>
+                            </span>
+                            <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground/50" aria-hidden />
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
           </div>
         </div>
       </div>

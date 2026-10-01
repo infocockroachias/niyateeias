@@ -675,13 +675,13 @@ function RankersMarquee() {
               className="flex min-w-64 items-center gap-3 rounded-xl border border-border bg-background p-4"
               aria-hidden={i >= rankers.length}
             >
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-secondary/15 font-display text-sm font-bold text-[#7a5c2e]">
-                {r.rank}
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-secondary/15 text-[#7a5c2e]" aria-hidden>
+                <Trophy className="h-4 w-4" />
               </span>
               <div>
-                <p className="text-sm font-bold text-primary">{r.name}</p>
+                <p className="text-sm font-bold text-primary">xxxx</p>
                 <p className="text-xs text-muted-foreground">
-                  {r.service} · {r.optional} · {r.year}
+                  AIR xxxx · {r.service} · {r.year}
                 </p>
               </div>
             </div>
@@ -722,7 +722,7 @@ function TestimonialsSection() {
                       <p className="flex-1 text-sm leading-relaxed text-foreground/85">&ldquo;{t.quote}&rdquo;</p>
                       <div className="mt-5 flex items-center justify-between border-t border-border pt-4">
                         <div>
-                          <p className="text-sm font-bold text-primary">{t.name}</p>
+                          <p className="text-sm font-bold text-primary">Verified Student</p>
                           <p className="text-xs text-muted-foreground">
                             {t.role} · {t.batch}
                           </p>

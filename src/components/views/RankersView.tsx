@@ -5,7 +5,6 @@ import { Quote, Star, Trophy } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useApi, pickArray, type Ranker, type Testimonial } from "@/lib/api";
-import { initialsOf } from "@/lib/format";
 import { CardsSkeleton, ErrorCard, FadeIn, SectionHeading } from "@/components/shared/blocks";
 
 function RankerGroups() {
@@ -22,7 +21,7 @@ function RankerGroups() {
         <SectionHeading
           eyebrow="Hall of Fame"
           title="Our Rankers"
-          description="Selections from the Niyatee classrooms — across UPSC CSE and allied services. Every rank here began as an aspirant with a plan."
+          description="Selections from the Niyatee classrooms — across UPSC CSE and allied services. Candidate names are masked as xxxx until officially published; every rank here began as an aspirant with a plan."
         />
 
         {isLoading ? (
@@ -52,16 +51,16 @@ function RankerGroups() {
                           <CardContent className="flex h-full flex-col p-6">
                             <div className="flex items-start justify-between">
                               <Avatar className="h-14 w-14 border-2 border-secondary/40">
-                                <AvatarFallback className="bg-primary font-display text-base font-bold text-gold">
-                                  {initialsOf(r.name)}
+                                <AvatarFallback className="bg-primary font-display text-base font-bold text-gold" aria-hidden>
+                                  <Trophy className="h-5 w-5" />
                                 </AvatarFallback>
                               </Avatar>
-                              <span className="flex items-center gap-1.5 rounded-full bg-secondary/15 px-3 py-1.5" aria-label={`All India Rank ${r.rank}`}>
+                              <span className="flex items-center gap-1.5 rounded-full bg-secondary/15 px-3 py-1.5">
                                 <Trophy className="h-3.5 w-3.5 text-[#7a5c2e]" aria-hidden />
-                                <span className="text-xs font-bold text-[#7a5c2e]">AIR {r.rank}</span>
+                                <span className="text-xs font-bold text-[#7a5c2e]">AIR xxxx</span>
                               </span>
                             </div>
-                            <h4 className="mt-4 font-display text-xl font-bold text-primary">{r.name}</h4>
+                            <h4 className="mt-4 font-display text-xl font-bold text-primary">xxxx</h4>
                             <p className="mt-1 text-sm font-medium text-foreground/80">{r.service}</p>
                             <p className="text-xs text-muted-foreground">Optional: {r.optional}</p>
                             {r.quote ? (
@@ -110,7 +109,7 @@ function TestimonialsGrid() {
                     <p className="flex-1 text-sm leading-relaxed text-foreground/85">&ldquo;{t.quote}&rdquo;</p>
                     <div className="mt-5 flex items-center justify-between border-t border-border pt-4">
                       <div>
-                        <p className="text-sm font-bold text-primary">{t.name}</p>
+                        <p className="text-sm font-bold text-primary">Verified Student</p>
                         <p className="text-xs text-muted-foreground">
                           {t.role} · {t.batch}
                         </p>

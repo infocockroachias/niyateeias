@@ -179,7 +179,7 @@ export function Footer() {
 
       <div className="border-t border-ivory/10">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-4 py-5 text-xs text-ivory/60 sm:flex-row sm:px-6 lg:px-8">
-          <p>© 2025 Niyatee Civil Services Academy. All rights reserved.</p>
+          <p>© 2026 Niyatee Civil Services Academy. All rights reserved.</p>
           <div className="flex items-center gap-5">
             <button
               type="button"

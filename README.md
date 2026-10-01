@@ -23,7 +23,7 @@ Niyatee Civil Services Academy is Eastern India's emerging IAS academy and **Odi
 | **Home** | Brand hero, 4-step framework (Learn → Practice → Evaluate → Succeed), live stats, featured courses, today's news, AI tools showcase, rankers marquee, testimonials, FAQ, newsletter |
 | **News / Current Affairs** | Daily UPSC-oriented articles curated from The Hindu / Indian Express / PIB / Yojana, GS-paper tags, interactive month calendar, article reader, monthly digest downloads |
 | **Resources** | 40+ free resources — 10 years of Prelims PYQs with solutions, Mains PYQ frameworks, CSAT papers, GS notes, mentor-approved booklists, UPSC & OPSC answer keys, e-books, monthly current-affairs compilations — with category/exam filters and bookmarks |
-| **AI Tools** | ① **AI Mains Answer Evaluation** — UPSC-rubric scoring (content, structure, analysis, examples, presentation) with model outlines. ② **AI Doubt Agent** — 24×7 UPSC-aware mentor chat. ③ **AI MCQ Practice** — Prelims-style quizzes with instant explanations (seeded bank + AI generation). ④ **Interactive Geography Maps** — clickable India map topics |
+| **AI Tools** | ① **AI Mains Answer Evaluation** — UPSC-rubric scoring (content, structure, analysis, examples, presentation) with model outlines. ② **AI Doubt Agent** — 24×7 UPSC-aware mentor chat. ③ **AI MCQ Practice** — Prelims-style quizzes with instant explanations (seeded bank + AI generation). ④ **Interactive Geography Maps** — interactive 3D AI Geo Maps — a 3D world globe with 130+ UPSC-curated locations (places in news, rivers, ranges, straits, ports, dams, heritage, ecology), layers, search, fly-to and an AI map quiz |
 | **AI Plans** | Explorer (free) / Aspirant / Achiever subscription tiers |
 | **Courses** | 10 programmes across UPSC & OPSC — GS Foundation (offline / live online / recorded), Prelims Target, CSAT Bootcamp, Mains Answer Writing, Ethics & Essay, Interview Guidance, OPSC OCS, Sociology optional — with filters, detail pages and enquiry CTAs |
 | **Books Shop** | Niyatee Press titles with ratings, discounts and a working cart |
@@ -73,14 +73,23 @@ bun run start
 
 ## Deploying to Vercel
 
-The project is Vercel-ready out of the box:
+The project is Vercel-ready and **zero-config**:
 
 1. Push this repository to GitHub (already done — see below).
-2. In Vercel, **Add New → Project** and import the repo. The Next.js builder is auto-detected; no custom settings are required.
-3. Set the environment variable `DATABASE_URL` (see above).
-4. **Deploy.**
+2. In Vercel, **Add New → Project** and import the repo (`infocockroachias/niyateeias`, branch `main`).
+3. On the import screen you'll see the project settings (name, root directory `./`, framework preset **Next.js** auto-detected) — scroll down and click **Deploy** (Vercel labels this final button "Deploy"; in some UI versions it appears as "Create Project" — that click both creates the project and starts the first deployment).
+4. Wait ~1–2 minutes for the build. That's it — no environment variables required.
 
-> **SQLite on serverless:** Vercel's filesystem is ephemeral, so the seeded SQLite file ships read-only content per instance and write endpoints (enquiry, newsletter, auth, bookmarks) are per-instance. For production-scale persistence, swap `src/lib/db.ts` to a hosted provider (e.g. Postgres via Prisma Accelerate) — only that one file changes; every API route stays identical.
+### Why no env vars are needed
+
+`src/lib/db.ts` auto-detects Vercel at cold start:
+
+- `db/custom.db` (the seeded SQLite database) is bundled into the serverless functions via `outputFileTracingIncludes` (see `next.config.ts`).
+- On cold start it is copied to `/tmp/custom.db` (the only writable location) and `DATABASE_URL` is pointed there automatically.
+- Reads **and** writes therefore work out of the box. The caveat: data written per lambda instance is ephemeral and resets on redeploy/restart.
+- You may still set `DATABASE_URL` explicitly in Vercel Project → Settings → Environment Variables to override the default.
+
+> **SQLite on serverless:** for production-scale persistence, swap `src/lib/db.ts` (and `prisma/schema.prisma`) to a hosted provider (Postgres via Prisma Accelerate / Neon / Supabase). Only those two files change; every API route stays identical.
 
 ## Project structure
 
@@ -104,13 +113,13 @@ The project is Vercel-ready out of the box:
 
 ## API overview
 
-`GET /api/courses` · `GET /api/news?month=&year=` · `GET /api/news/monthly` · `GET /api/resources` · `GET /api/rankers` · `GET /api/testimonials` · `GET /api/books` · `GET /api/test-series` · `GET /api/stats` · `GET /api/faq` · `GET /api/plans` · `POST /api/enquiry` · `POST /api/newsletter` · `POST /api/ai/evaluate` · `POST /api/ai/chat` · `POST /api/ai/mcq` · `POST /api/auth/register|login|logout` · `GET /api/auth/me` · `GET|POST /api/user/bookmarks` · `POST /api/user/bookmarks/remove`
+`GET /api/courses` · `GET /api/news?month=&year=` · `GET /api/news/monthly` · `GET /api/resources` · `GET /api/rankers` · `GET /api/testimonials` · `GET /api/books` · `GET /api/test-series` · `GET /api/stats` · `GET /api/faq` · `GET /api/plans` · `POST /api/enquiry` · `POST /api/newsletter` · `POST /api/ai/evaluate` · `POST /api/ai/chat` · `POST /api/ai/mcq` · `POST /api/ai/geo-quiz` · `POST /api/auth/register|login|logout` · `GET /api/auth/me` · `GET|POST /api/user/bookmarks` · `POST /api/user/bookmarks/remove`
 
 ## Repository & deployment
 
 - **GitHub:** [github.com/infocockroachias/niyateeias](https://github.com/infocockroachias/niyateeias)
-- Deploys to Vercel with zero extra configuration.
+- Deploys to Vercel with zero extra configuration (see *Deploying to Vercel* above).
 
 ---
 
-© 2025 Niyatee Civil Services Academy, Inn Views, Off Infovalley, Bhubaneswar – 752054 · +91 97776 43159 · info@niyateeias.com
+© 2026 Niyatee Civil Services Academy, Inn Views, Off Infovalley, Bhubaneswar – 752054 · +91 97776 43159 · info@niyateeias.com

@@ -135,3 +135,53 @@ Work Log:
 Stage Summary:
 - All core flows browser-verified working end-to-end. 3 commits pushed to github.com/infocockroachias/niyateeias (main).
 - Known dev-only warnings: Radix aria-controls SSR id mismatch + dialog description warning — cosmetic, no user impact.
+
+---
+Task ID: 4-a
+Agent: Orchestrator (Z.ai Code)
+Task: Fix hydration mismatch, footer year, price masking, feedback anonymization
+
+Work Log:
+- Diagnosed reported Radix useId hydration mismatch (Navbar dropdown/sheet triggers) — SSR tree vs first client render divergence
+- Fix: Navbar now renders a Radix-free static shell (NavbarShellFallback) during SSR + first paint; interactive Radix tree mounts after hydration via hydration-safe useSyncExternalStore mounted flag (satisfies react-hooks/set-state-in-effect rule)
+- Renamed nav item "Geography Maps" → "AI Geo Maps"
+- Footer copyright 2025 → 2026 (README footer too)
+- Prices masked globally: inr() now returns "xxxx" (PRICE_PLACEHOLDER) — covers courses, plans, books, test-series, cart totals; BooksView discount % chip → "Discounted price"; rank badges → "AIR xxxx"
+- Anonymized: ranker names → "xxxx" (avatar → trophy icon), testimonial names → "Verified Student" (quotes/roles/batches kept), seed book authors → "Niyatee Press Desk" (+ DB updateMany, 2 rows)
+- Verified in browser: zero console errors on fresh load (hydration error gone), plans show "xxxx/month", courses "xxxx xxxx", rankers anonymized
+
+Stage Summary:
+- Hydration mismatch eliminated; all prices render as xxxx; no personal names displayed anywhere; footer 2026
+
+---
+Task ID: 4-b
+Agent: full-stack-developer (completed by orchestrator after agent timeout — agent finished all code, orchestrator appended log)
+Task: Build 3D AI Geo Maps (globe.gl world atlas) replacing the 2D SVG map
+
+Work Log:
+- src/lib/geo-data.ts: curated 168-item UPSC dataset across 8 categories — Places in News (36), Rivers (30, incl. Ganga/Brahmaputra/Indus polylines + world rivers), Mountain Ranges (16, polylines), Straits & Chokepoints (18), Ports & Maritime (22), Dams & Projects (12), UNESCO Heritage (17, incl. Charaideo 2024 + Maratha Military Landscapes 2025), Ecology (17: parks, Ramsar, hotspots) — each with region, why-in-news, exam facts, syllabus tags
+- public/data/countries-110m.geojson: Natural Earth 110m countries for globe polygons
+- src/components/geo/GlobeMap.tsx (agent): globe.gl + three, SSR-safe dynamic import, navy globe/ivory caps/gold strokes/atmosphere, points/paths/labels/rings layers, auto-rotate, fly-to, resize observer, WebGL fallback list
+- src/components/views/AIGeoView.tsx rewritten (agent): search + category layer chips + spin/reset controls, explore list w/ scroll, detail panel (why-in-news callout, exam facts, tags, prev/next), quiz mode (globe-click locate w/ haversine scoring, streaks, AI-generated questions w/ graceful fallback)
+- src/app/api/ai/geo-quiz/route.ts (orchestrator): POST — AI-generated UPSC map MCQs from dataset digest via z-ai-web-dev-sdk; deterministic local quiz fallback; NextResponse typing fixed; verified 200 (AI ~8s / local ~300ms)
+- AIHubView + site.ts + README blurbs updated to 3D atlas
+- Browser-verified: globe renders (desktop + mobile), fly-to works, detail panel correct, quiz flow end-to-end (clicked globe → distance feedback → correct answer reveal "Strait of Hormuz")
+
+Stage Summary:
+- AI Geo Maps is now a full 3D world atlas with 168 curated locations, layers, search, fly-to, AI map quiz — replaces old India SVG
+
+---
+Task ID: 4-c
+Agent: Orchestrator (Z.ai Code)
+Task: Vercel deployment readiness + visual QA
+
+Work Log:
+- package.json build: "prisma generate && next build && (test -d .next/standalone && cp ... || true)" — standalone copy now conditional so Vercel build (no standalone dir) doesn't fail
+- src/lib/db.ts: zero-config Vercel support — on cold start copies bundled db/custom.db to /tmp/custom.db (only writable path) and points DATABASE_URL there; local fallback mirrors .env
+- next.config.ts: outputFileTracingIncludes for 20 db-backed API routes → db/custom.db bundled into serverless functions
+- README: expanded "Deploying to Vercel" (explains the Import screen → Deploy/Create Project button flow), zero-config env story, geo-quiz added to API list
+- Visual QA (agent-browser, desktop 1366 + mobile 390): home hero/CTAs, plans, courses, books, test-series, ai-hub, contact, rankers, footer, mobile nav + geo — contrast good, no merged/invisible buttons found; nav/floating buttons all clearly visible
+- Lint: 0 errors on src; tsc clean for all touched files (pre-existing withErrorGuard Response-vs-NextResponse quirk remains baseline)
+
+Stage Summary:
+- Vercel deploy = import repo → click Deploy, no env vars needed; all user-reported issues fixed and verified in browser

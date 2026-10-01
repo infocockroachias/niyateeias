@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { motion } from "framer-motion";
 import {
   BookOpen,
@@ -39,6 +39,9 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { SITE } from "@/lib/site";
 
+/** No-op store subscription — used only for the hydration-safe mounted flag. */
+const subscribeNoop = () => () => {};
+
 const MAIN_LINKS: { view: ViewName; label: string }[] = [
   { view: "home", label: "Home" },
   { view: "news", label: "News" },
@@ -50,7 +53,7 @@ const AI_LINKS: { view: ViewName; label: string; icon: React.ReactNode }[] = [
   { view: "ai-evaluate", label: "Answer Evaluation", icon: <PenLine className="h-4 w-4" aria-hidden /> },
   { view: "ai-chat", label: "Doubt Agent", icon: <MessagesSquare className="h-4 w-4" aria-hidden /> },
   { view: "ai-mcq", label: "MCQ Practice", icon: <ListChecks className="h-4 w-4" aria-hidden /> },
-  { view: "ai-geo", label: "Geography Maps", icon: <Map className="h-4 w-4" aria-hidden /> },
+  { view: "ai-geo", label: "AI Geo Maps", icon: <Map className="h-4 w-4" aria-hidden /> },
 ];
 
 const MORE_LINKS: { view: ViewName; label: string; icon: React.ReactNode }[] = [
@@ -75,6 +78,18 @@ export function Navbar() {
   const cartCount = useAppStore((s) => s.cart.reduce((n, c) => n + c.qty, 0));
   const setCartOpen = useAppStore((s) => s.setCartOpen);
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  // Radix UI generates ids via React useId; when the SSR tree and the first
+  // client render diverged (React 19 tree-context quirk), hydration threw
+  // attribute-mismatch warnings for the dropdown/sheet triggers. Rendering the
+  // interactive (Radix) part only after mount guarantees the hydration HTML
+  // matches the server output — a static, Radix-free shell renders before that.
+  // useSyncExternalStore = hydration-safe "mounted" flag (no setState-in-effect).
+  const mounted = useSyncExternalStore(
+    subscribeNoop,
+    () => true,
+    () => false
+  );
 
   const go = (v: ViewName) => {
     setMobileOpen(false);
@@ -123,141 +138,167 @@ export function Navbar() {
           <img src="/brand/logo.png" alt="Niyatee IAS logo" className="h-9 w-auto" />
         </button>
 
-        {/* Desktop links */}
-        <div className="hidden items-center gap-5 lg:flex">
-          {MAIN_LINKS.map((l) => (
-            <button key={l.view} type="button" onClick={() => go(l.view)} className={linkCls(l.view)} data-active={isActive(view, l.view)}>
-              {l.label}
-            </button>
-          ))}
-
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              className={cn(
-                "gold-underline inline-flex items-center gap-1 rounded-md px-1 py-2 text-sm font-medium transition-colors",
-                isActive(view, "ai-hub") ? "text-primary" : "text-foreground/75 hover:text-primary"
-              )}
-              data-active={isActive(view, "ai-hub")}
-            >
-              AI Tools <ChevronDown className="h-3.5 w-3.5" aria-hidden />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-56">
-              <DropdownMenuLabel className="text-xs uppercase tracking-wider text-muted-foreground">
-                AI-Powered Preparation
-              </DropdownMenuLabel>
-              {AI_LINKS.map((l) => (
-                <DropdownMenuItem key={l.view} onClick={() => go(l.view)} className="min-h-11 cursor-pointer gap-2.5">
-                  {l.icon}
+        {/* Desktop links — Radix-heavy tree mounts after hydration */}
+        {mounted ? (
+          <>
+            <div className="hidden items-center gap-5 lg:flex">
+              {MAIN_LINKS.map((l) => (
+                <button key={l.view} type="button" onClick={() => go(l.view)} className={linkCls(l.view)} data-active={isActive(view, l.view)}>
                   {l.label}
-                </DropdownMenuItem>
+                </button>
               ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
 
-          <button type="button" onClick={() => go("courses")} className={linkCls("courses")} data-active={isActive(view, "courses") || view === "course-detail"}>
-            Courses
-          </button>
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  className={cn(
+                    "gold-underline inline-flex items-center gap-1 rounded-md px-1 py-2 text-sm font-medium transition-colors",
+                    isActive(view, "ai-hub") ? "text-primary" : "text-foreground/75 hover:text-primary"
+                  )}
+                  data-active={isActive(view, "ai-hub")}
+                >
+                  AI Tools <ChevronDown className="h-3.5 w-3.5" aria-hidden />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="w-56">
+                  <DropdownMenuLabel className="text-xs uppercase tracking-wider text-muted-foreground">
+                    AI-Powered Preparation
+                  </DropdownMenuLabel>
+                  {AI_LINKS.map((l) => (
+                    <DropdownMenuItem key={l.view} onClick={() => go(l.view)} className="min-h-11 cursor-pointer gap-2.5">
+                      {l.icon}
+                      {l.label}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
 
-          <button type="button" onClick={() => go("plans")} className={linkCls("plans")} data-active={isActive(view, "plans")}>
-            Plans
-          </button>
+              <button type="button" onClick={() => go("courses")} className={linkCls("courses")} data-active={isActive(view, "courses") || view === "course-detail"}>
+                Courses
+              </button>
 
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              className={cn(
-                "gold-underline inline-flex items-center gap-1 rounded-md px-1 py-2 text-sm font-medium transition-colors",
-                MORE_LINKS.some((l) => l.view === view) ? "text-primary" : "text-foreground/75 hover:text-primary"
-              )}
-              data-active={MORE_LINKS.some((l) => l.view === view)}
-            >
-              More <ChevronDown className="h-3.5 w-3.5" aria-hidden />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-60">
-              {MORE_LINKS.map((l) => (
-                <DropdownMenuItem key={l.view} onClick={() => go(l.view)} className="min-h-11 cursor-pointer gap-2.5">
-                  {l.icon}
-                  {l.label}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+              <button type="button" onClick={() => go("plans")} className={linkCls("plans")} data-active={isActive(view, "plans")}>
+                Plans
+              </button>
 
-        {/* Right side */}
-        <div className="flex items-center gap-2">
-          {/* Cart */}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="relative min-h-11 min-w-11"
-            onClick={() => setCartOpen(true)}
-            aria-label={`Open cart, ${cartCount} item${cartCount === 1 ? "" : "s"}`}
-          >
-            <ShoppingCart className="h-5 w-5" aria-hidden />
-            {cartCount > 0 ? (
-              <span className="absolute -right-0.5 -top-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-secondary px-1 text-[11px] font-bold text-primary">
-                {cartCount}
-              </span>
-            ) : null}
-          </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  className={cn(
+                    "gold-underline inline-flex items-center gap-1 rounded-md px-1 py-2 text-sm font-medium transition-colors",
+                    MORE_LINKS.some((l) => l.view === view) ? "text-primary" : "text-foreground/75 hover:text-primary"
+                  )}
+                  data-active={MORE_LINKS.some((l) => l.view === view)}
+                >
+                  More <ChevronDown className="h-3.5 w-3.5" aria-hidden />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="w-60">
+                  {MORE_LINKS.map((l) => (
+                    <DropdownMenuItem key={l.view} onClick={() => go(l.view)} className="min-h-11 cursor-pointer gap-2.5">
+                      {l.icon}
+                      {l.label}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
 
-          {user ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger className="inline-flex min-h-11 items-center gap-2 rounded-full border border-border bg-card px-2 py-1.5 text-sm font-medium hover:bg-accent sm:px-3">
-                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground" aria-hidden>
-                  {user.name.charAt(0).toUpperCase()}
-                </span>
-                <span className="hidden max-w-28 truncate sm:inline">{user.name}</span>
-                <ChevronDown className="h-3.5 w-3.5" aria-hidden />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-52">
-                <DropdownMenuLabel className="text-xs text-muted-foreground">{user.email}</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => go("dashboard")} className="min-h-11 cursor-pointer gap-2.5">
-                  <LayoutDashboard className="h-4 w-4" aria-hidden /> My Dashboard
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={logout} className="min-h-11 cursor-pointer gap-2.5 text-destructive">
-                  <LogOut className="h-4 w-4" aria-hidden /> Log out
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : (
-            <>
-              <Button variant="ghost" onClick={() => go("login")} className="hidden min-h-11 sm:inline-flex">
-                <UserRound className="mr-1.5 h-4 w-4" aria-hidden /> Login
-              </Button>
+            {/* Right side */}
+            <div className="flex items-center gap-2">
+              {/* Cart */}
               <Button
-                onClick={() => go("register")}
-                className="min-h-11 bg-secondary px-4 font-semibold text-primary hover:bg-gold-bright"
+                variant="ghost"
+                size="icon"
+                className="relative min-h-11 min-w-11"
+                onClick={() => setCartOpen(true)}
+                aria-label={`Open cart, ${cartCount} item${cartCount === 1 ? "" : "s"}`}
               >
-                <GraduationCap className="mr-1.5 h-4 w-4" aria-hidden />
-                <span className="hidden sm:inline">Start Learning</span>
-                <span className="sm:hidden">Free</span>
+                <ShoppingCart className="h-5 w-5" aria-hidden />
+                {cartCount > 0 ? (
+                  <span className="absolute -right-0.5 -top-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-secondary px-1 text-[11px] font-bold text-primary">
+                    {cartCount}
+                  </span>
+                ) : null}
               </Button>
-            </>
-          )}
 
-          {/* Mobile menu */}
-          <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-            <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="min-h-11 min-w-11 lg:hidden" aria-label="Open navigation menu">
-                <Menu className="h-5 w-5" aria-hidden />
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="right" className="w-[86vw] max-w-sm overflow-y-auto p-0">
-              <SheetHeader className="border-b border-border p-4 text-left">
-                <SheetTitle className="flex items-center gap-2">
-                  { }
-                  <img src="/brand/logo.png" alt="Niyatee IAS logo" className="h-8 w-auto" />
-                </SheetTitle>
-              </SheetHeader>
-              <MobileNav active={view} onNavigate={go} user={user} onLogout={logout} />
-            </SheetContent>
-          </Sheet>
-        </div>
+              {user ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger className="inline-flex min-h-11 items-center gap-2 rounded-full border border-border bg-card px-2 py-1.5 text-sm font-medium hover:bg-accent sm:px-3">
+                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground" aria-hidden>
+                      {user.name.charAt(0).toUpperCase()}
+                    </span>
+                    <span className="hidden max-w-28 truncate sm:inline">{user.name}</span>
+                    <ChevronDown className="h-3.5 w-3.5" aria-hidden />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-52">
+                    <DropdownMenuLabel className="text-xs text-muted-foreground">{user.email}</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => go("dashboard")} className="min-h-11 cursor-pointer gap-2.5">
+                      <LayoutDashboard className="h-4 w-4" aria-hidden /> My Dashboard
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={logout} className="min-h-11 cursor-pointer gap-2.5 text-destructive">
+                      <LogOut className="h-4 w-4" aria-hidden /> Log out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <>
+                  <Button variant="ghost" onClick={() => go("login")} className="hidden min-h-11 sm:inline-flex">
+                    <UserRound className="mr-1.5 h-4 w-4" aria-hidden /> Login
+                  </Button>
+                  <Button
+                    onClick={() => go("register")}
+                    className="min-h-11 bg-secondary px-4 font-semibold text-primary hover:bg-gold-bright"
+                  >
+                    <GraduationCap className="mr-1.5 h-4 w-4" aria-hidden />
+                    <span className="hidden sm:inline">Start Learning</span>
+                    <span className="sm:hidden">Free</span>
+                  </Button>
+                </>
+              )}
+
+              {/* Mobile menu */}
+              <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+                <SheetTrigger asChild>
+                  <Button variant="ghost" size="icon" className="min-h-11 min-w-11 lg:hidden" aria-label="Open navigation menu">
+                    <Menu className="h-5 w-5" aria-hidden />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="right" className="w-[86vw] max-w-sm overflow-y-auto p-0">
+                  <SheetHeader className="border-b border-border p-4 text-left">
+                    <SheetTitle className="flex items-center gap-2">
+                      { }
+                      <img src="/brand/logo.png" alt="Niyatee IAS logo" className="h-8 w-auto" />
+                    </SheetTitle>
+                  </SheetHeader>
+                  <MobileNav active={view} onNavigate={go} user={user} onLogout={logout} />
+                </SheetContent>
+              </Sheet>
+            </div>
+          </>
+        ) : (
+          <NavbarShellFallback />
+        )}
       </nav>
     </motion.header>
+  );
+}
+
+/** Radix-free shell shown during SSR + first paint — visually matches the
+ *  loaded navbar to avoid layout shift, and matches the server HTML exactly so
+ *  hydration never mismatches. */
+function NavbarShellFallback() {
+  return (
+    <>
+      <div className="hidden items-center gap-5 lg:flex" aria-hidden="true">
+        {["w-12", "w-11", "w-20", "w-14", "w-16", "w-12"].map((w, i) => (
+          <span key={i} className={cn("h-4 rounded-full bg-foreground/10", w)} />
+        ))}
+      </div>
+      <div className="flex items-center gap-2" aria-hidden="true">
+        <span className="inline-flex h-11 w-11 items-center justify-center rounded-md" />
+        <span className="hidden h-11 w-24 rounded-md sm:inline-flex" />
+        <span className="inline-flex h-11 w-11 items-center justify-center rounded-md lg:hidden" />
+      </div>
+    </>
   );
 }
 

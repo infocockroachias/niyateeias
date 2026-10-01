@@ -1,10 +1,13 @@
-/** ₹ formatting using Indian digit grouping, e.g. ₹1,24,999 */
-export function inr(n: number): string {
-  return new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 0,
-  }).format(n);
+/**
+ * Price placeholder — the academy's real fees/prices are not published in this
+ * build, so every monetary amount renders as "xxxx" until confirmed by the
+ * institute. (User requirement: show "xxxx" because actual prices are unknown.)
+ */
+export const PRICE_PLACEHOLDER = "xxxx";
+
+/** All prices render as "xxxx" — see PRICE_PLACEHOLDER. */
+export function inr(_n: number): string {
+  return PRICE_PLACEHOLDER;
 }
 
 /** Compact ₹ e.g. ₹1.2L — for stat chips */

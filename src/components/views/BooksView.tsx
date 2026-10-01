@@ -111,9 +111,7 @@ export function BooksView() {
                         <span className="text-sm text-muted-foreground line-through">{inr(b.mrpInr)}</span>
                       ) : null}
                       {b.mrpInr > b.priceInr ? (
-                        <span className="text-xs font-bold text-emerald-700">
-                          {Math.round(((b.mrpInr - b.priceInr) / b.mrpInr) * 100)}% off
-                        </span>
+                        <span className="text-xs font-bold text-emerald-700">Discounted price</span>
                       ) : null}
                     </div>
                     <Button

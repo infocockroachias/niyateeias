@@ -670,7 +670,7 @@ async function main() {
 
   // ─── Rankers ────────────────────────────────────────────────────────────────
   const rankers = [
-    { name: 'Ankita Mohapatra', year: 2024, rank: 63, service: 'IAS', optional: 'Sociology', quote: 'Niyatee’s AI evaluation showed me exactly where my answers lost marks — week by week, the gaps closed.', avatarSeed: 'AM' },
+    { name: 'xxxx', year: 2024, rank: 63, service: 'IAS', optional: 'Sociology', quote: 'Niyatee’s AI evaluation showed me exactly where my answers lost marks — week by week, the gaps closed.', avatarSeed: 'AM' },
     { name: 'Debasis Sahoo', year: 2024, rank: 142, service: 'IAS', optional: 'Geography', quote: 'The daily answer-writing discipline at Niyatee turned my biggest weakness into my strongest paper.', avatarSeed: 'DS' },
     { name: 'Priyanka Behera', year: 2024, rank: 287, service: 'IPS', optional: 'Political Science', quote: 'I never left Odisha for coaching — and I never felt I missed anything. That was the point.', avatarSeed: 'PB' },
     { name: 'Sourav Das', year: 2023, rank: 96, service: 'IAS', optional: 'Anthropology', quote: 'The mentor’s 1:1 reviews were brutally honest. That honesty is worth more than any topper’s notes.', avatarSeed: 'SD' },
@@ -699,7 +699,7 @@ async function main() {
     { name: 'Bandana Pujari', batch: 'Ethics & Essay Module', role: 'Mains aspirant', quote: 'GS-IV stopped being abstract. The case-study templates gave me a repeatable method under pressure.', rating: 4 },
     { name: 'Tarun Mishra', batch: 'Foundation 2025-A', role: 'College final-year student', quote: 'Weekend mentor calls keep my college and preparation in balance. It is genuinely possible.', rating: 5 },
     { name: 'Ankita Sahoo', batch: 'Prelims Target 2024', role: 'Cleared Prelims 2024', quote: 'The weak-topic analytics after every mock were my private syllabus — I studied exactly what I needed.', rating: 5 },
-    { name: 'Debasis Mohapatra', batch: 'MAWP 2024', role: 'Mains qualified 2024', quote: 'Value-addition compendiums saved me months. Data, quotes, committee reports — ready to quote in answers.', rating: 5 },
+    { name: 'xxxx', batch: 'MAWP 2024', role: 'Mains qualified 2024', quote: 'Value-addition compendiums saved me months. Data, quotes, committee reports — ready to quote in answers.', rating: 5 },
   ]
   for (const t of testimonials) await db.testimonial.create({ data: t })
   console.log(`Testimonials: ${testimonials.length}`)
@@ -707,8 +707,8 @@ async function main() {
   // ─── Books ──────────────────────────────────────────────────────────────────
   const books = [
     { title: 'Indian Polity — Niyatee Notes Edition', author: 'Niyatee Faculty Panel', priceInr: 449, mrpInr: 599, category: 'Polity', description: 'The complete polity revision companion: 60 chapters, 400 PYQ-mapped MCQs and amendment trackers.', rating: 4.8, coverColor: '#0A1B3D', slug: 'indian-polity-niyatee' },
-    { title: 'Geography Through Maps', author: 'Prof. Ranjan Mohapatra', priceInr: 399, mrpInr: 525, category: 'Geography', description: 'The print companion to our famous map module: 80 maps with exam annotations and practice sets.', rating: 4.7, coverColor: '#1A5C3A', slug: 'geography-through-maps' },
-    { title: 'Modern Indian History — Timeline Approach', author: 'Dr. Sunanda Rath', priceInr: 425, mrpInr: 550, category: 'History', description: '1757–1947 in eight phases with personality boxes, PYQ maps and one-page revision sheets.', rating: 4.6, coverColor: '#5C1A1A', slug: 'modern-history-timeline' },
+    { title: 'Geography Through Maps', author: 'Niyatee Press Desk', priceInr: 399, mrpInr: 525, category: 'Geography', description: 'The print companion to our famous map module: 80 maps with exam annotations and practice sets.', rating: 4.7, coverColor: '#1A5C3A', slug: 'geography-through-maps' },
+    { title: 'Modern Indian History — Timeline Approach', author: 'Niyatee Press Desk', priceInr: 425, mrpInr: 550, category: 'History', description: '1757–1947 in eight phases with personality boxes, PYQ maps and one-page revision sheets.', rating: 4.6, coverColor: '#5C1A1A', slug: 'modern-history-timeline' },
     { title: 'Economy Simplified for UPSC', author: 'Niyatee Faculty Panel', priceInr: 475, mrpInr: 625, category: 'Economy', description: 'Budget, banking, inflation and growth concepts decoded with diagrams and current-linkage boxes.', rating: 4.7, coverColor: '#5C4A1A', slug: 'economy-simplified' },
     { title: 'Ethics, Integrity & Case Studies Workbook', author: 'Dr. Annapurna Sahoo', priceInr: 350, mrpInr: 450, category: 'Ethics', description: '25 solved case studies with frameworks, thinker quotes and presentation templates for GS-IV.', rating: 4.8, coverColor: '#3A1A5C', slug: 'ethics-case-studies-workbook' },
     { title: 'CSAT Manual — Paper II Complete', author: 'Niyatee Quant Team', priceInr: 499, mrpInr: 650, category: 'CSAT', description: 'Every CSAT topic with speed techniques, 1,200 practice questions and 10 solved previous papers.', rating: 4.6, coverColor: '#0A3D3D', slug: 'csat-manual' },
