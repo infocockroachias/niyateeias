@@ -118,3 +118,20 @@ Work Log:
 Stage Summary:
 - All APIs verified via curl (200s). DB seeded. AI endpoints return 503 with friendly message when SDK busy.
 - Next: browser verification, README/Vercel config, final push.
+
+---
+Task ID: 3
+Agent: Orchestrator (Z.ai Code)
+Task: Browser verification, fixes, deployment readiness
+
+Work Log:
+- Fixed stale Turbopack CSS cache (custom brand utilities missing) by restarting dev server — bg-navy/bg-hero-depth/text-ivory/text-gold now compile
+- Verified via Agent Browser (desktop 1366px + mobile 390px): Home, News (calendar+article reader), AI Evaluate (real submission scored 3.5-6.0/10 with breakdown bars), AI MCQ (bank questions + instant feedback), AI Chat widget (structured mentor answer), Register → Dashboard (welcome toast, greeting, stats), Contact enquiry (201 + toast), Books cart (qty controls, subtotal ₹974, checkout), Course detail (batch info), Test Series, Plans, Resources filters, Rankers, About, Geography Maps (interactive India SVG)
+- Fixed NewsView setState-in-effect (render-adjust pattern) and DashboardView localStorage read (post-paint), patched Sheet aria-describedby
+- Lint: 0 errors across src
+- Converted .env to portable relative DATABASE_URL, re-pushed schema + seed
+- next.config.ts: standalone output only outside Vercel; README with full docs; .env.example
+
+Stage Summary:
+- All core flows browser-verified working end-to-end. 3 commits pushed to github.com/infocockroachias/niyateeias (main).
+- Known dev-only warnings: Radix aria-controls SSR id mismatch + dialog description warning — cosmetic, no user impact.
