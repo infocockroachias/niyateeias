@@ -1,9 +1,9 @@
 import { NextRequest } from 'next/server'
-import { db } from '@/lib/db'
+import { findUserByEmail } from '@/lib/mem-store'
 import { verifyPassword, createSession, setSessionCookie } from '@/lib/auth'
 import { jsonError, withErrorGuard } from '@/lib/api-utils'
 
-/** POST /api/auth/login */
+/** POST /api/auth/login (in-memory store) */
 export async function POST(req: NextRequest) {
   return withErrorGuard(async () => {
     let body: Record<string, unknown>
@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
     const password = typeof body.password === 'string' ? body.password : ''
     if (!email || !password) return jsonError('Email and password are required.', 400)
 
-    const user = await db.user.findUnique({ where: { email } })
+    const user = findUserByEmail(email)
     if (!user || !verifyPassword(password, user.passwordHash)) {
       return jsonError('Incorrect email or password.', 401)
     }

@@ -1,5 +1,4 @@
 import { NextRequest } from 'next/server'
-import ZAI from 'z-ai-web-dev-sdk'
 import { jsonError, withErrorGuard } from '@/lib/api-utils'
 import { composeKbAnswer } from '@/lib/kb/answer'
 import { retrieve } from '@/lib/kb/engine'
@@ -76,6 +75,11 @@ Style: precise, warm, and concise, like a mentor in a corridor conversation. Use
     }
 
     try {
+      // Dynamic import: if the AI SDK is unavailable in this environment (e.g.
+      // a serverless host without AI credentials) the failure is caught below
+      // and the curated knowledge base answers instead — the route never dies
+      // at module load.
+      const { default: ZAI } = await import('z-ai-web-dev-sdk')
       const zai = await ZAI.create()
       const completion = await zai.chat.completions.create({
         messages: [

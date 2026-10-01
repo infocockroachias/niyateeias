@@ -1,9 +1,9 @@
 import { NextRequest } from 'next/server'
-import { db } from '@/lib/db'
+import { findUserByEmail, createUser } from '@/lib/mem-store'
 import { hashPassword, createSession, setSessionCookie } from '@/lib/auth'
 import { jsonError, withErrorGuard, isEmail } from '@/lib/api-utils'
 
-/** POST /api/auth/register — create account + session */
+/** POST /api/auth/register — create account + session (in-memory store) */
 export async function POST(req: NextRequest) {
   return withErrorGuard(async () => {
     let body: Record<string, unknown>
@@ -21,12 +21,10 @@ export async function POST(req: NextRequest) {
     if (!isEmail(email)) return jsonError('Please enter a valid email address.', 400)
     if (password.length < 8) return jsonError('Password must be at least 8 characters.', 400)
 
-    const existing = await db.user.findUnique({ where: { email } })
+    const existing = findUserByEmail(email)
     if (existing) return jsonError('An account with this email already exists, please log in.', 409)
 
-    const user = await db.user.create({
-      data: { name, email, passwordHash: hashPassword(password) },
-    })
+    const user = createUser(email, name, hashPassword(password))
     const token = await createSession(user.id)
     await setSessionCookie(token)
 

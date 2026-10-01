@@ -2,10 +2,11 @@
 // Live news wire — server-side RSS ingestion from today's editions.
 //
 // The user-facing requirement: daily current affairs must refer to TODAY's
-// sources only. The curated, exam-structured "Today's Brief" is stored in the
-// database (see scripts/seed.ts), but the raw news wire below is fetched LIVE
-// from The Hindu's public RSS feeds at request time (works on Vercel — plain
-// outbound HTTPS, no SDK required) with a short in-memory cache.
+// sources only. The curated, exam-structured "Today's Brief" lives in the
+// in-memory editorial library (src/data/content.ts), but the raw news wire
+// below is fetched LIVE from The Hindu's public RSS feeds at request time
+// (works on Vercel — plain outbound HTTPS, no SDK required) with a short
+// in-memory cache.
 // ─────────────────────────────────────────────────────────────────────────────
 
 export interface LiveWireItem {

@@ -1,8 +1,8 @@
 import { NextRequest } from 'next/server'
-import { db } from '@/lib/db'
+import { saveEnquiry } from '@/lib/mem-store'
 import { jsonError, withErrorGuard, isEmail } from '@/lib/api-utils'
 
-/** POST /api/enquiry — admissions enquiry */
+/** POST /api/enquiry — admissions enquiry (validated + stored in memory) */
 export async function POST(req: NextRequest) {
   return withErrorGuard(async () => {
     let body: Record<string, unknown>
@@ -27,9 +27,8 @@ export async function POST(req: NextRequest) {
     if (message.length < 5) return jsonError('Please tell us briefly what you need help with.', 400)
     if (message.length > 600) return jsonError('Message is too long (max 50 words).', 400)
 
-    const enquiry = await db.enquiry.create({
-      data: { name, email, phone, city, courseInterest, mode, stage, message },
-    })
-    return Response.json({ ok: true, id: enquiry.id }, { status: 201 })
+    const enquiry = saveEnquiry({ name, email, phone, city, courseInterest, mode, stage, message })
+
+    return Response.json({ ok: true, enquiry: { id: enquiry.id } }, { status: 201 })
   }, 'Failed to submit enquiry')
 }

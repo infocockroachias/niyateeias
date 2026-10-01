@@ -1,12 +1,9 @@
-import { db, parseJsonArray } from '@/lib/db'
 import { okCached, withErrorGuard } from '@/lib/api-utils'
+import { TEST_SERIES } from '@/data/content'
 
 /** GET /api/test-series */
 export async function GET() {
   return withErrorGuard(async () => {
-    const rows = await db.testSeries.findMany({ orderBy: { priceInr: 'desc' } })
-    return okCached({
-      series: rows.map((s) => ({ ...s, features: parseJsonArray(s.featuresJson) })),
-    })
+    return okCached({ series: TEST_SERIES })
   }, 'Failed to load test series')
 }

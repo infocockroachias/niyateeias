@@ -30,16 +30,16 @@ Niyatee Civil Services Academy is Eastern India's emerging IAS academy and **Odi
 | **Test Series** | Prelims / CSAT / Mains / OPSC series cards |
 | **Rankers & Testimonials** | Results wall grouped by year (names masked as xxxx until officially published) + student voices |
 | **Student Portal** | Register / login with secure sessions, dashboard with bookmarks and quiz analytics |
-| **Contact** | Enquiry form (saved to DB), counselling CTA, socials, newsletter |
+| **Contact** | Enquiry form (validated + captured in memory), counselling CTA, socials, newsletter |
 
 ## Tech stack
 
 - **Framework** — Next.js 16 (App Router), React 19, TypeScript
 - **Styling** — Tailwind CSS 4 + shadcn/ui (New York), custom navy/gold design tokens, **Cabinet Grotesk + Satoshi + Noto Sans Devanagari** (self-hosted via `next/font/local`, see `src/fonts/`)
 - **Design system** — see [`DESIGN.md`](./DESIGN.md): typography roles, AA contrast rules, motion curve, anti-slop copy rules (zero em-dashes, no eyebrow labels, no invented claims)
-- **Database** — Prisma ORM with SQLite (single `db/custom.db` file)
+- **Data layer** — in-memory content library (`src/data/content.ts`) + module-level runtime store (`src/lib/mem-store.ts`): zero database, zero external services, serverless-safe by design
 - **State** — Zustand (SPA view routing via hash + cart + auth state), TanStack Query (server data)
-- **AI** — `z-ai-web-dev-sdk` (server-side only) powering evaluation, chat and MCQ generation
+- **AI** — `z-ai-web-dev-sdk` (server-side, optional) powering evaluation, chat and MCQ generation; every AI route has a deterministic offline fallback (curated knowledge base / rubric evaluator / local quiz) so nothing 503s when the AI service is absent
 - **Motion** — Framer Motion page transitions and micro-interactions
 
 ## Fonts & licenses
@@ -52,15 +52,15 @@ Cabinet Grotesk and Satoshi are by the **Indian Type Foundry**, used under the I
 # 1. Install dependencies
 bun install        # or: npm install
 
-# 2. Configure environment
-cp .env.example .env
-
-# 3. Create the database schema and seed it with rich demo content
-bun run db:push
-bun run scripts/seed.ts
-
-# 4. Start the dev server
+# 2. Start the dev server — no env vars, no database setup needed
 bun run dev        # http://localhost:3000
+```
+
+The entire content library (courses, news archive, resources, PYQ papers, book shop, plans, FAQs, MCQ bank) is frozen into `src/data/content.ts`. To edit content, change `scripts/seed.ts` and re-freeze:
+
+```bash
+bun run db:push && bun run scripts/seed.ts   # optional: rebuild the local SQLite source
+bun run scripts/dump-content.ts              # re-freeze seed data into src/data/content.ts
 ```
 
 Production build:
@@ -72,9 +72,7 @@ bun run start
 
 ## Environment variables
 
-| Variable | Description |
-| --- | --- |
-| `DATABASE_URL` | Prisma SQLite connection, e.g. `file:../db/custom.db` (resolved from `prisma/schema.prisma`) |
+None required. The app runs entirely on in-memory data with no database and no external API keys. AI features (mentor chat, answer evaluation, MCQ/map-quiz generation) call the AI SDK when available and fall back to their offline equivalents otherwise.
 
 ## Deploying to Vercel
 
@@ -83,25 +81,25 @@ The project is Vercel-ready and **zero-config**:
 1. Push this repository to GitHub (already done — see below).
 2. In Vercel, **Add New → Project** and import the repo (`infocockroachias/niyateeias`, branch `main`).
 3. On the import screen you'll see the project settings (name, root directory `./`, framework preset **Next.js** auto-detected) — scroll down and click **Deploy** (Vercel labels this final button "Deploy"; in some UI versions it appears as "Create Project" — that click both creates the project and starts the first deployment).
-4. Wait ~1–2 minutes for the build. That's it — no environment variables required.
+4. Wait ~1–2 minutes for the build. That's it — no environment variables, no database, no setup.
 
-### Why no env vars are needed
+### Why it just works on serverless
 
-`src/lib/db.ts` auto-detects Vercel at cold start:
+Vercel functions cannot host a SQLite file (read-only filesystem, ephemeral `/tmp`), so the platform was redesigned to be **stateless**:
 
-- `db/custom.db` (the seeded SQLite database) is bundled into the serverless functions via `outputFileTracingIncludes` (see `next.config.ts`).
-- On cold start it is copied to `/tmp/custom.db` (the only writable location) and `DATABASE_URL` is pointed there automatically.
-- Reads **and** writes therefore work out of the box. The caveat: data written per lambda instance is ephemeral and resets on redeploy/restart.
-- You may still set `DATABASE_URL` explicitly in Vercel Project → Settings → Environment Variables to override the default.
+- All read-only content (courses, news, briefs, resources, PYQs, books, plans, FAQs, stats, the MCQ bank) is served straight from the in-memory library in `src/data/content.ts` — no DB calls anywhere.
+- Write features (enquiries, newsletter signups, student accounts, bookmarks, freshly generated MCQs) persist in the per-instance memory store `src/lib/mem-store.ts`; they reset on redeploy, which is expected for a demo deployment.
+- AI routes import the AI SDK dynamically and degrade gracefully: the Doubt Agent answers from the curated knowledge base, the evaluator uses a deterministic GS-rubric scorer, the geo quiz serves a locally generated set.
 
-> **SQLite on serverless:** for production-scale persistence, swap `src/lib/db.ts` (and `prisma/schema.prisma`) to a hosted provider (Postgres via Prisma Accelerate / Neon / Supabase). Only those two files change; every API route stays identical.
+> **Production persistence:** when real storage is needed, swap `src/lib/mem-store.ts` for a hosted store (Postgres / Upstash / Prisma Postgres). The API contracts stay identical — only that one module changes.
 
 ## Project structure
 
 ```
-├─ prisma/schema.prisma          # 17 models — users, courses, news, resources, AI plans…
-├─ scripts/seed.ts               # rich, domain-accurate seed data (60 news articles, 40 resources…)
-├─ db/custom.db                  # SQLite database file
+├─ scripts/seed.ts               # seed data source (edit here, then re-freeze)
+├─ scripts/dump-content.ts       # freezes seed data into src/data/content.ts
+├─ src/data/content.ts           # THE content library — served from memory
+├─ src/lib/mem-store.ts          # runtime in-memory store (enquiries, auth, bookmarks)
 ├─ public/brand/                 # Niyatee logo & icon set
 └─ src/
    ├─ app/

@@ -220,3 +220,22 @@ Work Log:
 
 Stage Summary:
 - Site now runs Cabinet Grotesk + Satoshi on a silver-paper canvas with AA-safe gold; invisible CTAs fixed at the variant level; every unverifiable claim removed; AI-tell patterns (eyebrows, em-dashes, side-stripes, glass, ghost numbers) stripped; design rules codified in DESIGN.md
+
+---
+Task ID: 7
+Agent: Orchestrator (Z.ai Code)
+Task: Fix Vercel deployment failures ("Stats temporarily unavailable", "Could not load courses/news/brief/resources") — remove all database/LLM hard dependencies so the site runs statelessly on serverless
+
+Work Log:
+- Root cause: every content API read from Prisma + SQLite (db/custom.db); the /tmp-copy + outputFileTracingIncludes approach from Task 4-c still fails on Vercel's read-only serverless filesystem, so all GETs 500'd after deploy
+- scripts/dump-content.ts (new): one-off bun script that reads every table from the seeded SQLite and freezes it into src/data/content.ts (261 KB) — 10 courses, 76 news (incl. Today's Brief structured fields), 4 digests, 47 resources, 12 rankers, 12 testimonials, 8 books, 4 test-series, 3 plans, 10 FAQs, 42 MCQs; exports LATEST_NEWS_DATE for edition-anchored queries
+- All 12 content GET routes rewritten to serve from src/data/content.ts with identical response shapes: courses (+slug), news (date / month+year / default latest-30-days anchored to LATEST_NEWS_DATE, not wall clock), news/today (brief = latest structured edition + live RSS wire, which still works on Vercel via outbound HTTPS), news/monthly, books, faq, plans, rankers, resources, stats (counts computed from the library), test-series, testimonials
+- src/lib/mem-store.ts (new): module-level in-memory store (global-singleton) for writes — enquiries, newsletter, users (scrypt hashes), sessions (30-day tokens), bookmarks, runtime-generated MCQs; resets per server instance, honest demo persistence
+- src/lib/auth.ts rewritten on mem-store (same public API); enquiry, newsletter, auth/register|login|logout|me, user/bookmarks(/remove) rewritten DB-free; bookmarks accept id or slug and validate against the static library
+- AI routes hardened: z-ai-web-dev-sdk now DYNAMICALLY imported inside try/catch in chat / evaluate / mcq / geo-quiz (a module-load failure can no longer kill a route); ai/evaluate gained a deterministic GS-rubric offline evaluator (src/lib/kb/evaluate.ts: structure markers, data/example detection, directive linkage, word discipline); ai/mcq serves the static bank (subject+difficulty, then relaxed, then rotated by day-seed) and never 503s
+- Cleanup: src/lib/db.ts deleted (zero Prisma imports remain in src/), next.config.ts DB_ROUTES/outputFileTracingIncludes removed, build script drops prisma generate, README rewritten (no env vars, no DB, serverless architecture explained, swap mem-store for hosted store when needed)
+- Verified: curl 200 + real payloads on all 12 content endpoints; enquiry/newsletter 201; register→me→bookmark round-trip via cookies; chat KB reply; MCQ bank questions; evaluate (AI locally); geo-quiz (AI locally)
+- Browser-verified (desktop 1366 + mobile 390): home stats/hero render, Today's Brief masthead + live wire + brief cards + article detail (Prelims Points / Mains Angles / Keywords / Practice Q all present), resources → PYQ reader opens, Doubt Agent replies without "couldn't reach" errors, MCQ Generate Quiz works, UI register → dashboard, UI enquiry 201 + success toast, footer 2026 + sticks/pushes correctly, no horizontal overflow, no console errors; lint clean
+
+Stage Summary:
+- The platform is now fully stateless: zero database calls, zero mandatory LLM calls. Vercel deployment needs nothing but the repo import; every previously failing panel (stats, courses, news, today's brief, newsroom wire, resources) renders from memory. Content edits: change scripts/seed.ts → bun run scripts/dump-content.ts → commit.

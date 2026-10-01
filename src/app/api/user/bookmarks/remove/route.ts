@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server'
-import { db } from '@/lib/db'
+import { removeBookmark } from '@/lib/mem-store'
 import { getSessionUser } from '@/lib/auth'
 import { jsonError, withErrorGuard } from '@/lib/api-utils'
 
@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
     const resourceId = typeof body.resourceId === 'string' ? body.resourceId.trim() : ''
     if (!resourceId) return jsonError('resourceId is required.', 400)
 
-    await db.bookmark.deleteMany({ where: { userId: user.id, resourceId } })
+    removeBookmark(user.id, resourceId)
     return Response.json({ ok: true })
   }, 'Failed to remove bookmark')
 }

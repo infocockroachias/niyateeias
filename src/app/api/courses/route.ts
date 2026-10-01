@@ -1,24 +1,18 @@
 import { NextRequest } from 'next/server'
-import { db, parseJsonArray } from '@/lib/db'
 import { okCached, jsonError, withErrorGuard } from '@/lib/api-utils'
+import { COURSES } from '@/data/content'
 
+/** GET /api/courses — programs list, or ?slug= for a single course */
 export async function GET(req: NextRequest) {
   return withErrorGuard(async () => {
     const slug = req.nextUrl.searchParams.get('slug')
 
-    const shape = (c: { featuresJson: string; syllabusJson: string } & Record<string, unknown>) => ({
-      ...c,
-      features: parseJsonArray(c.featuresJson as string),
-      syllabusHighlights: parseJsonArray(c.syllabusJson as string),
-    })
-
     if (slug) {
-      const course = await db.course.findUnique({ where: { slug } })
+      const course = COURSES.find((c) => c.slug === slug)
       if (!course) return jsonError('Course not found', 404)
-      return okCached({ course: shape(course) })
+      return okCached({ course })
     }
 
-    const courses = await db.course.findMany({ orderBy: [{ featured: 'desc' }, { feeInr: 'asc' }] })
-    return okCached({ courses: courses.map(shape) })
+    return okCached({ courses: COURSES })
   }, 'Failed to load courses')
 }

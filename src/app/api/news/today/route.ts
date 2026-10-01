@@ -1,51 +1,38 @@
 import { NextRequest } from 'next/server'
-import { db, parseJsonArray } from '@/lib/db'
 import { withErrorGuard } from '@/lib/api-utils'
-import { getLiveWire, istTodayIso, type LiveWire } from '@/lib/news-live'
-
-function parseMainsQuestion(raw: string | null): { text: string; marks: number; words: number; directive?: string } | null {
-  if (!raw) return null
-  try {
-    const parsed = JSON.parse(raw) as { text?: string; marks?: number; words?: number; directive?: string }
-    if (!parsed?.text) return null
-    return { text: String(parsed.text), marks: Number(parsed.marks) || 10, words: Number(parsed.words) || 150, directive: parsed.directive }
-  } catch {
-    return null
-  }
-}
+import { NEWS_ARTICLES, LATEST_NEWS_DATE } from '@/data/content'
+import { getLiveWire, type LiveWire } from '@/lib/news-live'
 
 /**
- * GET /api/news/today — Today's Current Affairs (IST date).
+ * GET /api/news/today — Today's Current Affairs (edition-based).
  * Returns: { date, brief: StructuredNewsArticle[], live: LiveWire | null, sources: string[] }
- * `brief` = exam-structured curated articles dated today (from the DB).
- * `live`  = raw headlines fetched live from The Hindu RSS wires (best-effort).
+ * `date`  = the current brief edition (latest curated article date in the archive)
+ * `brief` = exam-structured curated articles for that edition, served from the
+ *           in-memory editorial library (zero database dependency)
+ * `live`  = raw headlines fetched live from The Hindu RSS wires (best-effort)
  */
 export async function GET(_req: NextRequest) {
   return withErrorGuard(async () => {
-    const date = istTodayIso()
+    const date = LATEST_NEWS_DATE ?? ''
 
-    const rows = await db.newsArticle.findMany({
-      where: { date },
-      orderBy: [{ gsTag: 'asc' }, { createdAt: 'asc' }],
-      take: 30,
-    })
-
-    const brief = rows.map((a) => ({
-      id: a.id,
-      title: a.title,
-      summary: a.summary,
-      content: a.content,
-      source: a.source,
-      gsTag: a.gsTag,
-      subject: a.subject,
-      date: a.date,
-      readMinutes: a.readMinutes,
-      tags: parseJsonArray(a.tagsJson),
-      prelims: parseJsonArray(a.prelimsJson),
-      mains: parseJsonArray(a.mainsJson),
-      keywords: parseJsonArray(a.keywordsJson),
-      mainsQuestion: parseMainsQuestion(a.mainsQuestionJson),
-    }))
+    const brief = NEWS_ARTICLES.filter((a) => a.date === date && (a.prelims.length > 0 || a.mains.length > 0))
+      .slice(0, 30)
+      .map((a) => ({
+        id: a.id,
+        title: a.title,
+        summary: a.summary,
+        content: a.content,
+        source: a.source,
+        gsTag: a.gsTag,
+        subject: a.subject,
+        date: a.date,
+        readMinutes: a.readMinutes,
+        tags: a.tags,
+        prelims: a.prelims,
+        mains: a.mains,
+        keywords: a.keywords,
+        mainsQuestion: a.mainsQuestion,
+      }))
 
     let live: LiveWire | null = null
     try {

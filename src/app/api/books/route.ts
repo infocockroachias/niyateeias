@@ -1,10 +1,9 @@
-import { db } from '@/lib/db'
 import { okCached, withErrorGuard } from '@/lib/api-utils'
+import { BOOKS } from '@/data/content'
 
 /** GET /api/books — UPSC book shop */
 export async function GET() {
   return withErrorGuard(async () => {
-    const books = await db.book.findMany({ orderBy: { title: 'asc' } })
-    return okCached({ books })
+    return okCached({ books: BOOKS })
   }, 'Failed to load books')
 }

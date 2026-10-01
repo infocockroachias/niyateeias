@@ -1,12 +1,20 @@
 import { randomBytes, scryptSync, timingSafeEqual } from 'node:crypto'
 import { cookies } from 'next/headers'
-import { db } from '@/lib/db'
+import {
+  saveSession,
+  getSession,
+  deleteSession,
+  findUserById,
+} from '@/lib/mem-store'
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Auth utilities — scrypt password hashing + DB-backed cookie sessions.
-// Cookie contract (worklog API CONTRACT):
+// Auth utilities — scrypt password hashing + memory-backed cookie sessions.
+// Cookie contract:
 //   name: "niyatee_session", httpOnly, sameSite=lax, secure in production,
-//   30-day expiry. Sessions are persisted in the Session table.
+//   30-day expiry. Sessions live in the in-memory store (src/lib/mem-store.ts)
+//   because the platform runs on serverless hosts where a database file
+//   cannot persist. Swapping mem-store for a hosted store keeps this file's
+//   public API unchanged.
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const SESSION_COOKIE_NAME = 'niyatee_session'
@@ -44,11 +52,11 @@ export function generateSessionToken(): string {
   return randomBytes(32).toString('hex')
 }
 
-/** Persist a new session row for the user. Returns the raw token. */
+/** Persist a new session in the in-memory store. Returns the raw token. */
 export async function createSession(userId: string): Promise<string> {
   const token = generateSessionToken()
-  const expiresAt = new Date(Date.now() + SESSION_MAX_AGE_SECONDS * 1000)
-  await db.session.create({ data: { token, userId, expiresAt } })
+  const expiresAt = Date.now() + SESSION_MAX_AGE_SECONDS * 1000
+  saveSession(userId, token, expiresAt)
   return token
 }
 
@@ -94,34 +102,29 @@ export async function getSessionUser(): Promise<SessionUser | null> {
     const token = store.get(SESSION_COOKIE_NAME)?.value
     if (!token) return null
 
-    const session = await db.session.findUnique({
-      where: { token },
-      include: { user: true },
-    })
+    const session = getSession(token)
     if (!session) return null
-    if (session.expiresAt.getTime() < Date.now()) {
-      // Expired — best-effort cleanup so the table stays tidy.
-      await db.session.delete({ where: { id: session.id } }).catch(() => undefined)
-      return null
-    }
+
+    const user = findUserById(session.userId)
+    if (!user) return null
 
     return {
-      id: session.user.id,
-      name: session.user.name ?? '',
-      email: session.user.email,
+      id: user.id,
+      name: user.name ?? '',
+      email: user.email,
     }
   } catch {
     return null
   }
 }
 
-/** Delete the session row backing the current cookie (if any) and clear the cookie. */
+/** Delete the session backing the current cookie (if any) and clear the cookie. */
 export async function destroyCurrentSession(): Promise<void> {
   try {
     const store = await cookies()
     const token = store.get(SESSION_COOKIE_NAME)?.value
     if (token) {
-      await db.session.deleteMany({ where: { token } }).catch(() => undefined)
+      deleteSession(token)
     }
   } catch {
     // ignore

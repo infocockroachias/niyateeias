@@ -1,7 +1,8 @@
 import { NextRequest } from 'next/server'
-import { db } from '@/lib/db'
+import { upsertBookmark, listBookmarks } from '@/lib/mem-store'
 import { getSessionUser } from '@/lib/auth'
 import { jsonError, withErrorGuard } from '@/lib/api-utils'
+import { RESOURCES } from '@/data/content'
 
 /** GET /api/user/bookmarks — list the signed-in user's saved resources */
 export async function GET() {
@@ -9,11 +10,11 @@ export async function GET() {
     const user = await getSessionUser()
     if (!user) return jsonError('Please log in to view your bookmarks.', 401)
 
-    const bookmarks = await db.bookmark.findMany({
-      where: { userId: user.id },
-      orderBy: { createdAt: 'desc' },
-      select: { id: true, resourceId: true, createdAt: true },
-    })
+    const bookmarks = listBookmarks(user.id).map((b) => ({
+      id: b.id,
+      resourceId: b.resourceId,
+      createdAt: b.createdAt,
+    }))
     return Response.json({ bookmarks })
   }, 'Failed to load bookmarks')
 }
@@ -33,15 +34,17 @@ export async function POST(req: NextRequest) {
     const resourceId = typeof body.resourceId === 'string' ? body.resourceId.trim() : ''
     if (!resourceId) return jsonError('resourceId is required.', 400)
 
-    const resource = await db.resource.findUnique({ where: { id: resourceId } })
-    if (!resource) return jsonError('Resource not found.', 404)
+    // Accept both an id and a slug: the library is in-memory, so resolve the
+    // resource against the static dataset (slug match keeps old links working).
+    const exists =
+      RESOURCES.some((r) => r.id === resourceId) || RESOURCES.some((r) => r.slug === resourceId)
+    if (!exists) return jsonError('Resource not found.', 404)
 
-    const bookmark = await db.bookmark.upsert({
-      where: { userId_resourceId: { userId: user.id, resourceId } },
-      update: {},
-      create: { userId: user.id, resourceId },
-      select: { id: true, resourceId: true, createdAt: true },
-    })
-    return Response.json({ bookmark }, { status: 201 })
+    const bookmark = upsertBookmark(user.id, resourceId)
+    return Response.json(
+      { bookmark: { id: bookmark.id, resourceId: bookmark.resourceId, createdAt: bookmark.createdAt } },
+      { status: 201 }
+    )
   }, 'Failed to save bookmark')
 }
+

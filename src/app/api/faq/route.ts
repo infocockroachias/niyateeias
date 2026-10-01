@@ -1,10 +1,9 @@
-import { db } from '@/lib/db'
 import { okCached, withErrorGuard } from '@/lib/api-utils'
+import { FAQS } from '@/data/content'
 
 /** GET /api/faq */
 export async function GET() {
   return withErrorGuard(async () => {
-    const faqs = await db.faq.findMany({ orderBy: { id: 'asc' } })
-    return okCached({ faqs })
+    return okCached({ faqs: FAQS })
   }, 'Failed to load FAQs')
 }

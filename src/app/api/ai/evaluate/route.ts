@@ -1,11 +1,16 @@
 import { NextRequest } from 'next/server'
-import ZAI from 'z-ai-web-dev-sdk'
 import { jsonError, withErrorGuard, extractJson, clampNumber } from '@/lib/api-utils'
+import { evaluateOffline } from '@/lib/kb/evaluate'
 
 /**
  * POST /api/ai/evaluate
  * Body: { question: string, answer: string, paperType?: string }
- * Returns: { evaluation: { scoreInr0to10, breakdown, strengths, improvements, modelOutline, verdict } }
+ * Returns: { evaluation: { scoreInr0to10, breakdown, strengths, improvements, modelOutline, verdict }, source: 'ai' | 'rubric' }
+ *
+ * Resilience contract: evaluation NEVER dead-ends. When the LLM service is
+ * unreachable (e.g. serverless hosts without AI credentials) a deterministic
+ * GS-rubric evaluator scores the answer from measurable features (structure,
+ * evidence, directive linkage, word discipline) — see src/lib/kb/evaluate.ts.
  */
 export async function POST(req: NextRequest) {
   return withErrorGuard(async () => {
@@ -39,18 +44,20 @@ Respond with ONLY a JSON object (no markdown, no prose) in exactly this shape:
   "strengths": [<2-4 short strings citing specific parts of the answer>],
   "improvements": [<2-4 short, actionable strings>],
   "modelOutline": [<5-7 bullet strings outlining an ideal answer skeleton>],
-  "verdict": "<one or two sentences: what this answer would realistically fetch and the single biggest lever to improve it>"
+  "verdict": "<one-sentence examiner verdict>"
 }`
 
-    const user = `Paper type: ${paperType}
+    const user = `Paper: ${paperType}
 Question: ${question}
-
-Aspirant's answer:
+Answer to evaluate:
+"""
 ${answer}
-
-Evaluate this answer now. Return only the JSON object.`
+"""`
 
     try {
+      // Dynamic import: stays safe on hosts without AI credentials — the catch
+      // below serves the deterministic rubric evaluation instead.
+      const { default: ZAI } = await import('z-ai-web-dev-sdk')
       const zai = await ZAI.create()
       const completion = await zai.chat.completions.create({
         messages: [
@@ -62,7 +69,7 @@ Evaluate this answer now. Return only the JSON object.`
       const raw = completion.choices[0]?.message?.content ?? ''
       const parsed = extractJson(raw) as Record<string, unknown> | null
       if (!parsed || typeof parsed !== 'object') {
-        return jsonError('The evaluator returned an unreadable response, please try again.', 502)
+        throw new Error('unparseable evaluator response')
       }
 
       const bd = (parsed.breakdown ?? {}) as Record<string, unknown>
@@ -84,10 +91,10 @@ Evaluate this answer now. Return only the JSON object.`
         modelOutline: strArr(parsed.modelOutline),
         verdict: typeof parsed.verdict === 'string' ? parsed.verdict : '',
       }
-      return Response.json({ evaluation })
+      return Response.json({ evaluation, source: 'ai' })
     } catch (err) {
-      console.error('[ai/evaluate]', err)
-      return jsonError('AI evaluation service is busy right now, please try again in a moment.', 503)
+      console.error('[ai/evaluate] LLM unavailable, using deterministic rubric evaluation:', err)
+      return Response.json({ evaluation: evaluateOffline(question, answer), source: 'rubric' })
     }
   }, 'Failed to evaluate answer')
 }

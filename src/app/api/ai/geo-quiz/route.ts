@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import ZAI from 'z-ai-web-dev-sdk'
 import { jsonError, withErrorGuard, extractJson } from '@/lib/api-utils'
 import { GEO_ITEMS, getCategory, type GeoItem } from '@/lib/geo-data'
 
@@ -130,6 +129,9 @@ ${digest}
 Generate ${count} UPSC Prelims-style geography MCQs based on this dataset. Return only the JSON array.`
 
     try {
+      // Dynamic import: stays safe on hosts without AI credentials — the catch
+      // below serves the deterministic local quiz instead.
+      const { default: ZAI } = await import('z-ai-web-dev-sdk')
       const zai = await ZAI.create()
       const completion = await zai.chat.completions.create({
         messages: [
