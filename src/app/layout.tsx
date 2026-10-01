@@ -1,38 +1,59 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { Inter, Playfair_Display, Noto_Sans_Devanagari } from "next/font/google";
 import "./globals.css";
-import { Toaster } from "@/components/ui/toaster";
+import { Toaster } from "@/components/ui/sonner";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const playfair = Playfair_Display({
+  variable: "--font-playfair",
   subsets: ["latin"],
+  display: "swap",
+});
+
+const devanagari = Noto_Sans_Devanagari({
+  variable: "--font-devanagari",
+  subsets: ["devanagari"],
+  weight: ["500", "700"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "Z.ai Code Scaffold - AI-Powered Development",
-  description: "Modern Next.js scaffold optimized for AI-powered development with Z.ai. Built with TypeScript, Tailwind CSS, and shadcn/ui.",
-  keywords: ["Z.ai", "Next.js", "TypeScript", "Tailwind CSS", "shadcn/ui", "AI development", "React"],
-  authors: [{ name: "Z.ai Team" }],
+  title: "Best UPSC Coaching in Odisha | Niyatee Civil Services Academy Bhubaneswar",
+  description:
+    "Niyatee Civil Services Academy (Niyatee IAS), Bhubaneswar — Odisha's first AI-integrated UPSC coaching institute. Expert faculty, structured Prelims-to-Interview framework, daily current affairs from The Hindu & PIB, AI Mains answer evaluation, AI MCQ practice, 20+ years PYQs and curated books. नियती — From Aspirations to Achievements.",
+  keywords: [
+    "UPSC coaching Odisha",
+    "IAS coaching Bhubaneswar",
+    "Niyatee IAS",
+    "Niyatee Civil Services Academy",
+    "OPSC coaching",
+    "AI UPSC preparation",
+    "UPSC current affairs",
+    "best UPSC coaching in Odisha",
+  ],
+  authors: [{ name: "Niyatee Civil Services Academy" }],
   icons: {
-    icon: "https://z-cdn.chatglm.cn/z-ai/static/logo.svg",
+    icon: "/brand/favicon.png",
+    apple: "/brand/icon-192.png",
   },
   openGraph: {
-    title: "Z.ai Code Scaffold",
-    description: "AI-powered development with modern React stack",
-    url: "https://chat.z.ai",
-    siteName: "Z.ai",
+    title: "Best UPSC Coaching in Odisha | Niyatee Civil Services Academy",
+    description:
+      "AI-powered UPSC preparation & expert mentorship in Bhubaneswar. From Aspirations to Achievements.",
+    siteName: "Niyatee Civil Services Academy",
     type: "website",
   },
-  twitter: {
-    card: "summary_large_image",
-    title: "Z.ai Code Scaffold",
-    description: "AI-powered development with modern React stack",
-  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#0a1b3d",
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({
@@ -43,10 +64,10 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
+        className={`${inter.variable} ${playfair.variable} ${devanagari.variable} antialiased bg-background text-foreground font-sans`}
       >
         {children}
-        <Toaster />
+        <Toaster position="top-right" richColors closeButton />
       </body>
     </html>
   );

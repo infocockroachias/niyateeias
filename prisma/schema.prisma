@@ -1,8 +1,7 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+// Niyatee IAS — Prisma schema (SQLite)
+// Defined per worklog DB SCHEMA section (Task 1). Backend Task 2-a.
+// NOTE: SQLite has no native array type — list fields are stored as JSON strings
+// (fields suffixed `Json`) and parsed at the API layer.
 
 generator client {
   provider = "prisma-client-js"
@@ -13,20 +12,223 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ─── Auth & Users ────────────────────────────────────────────────────────────
+
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           String        @id @default(cuid())
+  email        String        @unique
+  name         String?
+  passwordHash String // scrypt: "<salt hex>:<derivedKey hex>" (node:crypto)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  sessions     Session[]
+  bookmarks    Bookmark[]
+  quizAttempts QuizAttempt[]
 }
 
-model Post {
+model Session {
   id        String   @id @default(cuid())
-  title     String
-  content   String?
-  published Boolean  @default(false)
-  authorId  String
+  token     String   @unique // 64-char random hex (randomBytes(32))
+  userId    String
+  expiresAt DateTime // 30 days from creation
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+// ─── Lead capture ────────────────────────────────────────────────────────────
+
+model Enquiry {
+  id             String   @id @default(cuid())
+  name           String
+  email          String
+  phone          String
+  city           String?
+  courseInterest String?
+  mode           String?
+  stage          String?
+  message        String
+  createdAt      DateTime @default(now())
+}
+
+model NewsletterSubscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
+}
+
+// ─── Courses ─────────────────────────────────────────────────────────────────
+
+model Course {
+  id              String  @id @default(cuid())
+  title           String
+  slug            String  @unique
+  tagline         String
+  description     String
+  mode            String // "offline" | "online-live" | "recorded" | "hybrid"
+  duration        String
+  feeInr          Int
+  originalFeeInr  Int?
+  featuresJson    String // JSON string[]
+  syllabusJson    String // JSON string[]
+  batchSize       String
+  tag             String // "foundation" | "prelims" | "mains" | "interview" | "opsc" | "csat"
+  featured        Boolean @default(false)
+  startDate       String // ISO date "YYYY-MM-DD"
+  sessionsPerWeek Int
+}
+
+// ─── News / Current affairs ──────────────────────────────────────────────────
+
+model NewsArticle {
+  id          String @id @default(cuid())
+  title       String
+  summary     String // 2-3 sentence standfirst
+  content     String // full editorial body, paragraphs separated by \n\n
+  source      String // "The Hindu" | "Indian Express" | "PIB" | "Yojana"
+  gsTag       String // "GS1" | "GS2" | "GS3" | "GS4" | "Prelims" | "Essay"
+  subject     String // Polity, Economy, IR, Environment, S&T, History, Society, Security...
+  date        String // "YYYY-MM-DD"
+  readMinutes Int
+  tagsJson    String // JSON string[]
+  createdAt   DateTime @default(now())
+
+  @@index([date])
+  @@index([gsTag])
+  @@index([subject])
+}
+
+model MonthlyNewsDigest {
+  id       String @id @default(cuid())
+  month    Int // 1-12
+  year     Int
+  fileName String @unique // e.g. monthly_news_9_2026.pdf
+  fileUrl  String // e.g. /api/news/digest/monthly_news_9_2026.pdf
+  status   String // "success" | "failed" | "pending"
+
+  @@unique([month, year])
+}
+
+// ─── Resources (PYQs, notes, booklist, answer keys, e-books, CA compilations) ─
+
+model Resource {
+  id             String @id @default(cuid())
+  title          String
+  category       String // "pyq" | "notes" | "booklist" | "answer-key" | "ebook" | "current-affairs"
+  exam           String // "UPSC" | "OPSC" | "CSAT" | "Optional"
+  description    String
+  year           Int?
+  fileType       String // "pdf" | "docx" | "page"
+  pages          Int?
+  downloads      Int
+  slug           String @unique
+  contentSummary String
+}
+
+// ─── Social proof ────────────────────────────────────────────────────────────
+
+model Ranker {
+  id         String @id @default(cuid())
+  name       String
+  year       Int // CSE year of result
+  rank       Int // All India Rank
+  service    String // IAS | IPS | IFS | IRS...
+  optional   String
+  quote      String
+  avatarSeed String
+}
+
+model Testimonial {
+  id     String @id @default(cuid())
+  name   String
+  batch  String // e.g. "Foundation 2025-A"
+  role   String
+  quote  String
+  rating Int // 4-5
+}
+
+// ─── Shop ────────────────────────────────────────────────────────────────────
+
+model Book {
+  id          String @id @default(cuid())
+  title       String
+  author      String
+  priceInr    Int
+  mrpInr      Int
+  category    String
+  description String
+  rating      Float
+  coverColor  String // hex for placeholder cover rendering
+  slug        String @unique
+}
+
+model TestSeries {
+  id           String @id @default(cuid())
+  title        String
+  exam         String // "UPSC Prelims" | "UPSC Mains" | "CSAT" | "OPSC"
+  totalTests   Int
+  freeTests    Int
+  priceInr     Int
+  featuresJson String // JSON string[]
+  description  String
+  slug         String @unique
+}
+
+// ─── AI plans / FAQ ──────────────────────────────────────────────────────────
+
+model Plan {
+  id           String  @id @default(cuid())
+  name         String
+  priceInr     Int
+  period       String // "month" | "year"
+  tagline      String
+  featuresJson String // JSON string[]
+  highlight    Boolean @default(false)
+  aiCredits    String // human-readable, e.g. "50 evaluations/mo"
+}
+
+model Faq {
+  id       String @id @default(cuid())
+  question String
+  answer   String
+  category String
+}
+
+// ─── AI MCQ practice ─────────────────────────────────────────────────────────
+
+model McqQuestion {
+  id           String   @id @default(cuid())
+  question     String
+  optionsJson  String // JSON string[4]
+  correctIndex Int // 0-3
+  explanation  String
+  subject      String
+  difficulty   String // "easy" | "medium" | "hard"
+  hash         String   @unique // sha256 of question text — upsert key for AI-generated items
+  createdAt    DateTime @default(now())
+}
+
+model QuizAttempt {
+  id          String   @id @default(cuid())
+  userId      String
+  score       Int
+  total       Int
+  detailsJson String?
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Bookmark {
+  id         String   @id @default(cuid())
+  userId     String
+  resourceId String
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, resourceId])
+  @@index([userId])
 }

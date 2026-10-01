@@ -101,3 +101,20 @@ User(passwordHash via node:crypto scrypt), Session(token), Enquiry, NewsletterSu
 - All fetches via TanStack Query or simple useEffect; loading skeletons; toasts via sonner; error states.
 
 ---
+
+---
+Task ID: 2-a
+Agent: Orchestrator (completed backend after subagent partial run)
+Task: Backend — Prisma schema, seed data, all API routes, AI endpoints
+
+Work Log:
+- Reviewed schema.prisma (complete, per contract) and lib helpers (auth.ts, api-utils.ts, db.ts) from partial agent run
+- Wrote scripts/seed.ts with rich domain-accurate data: 10 courses, 60 news articles (45-day window, relative dates), 4 monthly digests, 40 resources, 12 rankers, 12 testimonials, 8 books, 4 test series, 3 plans, 10 FAQs, 42 UPSC-style MCQs
+- Fixed apostrophe parsing issues and Prisma spread-key conflicts in seed; seeded successfully
+- Created 23 API route files implementing the full contract: courses, news (+monthly +digest placeholder), resources, rankers, testimonials, books, test-series, stats, faq, plans, enquiry, newsletter, ai/evaluate, ai/chat, ai/mcq (z-ai-web-dev-sdk backend-only), auth register/login/logout/me, user bookmarks (+remove)
+- Fixed frontend lint errors (ListChecks import, setState-in-effect in NewsView + DashboardView)
+- Lint: 0 errors
+
+Stage Summary:
+- All APIs verified via curl (200s). DB seeded. AI endpoints return 503 with friendly message when SDK busy.
+- Next: browser verification, README/Vercel config, final push.
