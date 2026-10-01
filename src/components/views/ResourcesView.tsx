@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   BookOpen,
-  Bookmark,
+  BookOpenText,
+  Bookmark as BookmarkIcon,
   BookmarkCheck,
-  Download,
   Eye,
   FileText,
   Files,
@@ -16,6 +16,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { apiPost, pickArray, toErrorMessage, useApi, type Bookmark, type Resource, type ResourceCategory } from "@/lib/api";
 import { useAppStore } from "@/lib/store";
+import { RESOURCE_SLUG_MAP } from "@/data/pyq/papers";
 import { CardsSkeleton, ErrorCard, FadeIn, SectionHeading } from "@/components/shared/blocks";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -53,15 +54,25 @@ export function ResourcesView() {
 
   const [category, setCategory] = useState<"all" | ResourceCategory>("all");
   const [exam, setExam] = useState<(typeof EXAMS)[number]>("All");
-  const [bookmarked, setBookmarked] = useState<Set<string>>(new Set());
+  /** Optimistic per-resource overrides over the server bookmark list */
+  const [bookmarkOverrides, setBookmarkOverrides] = useState<Record<string, boolean>>({});
 
   const { data, isLoading, isError, refetch } = useApi<{ resources: Resource[] }>("/api/resources");
   const bookmarksQuery = useApi<{ bookmarks: Bookmark[] }>(user ? "/api/user/bookmarks" : null);
 
-  useEffect(() => {
+  const serverBookmarks = useMemo(() => {
     const list = pickArray<Bookmark>(bookmarksQuery.data, "bookmarks");
-    setBookmarked(new Set(list.map((b) => String(b.resourceId))));
+    return new Set(list.map((b) => String(b.resourceId)));
   }, [bookmarksQuery.data]);
+
+  const bookmarked = useMemo(() => {
+    const set = new Set(serverBookmarks);
+    for (const [id, on] of Object.entries(bookmarkOverrides)) {
+      if (on) set.add(id);
+      else set.delete(id);
+    }
+    return set;
+  }, [serverBookmarks, bookmarkOverrides]);
 
   const resources = useMemo(() => pickArray<Resource>(data, "resources"), [data]);
   const filtered = useMemo(
@@ -80,12 +91,7 @@ export function ResourcesView() {
     }
     const isBookmarked = bookmarked.has(r.id);
     // optimistic
-    setBookmarked((prev) => {
-      const next = new Set(prev);
-      if (isBookmarked) next.delete(r.id);
-      else next.add(r.id);
-      return next;
-    });
+    setBookmarkOverrides((prev) => ({ ...prev, [r.id]: !isBookmarked }));
     try {
       if (isBookmarked) {
         await apiPost("/api/user/bookmarks/remove", { resourceId: r.id });
@@ -97,31 +103,40 @@ export function ResourcesView() {
       void bookmarksQuery.refetch();
     } catch (err) {
       // rollback
-      setBookmarked((prev) => {
-        const next = new Set(prev);
-        if (isBookmarked) next.add(r.id);
-        else next.delete(r.id);
-        return next;
-      });
+      setBookmarkOverrides((prev) => ({ ...prev, [r.id]: isBookmarked }));
       toast.error(toErrorMessage(err));
     }
   };
 
   const openResource = async (r: Resource) => {
+    const markBookmarked = async () => {
+      if (user && !bookmarked.has(r.id)) {
+        try {
+          await apiPost("/api/user/bookmarks", { resourceId: r.id });
+          setBookmarkOverrides((prev) => ({ ...prev, [r.id]: true }));
+          toast("Added to your bookmarks too.", { icon: "🔖" });
+        } catch {
+          /* bookmarking is best-effort */
+        }
+      }
+    };
+
+    // PYQs open the on-screen Paper Reader — no downloads anywhere for PYQs.
+    if (r.category === "pyq") {
+      void markBookmarked();
+      navigate("pyq-reader", {
+        slug: RESOURCE_SLUG_MAP[r.slug] ?? "upsc-prelims-2026-gs1",
+        ...(r.year ? { year: String(r.year) } : {}),
+      });
+      return;
+    }
+
     if (r.fileType === "page") {
       toast.info(`Opening “${r.title}” — full reading view.`);
       return;
     }
-    toast.success(`Preparing “${r.title}” (${r.fileType.toUpperCase()}) for download…`);
-    if (user && !bookmarked.has(r.id)) {
-      try {
-        await apiPost("/api/user/bookmarks", { resourceId: r.id });
-        setBookmarked((prev) => new Set(prev).add(r.id));
-        toast("Added to your bookmarks too.", { icon: "🔖" });
-      } catch {
-        /* bookmarking is best-effort */
-      }
-    }
+    toast.info("Opens on screen — full versions for enrolled students.");
+    void markBookmarked();
   };
 
   return (
@@ -130,8 +145,8 @@ export function ResourcesView() {
         <SectionHeading
           align="left"
           eyebrow="Free Resources"
-          title="PYQs, Notes, Answer Keys & More"
-          description="20+ years of prelims PYQs with solutions, mentor-approved booklists, GS notes and official answer keys — free for every aspirant."
+          title="PYQs, Notes, Answer Keys & More — All On Screen"
+          description="UPSC 2026 Prelims & Mains papers in a digital reader with instant solutions, 20+ years of PYQs, mentor-approved booklists, GS notes and official answer keys — no downloads needed."
         />
 
         {/* Filters */}
@@ -206,7 +221,7 @@ export function ResourcesView() {
                             {isBookmarked ? (
                               <BookmarkCheck className="h-5 w-5 text-secondary" aria-hidden />
                             ) : (
-                              <Bookmark className="h-5 w-5" aria-hidden />
+                              <BookmarkIcon className="h-5 w-5" aria-hidden />
                             )}
                           </button>
                         </div>
@@ -223,15 +238,28 @@ export function ResourcesView() {
                         <p className="mt-3 flex items-center gap-3 text-xs text-muted-foreground">
                           <span className="uppercase">{r.fileType}</span>
                           {r.pages ? <span>· {r.pages} pages</span> : null}
-                          <span className="flex items-center gap-1">
-                            · <Eye className="h-3 w-3" aria-hidden /> {r.downloads.toLocaleString("en-IN")} downloads
-                          </span>
+                          {r.category === "pyq" ? (
+                            <span>· Read on screen with solutions</span>
+                          ) : (
+                            <span className="flex items-center gap-1">
+                              · <Eye className="h-3 w-3" aria-hidden /> {r.downloads.toLocaleString("en-IN")} downloads
+                            </span>
+                          )}
                         </p>
 
                         <div className="mt-auto flex gap-2 pt-4">
                           <Button onClick={() => void openResource(r)} className="min-h-11 flex-1">
-                            <Download className="mr-1.5 h-4 w-4" aria-hidden />
-                            {r.fileType === "page" ? "Read" : "Download"}
+                            {r.category === "pyq" ? (
+                              <>
+                                <BookOpenText className="mr-1.5 h-4 w-4" aria-hidden />
+                                Read on screen
+                              </>
+                            ) : (
+                              <>
+                                <Eye className="mr-1.5 h-4 w-4" aria-hidden />
+                                {r.fileType === "page" ? "Read" : "Open"}
+                              </>
+                            )}
                           </Button>
                         </div>
                       </CardContent>

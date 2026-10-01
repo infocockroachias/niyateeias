@@ -93,6 +93,11 @@ model NewsArticle {
   date        String // "YYYY-MM-DD"
   readMinutes Int
   tagsJson    String // JSON string[]
+  // Structured current-affairs curation (Today's Brief) — null for legacy archive rows
+  prelimsJson        String? // JSON string[] — Prelims pointers
+  mainsJson          String? // JSON string[] — Mains angle bullets (GS-tagged)
+  keywordsJson       String? // JSON string[] — revision keywords
+  mainsQuestionJson  String? // JSON {text, marks, words, directive}
   createdAt   DateTime @default(now())
 
   @@index([date])

@@ -11,6 +11,17 @@ export async function GET(req: NextRequest) {
     const month = sp.get('month')
     const year = sp.get('year')
 
+    const parseMainsQuestion = (raw: string | null): { text: string; marks: number; words: number; directive?: string } | null => {
+      if (!raw) return null
+      try {
+        const parsed = JSON.parse(raw) as { text?: string; marks?: number; words?: number; directive?: string }
+        if (!parsed?.text) return null
+        return { text: String(parsed.text), marks: Number(parsed.marks) || 10, words: Number(parsed.words) || 150, directive: parsed.directive }
+      } catch {
+        return null
+      }
+    }
+
     const toArticle = (a: {
       id: string
       title: string
@@ -22,6 +33,10 @@ export async function GET(req: NextRequest) {
       date: string
       readMinutes: number
       tagsJson: string
+      prelimsJson: string | null
+      mainsJson: string | null
+      keywordsJson: string | null
+      mainsQuestionJson: string | null
     }) => ({
       id: a.id,
       title: a.title,
@@ -33,6 +48,10 @@ export async function GET(req: NextRequest) {
       date: a.date,
       readMinutes: a.readMinutes,
       tags: parseJsonArray(a.tagsJson),
+      prelims: parseJsonArray(a.prelimsJson),
+      mains: parseJsonArray(a.mainsJson),
+      keywords: parseJsonArray(a.keywordsJson),
+      mainsQuestion: parseMainsQuestion(a.mainsQuestionJson),
     })
 
     let where: Prisma.NewsArticleWhereInput
@@ -60,6 +79,9 @@ export async function GET(req: NextRequest) {
       db.newsArticle.findMany({ where, orderBy: [{ date: 'desc' }, { title: 'asc' }], take: 120 }),
       db.newsArticle.findMany({ where, select: { date: true } }),
     ])
+    // note: findMany returns the full row; the selector above is intentionally
+    // limited to `date` for counting, while `articles` carries every column
+    // (including the structured curation JSON fields).
 
     const countByDate = new Map<string, number>()
     for (const row of allInRange) {

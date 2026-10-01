@@ -8,6 +8,7 @@ export type ViewName =
   | "about"
   | "news"
   | "resources"
+  | "pyq-reader"
   | "ai-hub"
   | "ai-evaluate"
   | "ai-chat"

@@ -20,9 +20,9 @@ export function jsonError(message: string, status = 500): NextResponse {
 
 /** Wrap a handler so unexpected throws become a 500 {error} response. */
 export async function withErrorGuard<T>(
-  handler: () => Promise<NextResponse>,
+  handler: () => Promise<Response>,
   fallbackMessage = 'Internal server error'
-): Promise<NextResponse> {
+): Promise<Response> {
   try {
     return await handler()
   } catch (err) {

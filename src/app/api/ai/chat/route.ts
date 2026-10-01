@@ -1,6 +1,8 @@
 import { NextRequest } from 'next/server'
 import ZAI from 'z-ai-web-dev-sdk'
 import { jsonError, withErrorGuard } from '@/lib/api-utils'
+import { composeKbAnswer } from '@/lib/kb/answer'
+import { retrieve } from '@/lib/kb/engine'
 
 interface ChatMsg {
   role: 'user' | 'assistant'
@@ -10,7 +12,12 @@ interface ChatMsg {
 /**
  * POST /api/ai/chat
  * Body: { messages: [{role:'user'|'assistant', content}], context?: string }
- * Returns: { reply: string }
+ * Returns: { reply, mode: 'ai' | 'kb', sources?: string[] }
+ *
+ * Resilience contract: the Doubt Agent NEVER dead-ends.
+ *  1. Primary: LLM (z-ai-web-dev-sdk) with a KB digest injected as context.
+ *  2. Fallback: deterministic RAG-style answer composed from the curated
+ *     knowledge base (src/lib/kb/*) — works on hosts with no LLM (e.g. Vercel).
  */
 export async function POST(req: NextRequest) {
   return withErrorGuard(async () => {
@@ -43,6 +50,8 @@ export async function POST(req: NextRequest) {
       return jsonError('Message too long (max ~1000 words per message).', 400)
     }
 
+    const lastUser = messages[messages.length - 1].content
+
     const system = `You are the "Niyatee AI Mentor" — an expert UPSC Civil Services preparation mentor at Niyatee Civil Services Academy, Bhubaneswar. You help aspirants with:
 - Concept explanations across the GS syllabus (Polity, Economy, History, Geography, Environment, S&T, IR, Ethics) at exactly the depth UPSC demands
 - Exam strategy: study planning, answer writing, optional subject choice, time management
@@ -53,23 +62,48 @@ Style: precise, warm, and concise — like a mentor in a corridor conversation. 
 
     const context = typeof body.context === 'string' && body.context.trim() ? `\n\n(Additional context from the page the student is viewing: ${body.context.trim().slice(0, 500)})` : ''
 
+    // RAG digest — ground the LLM in our curated KB when retrieval hits.
+    const kbHit = retrieve(lastUser, 2)
+    let kbDigest = ''
+    if (kbHit.docs.length > 0 && kbHit.bestScore >= 5) {
+      const digest = kbHit.docs
+        .map(
+          (d) =>
+            `• ${d.title}: ${d.summary} Key facts: ${d.keyPoints.slice(0, 3).join(' | ')}`
+        )
+        .join('\n')
+      kbDigest = `\n\n(Curated reference from the Niyatee knowledge base — use if relevant, stay accurate):\n${digest}`
+    }
+
     try {
       const zai = await ZAI.create()
       const completion = await zai.chat.completions.create({
         messages: [
-          { role: 'system', content: system + context },
+          { role: 'system', content: system + context + kbDigest },
           ...messages.map((m) => ({ role: m.role, content: m.content })),
         ],
         thinking: { type: 'disabled' },
       })
       const reply = completion.choices[0]?.message?.content ?? ''
-      if (!reply.trim()) {
-        return jsonError('The mentor could not respond right now — please try again.', 502)
-      }
-      return Response.json({ reply })
+      if (!reply.trim()) throw new Error('empty LLM reply')
+      return Response.json({ reply, mode: 'ai' })
     } catch (err) {
-      console.error('[ai/chat]', err)
-      return jsonError('AI mentor service is busy right now — please try again in a moment.', 503)
+      console.error('[ai/chat] LLM unavailable — falling back to curated knowledge base:', err)
+      const kb = composeKbAnswer(lastUser)
+      return Response.json({ reply: kb.reply, mode: 'kb', sources: kb.sources })
     }
   }, 'Failed to process chat')
+}
+
+/**
+ * GET /api/ai/chat?q=... — direct knowledge-base (offline) answers.
+ * Useful for testing and for lightweight offline widgets. Always mode: 'kb'.
+ */
+export async function GET(req: NextRequest) {
+  return withErrorGuard(async () => {
+    const q = req.nextUrl.searchParams.get('q')
+    if (!q || !q.trim()) return jsonError('Missing q parameter', 400)
+    const kb = composeKbAnswer(q.trim().slice(0, 2000))
+    return Response.json({ reply: kb.reply, mode: 'kb', sources: kb.sources, confidence: kb.confidence })
+  }, 'Failed to process knowledge-base answer')
 }

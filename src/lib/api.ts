@@ -23,6 +23,13 @@ export interface Course {
   sessionsPerWeek: number;
 }
 
+export interface MainsPracticeQuestion {
+  text: string;
+  marks: number;
+  words: number;
+  directive?: string;
+}
+
 export interface NewsArticle {
   id: string;
   title: string;
@@ -34,6 +41,11 @@ export interface NewsArticle {
   date: string; // YYYY-MM-DD
   readMinutes: number;
   tags: string[];
+  /** Structured curation (Today's Brief) — empty arrays for legacy archive rows */
+  prelims: string[];
+  mains: string[];
+  keywords: string[];
+  mainsQuestion: MainsPracticeQuestion | null;
 }
 
 export interface NewsDay {
@@ -44,6 +56,21 @@ export interface NewsDay {
 export interface NewsResponse {
   days: NewsDay[];
   articles: NewsArticle[];
+}
+
+export interface LiveWireItem {
+  title: string;
+  link: string;
+  publishedAt: string;
+  source: string;
+  gsGuess: string;
+}
+
+export interface TodayNewsResponse {
+  date: string;
+  brief: NewsArticle[];
+  live: { fetchedAt: string; items: LiveWireItem[] } | null;
+  sources: string[];
 }
 
 export interface MonthlyDigest {

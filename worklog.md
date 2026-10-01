@@ -185,3 +185,19 @@ Work Log:
 
 Stage Summary:
 - Vercel deploy = import repo → click Deploy, no env vars needed; all user-reported issues fixed and verified in browser
+
+---
+Task ID: 5
+Agent: Orchestrator (Z.ai Code)
+Task: RAG Doubt Agent (offline KB), on-screen 2026 PYQ paper reader, Today's Current Affairs redesign
+
+Work Log:
+- Researched live sources: The Hindu RSS wires (national/international/business/editorial) captured REAL 1 Oct 2026 current affairs; verified 2026 exam metadata (Prelims 24 May 2026, Mains GS1 22 Aug 2026 via ForumIAS/Testbook/careers360); mined real 2026 question fragments (Mission Sudarshan Chakra MCQ + Montagu-Chelmsford A/R from SuperKalam/SpoonJobs; Mains GS2 privacy + GS1 linguistic reorganisation from DeepMentor list)
+- 5-a RAG Doubt Agent: src/lib/kb/{docs,engine,answer}.ts — 59 curated UPSC docs (polity 11, economy 10, history 7, geo 5, env 5, S&T 4, IR 4, security 2, ethics 2, strategy 6, syllabus 3) with keywords/aliases/summary/keyPoints/prelims/mains pointers; deterministic retrieval (tokenizer, stopwords, synonyms, phrase bonus); offline answer synthesis (greeting/comparison/strategy/miss layouts). Chat API: LLM primary with KB digest injected → on ANY failure returns KB answer (mode:'kb') — NEVER 503; new GET /api/ai/chat?q= for direct offline answers; ChatPanel shows mode badge (AI Mentor / Curated knowledge base) + sources
+- 5-b PYQ reader: src/data/pyq/papers.ts — 7 papers (Prelims GS1 15 items incl. 2 verified-2026, CSAT 6, Essay 6, GS1-GS4 8 each incl. 2 verified mains), authenticity labels (verified-2026 vs 2026-pattern practice), per-paper cross-check source links; PaperReaderView (paper picker, palette grid, answer-reveal + explanations, timer, mark-for-review, mains outlines, one-click AI evaluation); store ViewName + AppShell case; ResourcesView: pyq → "Read on screen" (no download wording anywhere), RESOURCE_SLUG_MAP covers all legacy years; seed adds 7 flagship 2026 resources
+- 5-c Today's Brief: schema + 4 nullable JSON columns (prelims/mains/keywords/mainsQuestion); seed: 12 real structured stories for d=0 (Sri Lanka-JVP, Gen-Z satyagraha, UPI MDR survey, ECI split verdict, GST ₹2.03 lakh cr +14.7%, PMI 7-month high, drug-pricing editorial, HuT arrests, IMD orange alert, India-USTR, Gemini 4 Argon, Kochi tree registry) + 4 recent-day structured editorials (J&K statehood, ISRO, Chess Olympiad, TN RTI) — legacy d=0 shifted to d=4/5; src/lib/news-live.ts — server-side The Hindu RSS ingestion (4 wires, 10-min cache, GS heuristic); GET /api/news/today (IST date, brief + live); NewsView rebuilt: navy Today's Brief front page (masthead, Live Wire strip, brief cards with block-count chips), ArticleDetail with demarcated Prelims Points (gold) / Mains Angles (navy) / Keywords chips / Mains Practice Question block + Evaluate CTA; archive calendar retained
+- api-utils withErrorGuard widened Response-generic (fixed pre-existing tsc quirk across all routes); NewsArticle client type extended; README features + API updated
+- Verified via agent-browser: Today's Brief + Live Wire live-fetching real headlines; brief cards open structured detail (all 4 blocks); prelims reader reveal/explanations + verified chips; mains reader outline reveal + Evaluate button; resources → reader routing (legacy year note); chat KB answer with "AI Mentor" badge; mobile 390px clean; footer 2026; console + dev.log clean; lint 0 errors on touched files; tsc clean for project code
+
+Stage Summary:
+- Doubt Agent now works on Vercel with zero LLM (stored RAG knowledge base); PYQs fully on-screen for 2026 Prelims+Mains; News = structured Today's Brief (Prelims/Mains/Keywords/Practice Q) with live today-only wire. db/custom.db re-seeded and bundled for Vercel.

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { RotateCcw, SendHorizonal, Sparkles } from "lucide-react";
+import { BookMarked, RotateCcw, SendHorizonal, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { apiPost, toErrorMessage, type ChatMessage } from "@/lib/api";
@@ -9,20 +9,25 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
 const SUGGESTIONS = [
-  "Explain RBI's MPC decision process",
-  "Difference between censure and no-confidence",
   "How to choose my optional subject?",
-  "Top 5 current affairs topics for Prelims 2026",
+  "Explain RBI's MPC inflation targeting",
+  "President's Rule under Article 356",
+  "India–Sri Lanka relations",
 ];
 
-const GREETING: ChatMessage = {
+interface LocalMsg extends ChatMessage {
+  mode?: "ai" | "kb";
+  sources?: string[];
+}
+
+const GREETING: LocalMsg = {
   role: "assistant",
   content:
     "Namaste! I'm the Niyatee Doubt Agent — your 24×7 UPSC mentor. Ask me anything about polity, economy, history, geography, strategy or the syllabus. For best answers, mention your attempt year and stage (Prelims/Mains).",
 };
 
 export function ChatPanel({ compact = false }: { compact?: boolean }) {
-  const [messages, setMessages] = useState<ChatMessage[]>([GREETING]);
+  const [messages, setMessages] = useState<LocalMsg[]>([GREETING]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -40,17 +45,24 @@ export function ChatPanel({ compact = false }: { compact?: boolean }) {
     setInput("");
     setBusy(true);
     try {
-      const data = await apiPost<{ reply: string }>("/api/ai/chat", {
-        messages: nextMessages.filter((m) => m !== GREETING || messages.length === 1),
-      });
-      setMessages((prev) => [...prev, { role: "assistant", content: data.reply }]);
+      const data = await apiPost<{ reply: string; mode?: "ai" | "kb"; sources?: string[] }>(
+        "/api/ai/chat",
+        {
+          messages: nextMessages.filter((m) => m !== GREETING || messages.length === 1),
+        }
+      );
+      setMessages((prev) => [
+        ...prev,
+        { role: "assistant", content: data.reply, mode: data.mode, sources: data.sources },
+      ]);
     } catch (err) {
       toast.error(toErrorMessage(err));
       setMessages((prev) => [
         ...prev,
         {
           role: "assistant",
-          content: "Sorry — I couldn't reach the mentor servers just now. Please try again in a moment.",
+          mode: "kb",
+          content: "I couldn't reach the mentor network just now. Please retry — meanwhile you can browse today's curated current affairs in the News Room.",
         },
       ]);
     } finally {
@@ -92,6 +104,22 @@ export function ChatPanel({ compact = false }: { compact?: boolean }) {
                 </span>
               ) : null}
               <p className="whitespace-pre-wrap">{m.content}</p>
+              {m.role === "assistant" && i !== 0 ? (
+                <p className="mt-2 flex flex-wrap items-center gap-1 border-t border-border/60 pt-1.5 text-[10px] text-muted-foreground">
+                  {m.mode === "kb" ? (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-secondary/10 px-1.5 py-0.5 font-semibold text-[#7a5c2e]">
+                      <BookMarked className="h-3 w-3" aria-hidden /> Curated knowledge base
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-primary/5 px-1.5 py-0.5 font-semibold text-primary/80">
+                      <Sparkles className="h-3 w-3" aria-hidden /> AI Mentor
+                    </span>
+                  )}
+                  {m.sources && m.sources.length > 0 ? (
+                    <span className="truncate"> · {m.sources.join(" · ")}</span>
+                  ) : null}
+                </p>
+              ) : null}
             </div>
           </div>
         ))}

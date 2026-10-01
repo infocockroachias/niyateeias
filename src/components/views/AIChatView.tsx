@@ -15,7 +15,9 @@ export function AIChatView({ embedded = false }: { embedded?: boolean }) {
           <h1 className="font-display text-4xl text-balance text-primary sm:text-5xl">AI Doubt Agent</h1>
           <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
             A mentor persona that knows the UPSC syllabus inside-out. Ask about concepts, current
-            affairs, strategy, optional selection — it answers with structure and sources.
+            affairs, strategy, optional selection — it answers with structure and sources. Works
+            24×7 — answers come from our curated UPSC knowledge base even when the AI mentor
+            network is offline.
           </p>
         </div>
 

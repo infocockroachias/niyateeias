@@ -385,6 +385,7 @@ async function main() {
   console.log(`Courses: ${courses.length}`)
 
   // ─── News articles (dates relative to today, spread over ~45 days) ──────────
+  type MainsQ = { text: string; marks: number; words: number; directive: string }
   type Seed = {
     d: number
     title: string
@@ -395,6 +396,10 @@ async function main() {
     subject: string
     readMinutes: number
     tags: string[]
+    prelims?: string[]
+    mains?: string[]
+    keywords?: string[]
+    mainsQ?: MainsQ
   }
   const N = (
     d: number,
@@ -407,10 +412,331 @@ async function main() {
     tags: string[],
     content: string
   ): Seed => ({ d, title, summary, content, source, gsTag, subject, readMinutes, tags })
+  /** NB — structured "Today's Brief" article with exam curation. */
+  const NB = (
+    d: number,
+    title: string,
+    summary: string,
+    source: string,
+    gsTag: string,
+    subject: string,
+    readMinutes: number,
+    tags: string[],
+    structured: { prelims: string[]; mains: string[]; keywords: string[]; mainsQ: MainsQ },
+    content: string
+  ): Seed => ({ d, title, summary, content, source, gsTag, subject, readMinutes, tags, ...structured })
 
   const news: Seed[] = [
-    N(0, 'Union Cabinet clears next tranche of India Semiconductor Mission projects', 'Two new semiconductor fabrication and three advanced packaging units, worth over ₹35,000 crore, receive approval under the Modified ISM, taking total committed investment past ₹1.6 lakh crore.', 'PIB', 'GS3', 'Science & Technology', 6, ['semiconductors', 'manufacturing', 'Make in India'], `The Union Cabinet has approved the next set of projects under the India Semiconductor Mission, clearing two fabrication units and three advanced chip packaging (ATMP/OSAT) facilities with a combined investment of more than ₹35,000 crore. With this tranche, committed investment under the mission crosses ₹1.6 lakh crore across nine states, the IT Ministry said.\n\nThe new units will fabricate 28–90 nm chips for automotive, power and display applications — segments where import dependence remains highest. Officials underlined that the design-linked incentive (DLI) scheme has already enabled 20+ Indian startups to tape-out chips domestically, creating a full-stack ecosystem from design to fabrication to packaging.\n\nThe strategic logic is threefold: supply-chain resilience after the 2021–22 global chip shortage, anchoring India in electronics manufacturing where imports crossed $20 billion annually, and creating high-skill employment — the missions’ projects are projected to generate roughly one lakh direct and indirect jobs.\n\nChallenges remain substantial. Semiconductor fabs consume enormous quantities of ultra-pure water and uninterrupted power; grid reliability and water reuse technology will decide operational economics. Analysts also flag the talent gap: India produces strong chip designers but few fab process engineers, requiring focused curricula in tier-2 engineering institutes.\n\nRelevance to UPSC: GS-III (industrial policy, growth of electronics manufacturing, government schemes); Prelims facts on ISM, DLI and SPECS; possible Essay themes on technological self-reliance.`),
-    N(0, 'GST 2.0 rate rationalisation completes first full month: revenue holds, consumption shifts', 'Goods and Services Tax collections remain above ₹1.8 lakh crore in the first full month after the two-slab restructuring, with visible demand growth in consumer durables and insurance.', 'The Hindu', 'GS3', 'Economy', 7, ['GST', 'taxation', 'consumption'], `One month after the "GST 2.0" restructuring moved most goods into 5% and 18% slabs with a 40% demerit rate, official data shows gross monthly collections holding above ₹1.8 lakh crore — a key test of whether simplification would erode revenue. Net collections, after record refunds, grew year-on-year, the Finance Ministry said.\n\nConsumption data is the most striking early signal: sales of entry-level cars, two-wheelers, televisions and air-conditioners rose sharply as several items migrated from 28% to 18%, and term and health insurance premiums — now nil-rated — saw a spike in new policy issuance. Economists describe the reform as a demand-side stimulus calibrated through the tax system.\n\nCompliance metrics improved as well. The collapse from four principal slabs to two reduced classification disputes that earlier choked appellate forums, while automated refunds under the revised returns cycle released working capital for exporters. States' compensation-cess concerns, however, persist for sin goods whose base has shifted.\n\nThe medium-term test is different: with the Fiscal Responsibility framework guiding a 4.4% deficit glide path, the government must hold capex while absorbing the reform’s short-run cost. The next GST Council will examine rate fine-tuning in services and further reforms in registration and audits.\n\nRelevance to UPSC: GS-III (fiscal policy, GST architecture, cooperative federalism in the GST Council); GS-II (centre-state financial relations); Prelims facts on slab structure and cesses.`),
+    /* ─────── TODAY'S BRIEF — structured current affairs (d = 0) ─────── */
+    NB(0, 'India will always support Sri Lanka’s progress and prosperity: Jaishankar after meeting JVP leadership', 'External Affairs Minister S. Jaishankar met Janatha Vimukthi Peramuna General Secretary Tilvin Silva and reaffirmed India’s development partnership with Sri Lanka under the NPP government.', 'The Hindu', 'GS2', 'International Relations', 4, ['Sri Lanka', 'Neighbourhood First', 'JVP', 'SAGAR'],
+      {
+        prelims: [
+          'JVP — Janatha Vimukthi Peramuna; main party of the NPP alliance that won the 2024 presidential and parliamentary elections.',
+          'Palk Strait and Gulf of Mannar separate India (Tamil Nadu) from Sri Lanka; Indo-Sri Lanka maritime boundary agreements 1974 & 1976 (Katchatheevu).',
+          '13th Amendment (1987) flowed from the Indo–Sri Lanka Accord and created provincial councils.',
+        ],
+        mains: [
+          'GS2 — Neighbourhood First in action: ~$4 bn Indian support during the 2022 crisis, currency swaps, lines of credit and UPI–LankaPay integration.',
+          'GS2 — Balancing act: the NPP government maintains pragmatic ties with both India and China (Hambantota, Colombo port terminals).',
+          'GS2 — Unresolved files: 13th Amendment implementation (Tamil question), fishermen arrests in the Palk Strait, Trincomalee energy hub.',
+        ],
+        keywords: ['Neighbourhood First', 'SAGAR', 'JVP / NPP', '13th Amendment', 'Palk Strait', 'Trincomalee'],
+        mainsQ: {
+          text: 'India’s engagement with Sri Lanka’s new political leadership is a test of Neighbourhood First diplomacy. Discuss the strategic and economic stakes for both countries.',
+          marks: 10, words: 150, directive: 'Discuss',
+        },
+      },
+      `External Affairs Minister S. Jaishankar, after a meeting with Janatha Vimukthi Peramuna (JVP) General Secretary Tilvin Silva, said India \u201cwill always support Sri Lanka\u2019s progress and prosperity\u201d and described the conversation as one on \u201cstrengthening our deep bonds of friendship.\u201d\n\nThe meeting signals continuity in New Delhi\u2019s outreach to the National People’s Power (NPP) government that came to power in 2024, at a time when Colombo is consolidating its post-crisis economic recovery. India anchored the 2022 rescue with roughly $4 billion in swaps, credit lines and deferred payments, and has since pushed connectivity projects — UPI acceptance in Sri Lanka, the Trincomalee oil-tank farm, and ferry links across the Palk Strait.\n\nFor the exam: the Sri Lanka file bundles three recurring GS2 themes — neighbourhood diplomacy, the China factor (Hambantota lease, port investments), and the unfinished Tamil question tied to the 13th Amendment. The fishermen issue in the Palk Strait remains the most human recurring friction.`),
+    NB(0, 'The young and the satyagraha — Gen-Z protests draw on Gandhian ideas', 'At the recent protests at Jantar Mantar and in subsequent agitations, the country’s youth have consciously invoked Gandhian truth and non-violence — a reminder that satyagraha remains a living political technology.', 'The Hindu', 'GS1', 'History / Society', 5, ['Gandhi', 'Satyagraha', 'Gen-Z', 'Non-violence'],
+      {
+        prelims: [
+          'Satyagraha (\u201cholding to truth\u201d) first applied in South Africa (1906) and in India at Champaran, 1917.',
+          'Dandi March: 12 March–6 April 1930 — violation of the salt law as the symbol of civil disobedience.',
+          'Gandhi’s constructive programme: khadi, communal unity, village sanitation, basic education (Nai Talim).',
+        ],
+        mains: [
+          'GS1 — Gandhi converted nationalism from elite petitioning to disciplined mass moral politics; compare the methods of NCM and CDM.',
+          'Essay — Non-violence in the digital age: amplification without organisation risks spectacle without change.',
+          'GS4 — Means–ends unity: why Gandhi rejected \u201cgoals justify methods\u201d reasoning.',
+        ],
+        keywords: ['Satyagraha', 'Ahimsa', 'Civil Disobedience', 'Constructive Programme', 'Gandhi Jayanti', 'Youth Politics'],
+        mainsQ: {
+          text: '\u201cNon-violence is the weapon of the strong.\u201d Critically examine the continuing relevance of Gandhian satyagraha for contemporary youth movements.',
+          marks: 10, words: 150, directive: 'Critically examine',
+        },
+      },
+      `The Hindu’s opinion page notes that at the recent protests at Jantar Mantar — and in the wider wave of Gen-Z agitations across democracies — the country’s youth have drawn explicitly on Gandhian ideas: truth as testimony, non-violence as discipline, and the willingness to absorb suffering rather than inflict it.\n\nGandhi’s method was never passive; it was a trained technique — volunteers pledged to non-violence, marches were rehearsed, and every campaign paired protest with a constructive programme (khadi, sanitation, education). The satyagraha vocabulary gave ordinary people a script for moral courage.\n\nOn the eve of Gandhi Jayanti, the continuity is worth framing for Mains: whether today’s digitally-organised movements can convert moral energy into institutional change — the step from protest to constructive politics — is the Gandhian test they now face.`),
+    NB(0, 'Four in five Mumbaikars unwilling to pay MDR on high-value UPI payments: LocalCircles survey', 'A LocalCircles survey finds most Mumbai residents will switch to cards or cash rather than pay the merchant discount rate on UPI transactions above \u20B92,000, set to take effect from 15 October.', 'The Hindu', 'GS3', 'Economy', 5, ['UPI', 'MDR', 'NPCI', 'Digital Payments'],
+      {
+        prelims: [
+          'UPI — Unified Payments Interface, built and operated by NPCI (est. 2008), launched 2016.',
+          'MDR — Merchant Discount Rate: fee charged to merchants on digital transactions; zero-MDR on UPI was mandated from January 2020.',
+          'Digital Rupee (e\u20B9) — RBI’s CBDC; wholesale pilot Nov 2022, retail Dec 2022.',
+        ],
+        mains: [
+          'GS3 — The zero-MDR subsidy universalised UPI but its infrastructure costs now sit with banks and the exchequer; cost-recovery risks adoption losses.',
+          'GS3 — Digital Public Infrastructure economics: who pays for free rails — interchange fees, public funding, or merchant charges?',
+          'GS3 — Behavioural angle: payment-instrument switching (cards/cash) could erode the digital trail that UPI created.',
+        ],
+        keywords: ['UPI', 'MDR', 'NPCI', 'Digital Public Infrastructure', 'LocalCircles', 'e\u20B9 / CBDC'],
+        mainsQ: {
+          text: 'Examine the trade-offs between universalising zero-cost digital payments and sustaining the economics of payment infrastructure in India.',
+          marks: 10, words: 150, directive: 'Examine',
+        },
+      },
+      `A LocalCircles survey of Mumbai residents finds four in five unwilling to bear the merchant discount rate (MDR) that is set to apply on UPI payments above \u20B92,000 from 15 October 2026 — many say they will simply shift to cards or cash rather than pay the fee or absorb a pass-through.\n\nThe policy tension is real: zero-MDR, mandated in January 2020, made UPI omnipresent — from street vendors to malls — but somebody must fund the rails, fraud prevention and interbank settlement. Options on the table include tiered MDR, explicit public funding of DPI, and interchange on high-value merchant payments only.\n\nFor Prelims, keep the dates and bodies precise: NPCI 2008, UPI 2016, zero-MDR January 2020, CBDC pilots 2022. For Mains, the question is institutional: can India keep its payments public good free at the point of use without starving the infrastructure that delivers it?`),
+    NB(0, 'ECI appointments case: petitioner seeks recall of split verdict on 2023 law challenge', 'In the ongoing challenge to the CEC and ECs (Appointment) Act, 2023, counsel for the petitioner sought mention before the CJI to recall a split verdict that had declined to refer the constitutional question.', 'The Hindu', 'GS2', 'Polity', 4, ['Election Commission', 'Article 324', 'CEC Act 2023', 'Split Verdict'],
+      {
+        prelims: [
+          'Article 324 — superintendence, direction and control of elections vests in the ECI (CEC + 2 ECs since 1993).',
+          'Anoop Baranwal (2023) interim formula: PM + Leader of Opposition (Lok Sabha) + CJI until Parliament legislates.',
+          'CEC and Other ECs (Appointment...) Act, 2023: committee of PM + LoP + a Union Minister nominated by the PM; tenure 6 years or 65 years.',
+        ],
+        mains: [
+          'GS2 — Appointment design determines institutional autonomy: compare the 2023 statute with the Anoop Baranwal interim arrangement.',
+          'GS2 — Split verdicts and Article 143-style references: how should benches of equal strength be broken in constitutional cases?',
+          'GS2 — Electoral reforms bundle: simultaneous elections, model code statutory backing, campaign-finance transparency.',
+        ],
+        keywords: ['ECI', 'Article 324', 'CEC & EC Act 2023', 'Anoop Baranwal', 'Split Verdict', 'Electoral Reforms'],
+        mainsQ: {
+          text: 'Independent selection of Election Commissioners is central to electoral integrity. Examine the design choices before India in light of the 2023 appointment law and the pending litigation.',
+          marks: 10, words: 150, directive: 'Examine',
+        },
+      },
+      `The Supreme Court’s ECI-appointments litigation has entered a procedural phase: the petitioner has sought to mention before the Chief Justice a plea to recall the split verdict that kept the constitutional validity challenge of the CEC and ECI (Appointment, Conditions of Service and Term of Office) Act, 2023 from being referred to a larger bench.\n\nThe substantive stakes are unchanged. The 2023 statute replaced the Chief Justice of India with a government-nominated Union Minister in the selection committee — reversing the Anoop Baranwal interim formula — and critics argue this diminishes the Commission’s independence under Article 324.\n\nFor Mains, frame the issue as institutional design: who selects the referees decides how referees behave. Pair the case with broader electoral-reform demands — transparency in campaign finance, model-code statutory backing, and simultaneous elections debates.`),
+    NB(0, 'GST mop-up grows 14.7% to over \u20B92.03 lakh crore in September', 'September 2026 GST collections crossed \u20B92.03 lakh crore, up 14.7% year-on-year on festive demand, even as refunds slowed 3% to \u20B927,001 crore.', 'The Hindu', 'GS3', 'Economy', 4, ['GST', 'Tax Collections', 'Festive Demand', 'GST Council'],
+      {
+        prelims: [
+          'GST — 101st Constitutional Amendment (2016); Articles 246A (concurrent power) and 279A (GST Council).',
+          'GST Council weighted voting: Centre 1/3, States 2/3; decisions by 3/4 majority.',
+          'Post-2025 rationalisation: two primary slabs (5% and 18%) plus a 40% demerit rate.',
+        ],
+        mains: [
+          'GS3 — Compliance tailwinds: festive demand, invoice-matching maturity and the 2025 rate rationalisation pulling informal sales into the net.',
+          'GS3 — Next frontier: base-broadening (petroleum, real-estate stamp duties), GSTAT efficiency, decriminalisation for small taxpayers.',
+          'GS2 — Mohit Minerals (2022): GST Council recommendations as cooperative-federalism dialogue, not diktat.',
+        ],
+        keywords: ['GST', 'GST Council', 'Compensation Cess', 'Festive Demand', 'GSTAT', 'Base Broadening'],
+        mainsQ: {
+          text: 'Robust GST collections are necessary but not sufficient for a mature indirect-tax regime. Analyse the structural reforms that remain on the agenda.',
+          marks: 15, words: 250, directive: 'Analyse',
+        },
+      },
+      `Goods and Services Tax collections for September 2026 crossed \u20B92.03 lakh crore — a 14.7% year-on-year jump — as festive-season demand combined with the compliance gains of the 2025 rate rationalisation. Refunds, however, slowed 3% to \u20B927,001 crore, a point enforcement economists watch closely since refund delays tax working capital.\n\nRead the number with three lenses. First, demand: double-digit nominal growth tracks the manufacturing PMI upcycle and festival calendar. Second, structure: the two-slab (5%/18%) + 40% demerit architecture simplified classification disputes but left base-broadening unfinished — petroleum and real-estate stamp duties remain outside. Third, federalism: the GST Council’s consensus habit is under quiet strain as compensation-cess borrowing memories fade.\n\nExam hook: pair this with the Mohit Minerals verdict (Council recommendations = persuasion, not binding) for a GS2–GS3 composite answer.`),
+    NB(0, 'Manufacturing growth hits seven-month high in September on strong demand: PMI', 'The HSBC India Manufacturing PMI rose to its strongest reading since February as electronics, food, pharma and textiles pushed sales growth higher and export orders quickened.', 'The Hindu', 'GS3', 'Economy', 4, ['PMI', 'Manufacturing', 'Exports', 'IIP'],
+      {
+        prelims: [
+          'PMI — diffusion index from S&P Global (HSBC-sponsored); above 50 = month-on-month expansion.',
+          'IIP — Index of Industrial Production (NSO, base 2011-12); manufacturing weight ~77.6%.',
+          'Eight core industries ≈ 40% of IIP weight.',
+        ],
+        mains: [
+          'GS3 — Festive-demand multipliers: electronics assembly, pharma and textiles leading the September print; export orders to Brazil and beyond quickening.',
+          'GS3 — Survey vs production data: why PMI sentiment can diverge from IIP volumes, and how to read both together.',
+          'GS3 — Policy link: PLI output incentives and logistics reform feeding into order books.',
+        ],
+        keywords: ['PMI', 'IIP', 'Core Industries', 'Export Orders', 'Festive Demand', 'PLI'],
+        mainsQ: {
+          text: 'High-frequency survey indicators are reshaping industrial policy feedback loops faster than official statistics can. Examine the strengths and gaps of India\u2019s data infrastructure.',
+          marks: 10, words: 150, directive: 'Examine',
+        },
+      },
+      `India’s manufacturing sector expanded at its fastest pace in seven months in September 2026, with the HSBC Manufacturing PMI benefiting from strong demand across electronics, food, pharma and textiles; total sales growth touched its best level since February and export orders quickened, including from clients in Brazil.\n\nContrast this with July’s five-year-low PMI print amid challenging market conditions — the swing illustrates why single-month readings need trend context. PMI captures sentiment (new orders, output, employment, delivery times, stocks) while the IIP measures physical production with a lag; policy desks read both.\n\nExam hook: for a GS3 answer, connect the demand recovery to PLI-driven electronics capacity, festive retail, and the logistics-cost push (Gati Shakti + National Logistics Policy), then flag the data-infrastructure gap — a new IIP base series is overdue.`),
+    NB(0, 'Bitter pills: Supreme Court intervenes in drug pricing by retailers', 'The Supreme Court did well to intervene in drug pricing by retailers — mark-ups on essential medicines, not just maximum prices, determine affordability, writes The Hindu in its editorial.', 'The Hindu', 'GS2', 'Governance / Health', 4, ['Drug Pricing', 'NPPA', 'DPCO', 'Essential Medicines'],
+      {
+        prelims: [
+          'NPPA — National Pharmaceutical Pricing Authority (1997): caps ceiling prices of scheduled formulations under DPCO 2013.',
+          'DPCO — Drugs (Prices Control) Order, 2013 under Essential Commodities Act, 1955.',
+          'National List of Essential Medicines (NLEM) 2022 — 384 medicines.',
+        ],
+        mains: [
+          'GS2 — Affordability chain: manufacturer ceiling price + trade margin + retail mark-up; regulating only the first link misses the patient’s bill.',
+          'GS2 — Trade-margins caps (cardiac stents, knee implants precedents) as precedent for a margins-first pricing policy.',
+          'GS3 — Innovation vs access: price control and its effect on pharma R&D incentives.',
+        ],
+        keywords: ['NPPA', 'DPCO 2013', 'NLEM', 'Trade Margins', 'Essential Medicines', 'Supreme Court'],
+        mainsQ: {
+          text: 'Affordable medicines depend on regulating margins along the supply chain, not merely ceiling prices. Discuss with reference to India\u2019s drug-pricing architecture.',
+          marks: 10, words: 150, directive: 'Discuss',
+        },
+      },
+      `The Hindu’s editorial \u201cBitter pills\u201d welcomes the Supreme Court’s intervention in how retailers price drugs: ceiling prices under the DPCO 2013 cap the manufacturer’s charge for scheduled (essential) formulations, but the final pharmacy bill is shaped by successive trade and retail mark-ups.\n\nThe intervention revives a policy conversation India has had before — the cardiac-stent and knee-implant trade-margin caps of 2017 showed the State can regulate the whole chain, not just the factory gate. With out-of-pocket spending still above 40% of health expenditure, the marginal rupee saved at the pharmacy counter matters more than headline price statistics.\n\nExam hook: pair NPPA/DPCO/NLEM facts for Prelims with a GS2 argument — health as a right requires price-chain regulation plus generic-quality assurance (Jan Aushadhi), and a GS3 note on innovation incentives.`),
+    NB(0, 'Five “sympathisers” of banned outfit arrested in Thanjavur; one more sought', 'Tamil Nadu’s State police arrested alleged sympathisers of the banned Hizb-ut-Tahrir (HuT) in Thanjavur; the Special Investigation Unit is searching for another suspect.', 'The Hindu', 'GS3', 'Internal Security', 3, ['UAPA', 'Hizb-ut-Tahrir', 'Banned Outfit', 'Radicalisation'],
+      {
+        prelims: [
+          'UAPA 1967 (as amended 2019) — Centre may declare \u201cunlawful associations\u201d (Sec 3) and \u201cterrorist organisations\u201d (First Schedule, Sec 35).',
+          'HuT — Hizb-ut-Tahrir, declared an unlawful association in India in 2024; advocates a transnational caliphate.',
+          'UAPA Tribunal — a sitting High Court judge reviews banning notifications within 6 months.',
+        ],
+        mains: [
+          'GS3 — Online radicalisation pipelines: small-cell formation, encrypted propaganda, and the shift from mass-mobilisation to micro-targeting.',
+          'GS3 — Safeguards debate: bail thresholds under Sec 43D(5), tribunal review, and the proportionality of speech-linked prosecutions.',
+          'GS3 — De-radicalisation architecture: community policing, deradicalisation counselling, rehabilitative reintegration.',
+        ],
+        keywords: ['UAPA', 'HuT', 'Unlawful Association', 'Radicalisation', 'NIA', 'Counter-Terrorism'],
+        mainsQ: {
+          text: 'Recent arrests of banned-outfit modules highlight the challenge of online radicalisation. Evaluate India\u2019s counter-radicalisation framework and its civil-liberties safeguards.',
+          marks: 10, words: 150, directive: 'Evaluate',
+        },
+      },
+      `Tamil Nadu police’s Special Investigation Unit arrested five alleged sympathisers of the banned Hizb-ut-Tahrir in Thanjavur, with one more suspect being traced. HuT — which campaigns for a transnational Islamic caliphate and was declared an unlawful association in India in 2024 — has repeatedly surfaced in southern-India modules operating through encrypted online networks.\n\nThe case is a textbook GS3 internal-security item: the legal machinery (UAPA notification, tribunal review, First Schedule listing), the intelligence architecture (State ATS + NIA + Multi-Agency Centre), and the harder question — prevention. Radicalisation today is micro-targeted and digital; counter-strategy must combine platform takedowns, community policing and credible de-radicalisation counselling without criminalising ordinary religious expression.\n\nFor Prelims: UAPA amendments 2019 allowed designating individuals as terrorists and empowered NIA seizure; Sec 43D(5) makes bail conditional on a prima-facie test.`),
+    NB(0, 'Keralam rains: IMD sounds orange alert for three districts', 'The IMD issued an orange alert for three Kerala districts with yellow alerts for six others as heavy monsoon-swan-song showers continued; disaster-management agencies moved to preparedness footing.', 'The Hindu', 'GS3', 'Disaster Management', 3, ['IMD', 'Orange Alert', 'Kerala', 'Monsoon'],
+      {
+        prelims: [
+          'IMD colour codes: Green (no warning) → Yellow (be updated) → Orange (be prepared) → Red (take action).',
+          'Northeast (retreating) monsoon: October–December; Tamil Nadu coast gets the bulk of its rain from it.',
+          'Kerala’s orographic rainfall: Western Ghats forcing on south-westerly streams.',
+        ],
+        mains: [
+          'GS3 — Monsoon-withdrawal phase extremes: warming Arabian Sea and delayed withdrawal intensifying October rainfall events.',
+          'GS3 — Preparedness chain: early warning → last-mile dissemination → evacuation → relief; where the chain snaps.',
+          'GS1 — Western Ghats ecology and landslide-prone slopes as risk multipliers (Wayanad 2024 precedent).',
+        ],
+        keywords: ['IMD', 'Orange Alert', 'Northeast Monsoon', 'Disaster Preparedness', 'Western Ghats', 'Urban Flooding'],
+        mainsQ: {
+          text: '\u201cAn early warning without preparedness is an alarm without a plan.\u201d Discuss the disaster-risk-reduction chain for monsoon extremes in Kerala.',
+          marks: 10, words: 150, directive: 'Discuss',
+        },
+      },
+      `The IMD sounded an orange alert — \u201cbe prepared\u201d — for three Keralam districts and yellow alerts for six more (Thiruvananthapuram, Kollam, Ernakulam, Palakkad, Malappuram, Wayanad) as heavy showers persisted into the withdrawal phase of the monsoon.\n\nTwo exam angles. Geography: Kerala’s rain is orographic — Western Ghats squeeze south-westerly moisture — and October events increasingly reflect a warming Arabian Sea plus delayed monsoon withdrawal. Governance: the alert ladder (green-yellow-orange-red) only saves lives when the chain after the warning works — pre-positioned NDRF/SDRF teams, flood-shelter mapping, dam-rule coordination, and ward-level drills.\n\nFor Prelims, memorise the colour codes and the northeast-monsoon window (Oct–Dec).`),
+    NB(0, 'Productive discussion with USTR Greer on early conclusion of trade deal: Goyal', 'Commerce Minister Piyush Goyal described talks with USTR Jamieson Greer as productive as both sides push for an early conclusion of the India–US trade agreement; the leaders reviewed ties by phone the same day.', 'The Hindu', 'GS2', 'International Relations', 4, ['India-US', 'USTR', 'Trade Deal', 'Tariffs'],
+      {
+        prelims: [
+          'USTR — Office of the United States Trade Representative (Executive Office of the President).',
+          'iCET (2023) → TRUST (2025) technology partnership; Trade Policy Forum (TPF) is the trade dialogue track.',
+          'India–US goods trade ≈ $120 bn; goods+services ≈ $190 bn.',
+        ],
+        mains: [
+          'GS2 — Tariff-cycle diplomacy: reciprocal-tariff frictions (2025-26) vs convergence on defence tech, semiconductors and critical minerals.',
+          'GS3 — Export exposure: textiles, pharma and shrimp among the tariff-sensitive baskets; supply-chain diversification as insurance.',
+          'GS2 — Strategic pairing: trade peace anchoring the broader Indo-Pacific alignment (Quad, Malabar).',
+        ],
+        keywords: ['USTR', 'Trade Policy Forum', 'TRUST', 'Tariffs', 'Indo-Pacific', 'Supply Chains'],
+        mainsQ: {
+          text: 'Trade peace is the anchor of the India\u2013US strategic partnership. Examine the current negotiation dynamics and the sectors most exposed to tariff cycles.',
+          marks: 10, words: 150, directive: 'Examine',
+        },
+      },
+      `Commerce and Industry Minister Piyush Goyal said he held a \u201cproductive discussion\u201d with US Trade Representative Jamieson Greer on the early conclusion of the India–US trade deal, on a day the two heads of government reviewed bilateral cooperation over a phone call.\n\nThe negotiation has run through a tariff-heavy cycle: US reciprocal-tariff actions since 2025 squeezed Indian exports in textiles, pharma margins and marine products, while both sides converged on technology supply chains — semiconductor fabs and packaging, defence co-production (jet engines, INDUS-X), and critical minerals.\n\nExam framing: India’s ask-list centres on tariff relief and H-1B-type mobility stability; the US asks market access in agriculture/dairy, digital-trade rules and energy. For GS2, link the deal to the TRUST/TPF architecture and the Quad backdrop — trade calm as the ballast of strategic ties.`),
+    NB(0, 'Google launches Gemini 4 “Argon” with strict cyber and CBRN refusal guardrails', 'Google released Gemini 4 “Argon” to a select group, saying the frontier model is designed to refuse requests that could assist cyberattacks or chemical, biological, radiological or nuclear weapons development.', 'The Hindu', 'GS3', 'Science & Technology', 4, ['Gemini 4 Argon', 'Frontier AI', 'AI Safety', 'Refusal Training'],
+      {
+        prelims: [
+          'Generative AI — models producing text/code/images; \u201cfrontier\u201d = highest-capability class.',
+          'Refusal training — aligning models to decline dangerous requests (cyber intrusion, CBRN uplift).',
+          'India: DPDP Act 2023 (data protection); IndiaAI Mission 2024 (\u20B910,371 crore); IT Rules advisories on deepfake labelling.',
+        ],
+        mains: [
+          'GS3 — Safety frontier: red-teaming, refusal training, provenance watermarking (C2PA) as the emerging global baseline.',
+          'GS3 — \u201cRegulate use, not research\u201d: India’s principles-based approach vs the EU AI Act’s horizontal statute.',
+          'GS2 — Election integrity: synthetic media, deepfakes and the EC’s advisory framework.',
+        ],
+        keywords: ['Frontier AI', 'Refusal Training', 'C2PA', 'DPDP Act 2023', 'IndiaAI Mission', 'Deepfakes'],
+        mainsQ: {
+          text: '\u201cRegulate the use, not the research.\u201d Critically evaluate India\u2019s approach to frontier-AI safety in the light of global refusal-training and watermarking standards.',
+          marks: 10, words: 150, directive: 'Critically evaluate',
+        },
+      },
+      `Google announced Gemini 4 \u201cArgon\u201d, released to a select group, with a headline safety claim: the model is engineered to refuse requests that could enable cyberattacks or the development of chemical, biological, radiological or nuclear (CBRN) weapons.\n\nThe launch sharpens the frontier-safety debate India must navigate. Refusal training and provenance watermarking (C2PA-style) are becoming the global baseline; the EU’s AI Act legislates horizontally while India has preferred a capability-plus-advisory stack — IndiaAI Mission compute and datasets, the DPDP Act 2023 for privacy, and IT-rules advisories on deepfake labelling during elections.\n\nGS3 framing: weigh innovation-led growth (GCC boom, AI services exports) against misuse risks (deepfake fraud, \u201cdigital arrest\u201d scams, bio-uplift), and argue the institutional middle — sandboxed enforcement, standards adoption, and liability clarity.`),
+    NB(0, 'Kochi Corporation to update tree registry after row over unauthorised felling', 'Following a controversy over unauthorised tree felling, Kochi Corporation announced an update to its tree registry — the first census was in 2010, the latest in 2019.', 'The Hindu', 'GS3', 'Environment / Urban Governance', 3, ['Tree Census', 'Urban Forestry', 'Kochi', 'Municipal Governance'],
+      {
+        prelims: [
+          'Tree census — ward-wise geo-tagged inventory of street and compound trees; Kochi’s first: 2010, latest: 2019.',
+          '74th Amendment (1992) — municipalities as constitutional third tier (Part IX-A, 12th Schedule: 18 subjects incl. urban forestry).',
+          'Urban greening programmes: Nagar Van Yojana (2020), Smart Cities missions.',
+        ],
+        mains: [
+          'GS3 — Urban forests as climate infrastructure: heat-island moderation, storm-water absorption, biodiversity refuges.',
+          'GS2 — Municipal capacity deficit: why 6-9 year census cycles leave cities blind to felling; data as governance.',
+          'GS3 — Compensation-plantation economics and the audit of survival rates, not sapling counts.',
+        ],
+        keywords: ['Tree Census', 'Urban Forestry', '74th Amendment', 'Heat Island', 'Nagar Van Yojana', 'Green Audit'],
+        mainsQ: {
+          text: 'Urban forests are climate infrastructure, and registries are their inventory. Discuss how municipal data systems can strengthen green governance in Indian cities.',
+          marks: 10, words: 150, directive: 'Discuss',
+        },
+      },
+      `Kochi Corporation will update its tree registry after a public row over unauthorised felling — a small civic story with a large governance lesson. The city’s first tree census was conducted in 2010 and the latest in 2019; a five-to-nine-year blind spot is exactly the window in which construction-season felling escapes scrutiny.\n\nGeo-tagged, ward-wise tree inventories are the base layer of green governance: they enable canopy targets, heat-island mapping, and honest compensation-plantation audits (survival rates, not sapling counts). The 12th Schedule explicitly lists urban forestry among municipal functions, yet most corporations lack the GIS and enforcement staffing to maintain such data.\n\nExam hook: Prelims — 74th Amendment, 12th Schedule, Nagar Van Yojana. Mains/GS2-GS3 — data infrastructure as the difference between decorative and functional urban ecology.`),
+
+    /* ─────── Recent days (d = 1, 2) — structured ─────── */
+    NB(1, 'State of anticipation: J&K statehood should follow without further delay', 'The Hindu argues Jammu and Kashmir should be given its statehood without any further delay, honouring parliamentary assurances and federal principle.', 'The Hindu', 'GS2', 'Polity', 4, ['Jammu & Kashmir', 'Statehood', 'Federalism'],
+      {
+        prelims: [
+          'J&K Reorganisation Act, 2019 — State bifurcated into UT of J&K (with legislature) and UT of Ladakh (without).',
+          'Article 3 — Parliament may form new States and alter areas/boundaries by simple majority (recommendation of President).',
+          'Re: Article 370 (Dec 2023) — SC upheld abrogation; directed elections and indicated statehood restoration.',
+        ],
+        mains: [
+          'GS2 — Federal promise-keeping: explicit parliamentary assurances on statehood restoration and their constitutional weight.',
+          'GS2 — UT-with-legislature as a constitutional oddity: democratic deficits of dual control (Lt Governor vs elected government).',
+          'GS2 — Delimitation → elections → statehood sequencing as the normalisation pathway.',
+        ],
+        keywords: ['Statehood', 'J&K Reorganisation Act 2019', 'Article 3', 'Union Territory', 'Delimitation', 'Federalism'],
+        mainsQ: {
+          text: 'Restoring statehood to Jammu and Kashmir is a federal imperative, not a favour. Discuss.',
+          marks: 10, words: 150, directive: 'Discuss',
+        },
+      },
+      `The Hindu’s editorial \u201cState of anticipation\u201d argues that Jammu and Kashmir should be given its statehood without any further delay. The region has functioned as a Union Territory with a legislature since the 2019 Reorganisation Act — a hybrid that concentrates executive power in the Lt Governor while an elected government competes for bounded authority.\n\nThe Supreme Court in Re: Article 370 (December 2023) upheld the abrogation but pointed towards restoration; the elected government elected in 2024 has repeatedly sought the pledge’s honouring. The editorial’s constitutional logic: explicit parliamentary assurances carry federal weight, and Article 3’s flexibility is precisely what makes restoration administratively easy.\n\nExam hook: GS2 — UT vs State design, federal promise-keeping, and the delimitation-elections-statehood sequence.`),
+    NB(1, 'Ground control: ISRO must keep space technology focused as a development tool', 'The editorial makes the case that ISRO’s compass should remain development — communications, navigation, weather, and resource mapping — even as it courts prestige missions and a commercial ecosystem.', 'The Hindu', 'GS3', 'Science & Technology', 4, ['ISRO', 'Space Policy', 'IN-SPACe', 'NavIC'],
+      {
+        prelims: [
+          'Indian Space Policy 2023 — ISRO (R&D), IN-SPACe (authorisation/promotion), NSIL (commercial), private sector (end-to-end missions).',
+          'NavIC/IRNSS — 7-satellite regional constellation; services: positioning, timing, messaging.',
+          'Applications satellites: INSAT/GSAT comms, RISAT/Cartosat imaging, Oceansat — the development backbone.',
+        ],
+        mains: [
+          'GS3 — Development dividends: tele-education (EDUSAT legacy), telemedicine, fisheries PFZ advisories, crop insurance imagery.',
+          'GS3 — Commercial frontier: NSIL demand-driven models, private launchers (SSLV handover), FDI liberalisation 2024.',
+          'GS3 — Balance: prestige missions (human spaceflight) vs utilitarian constellations — budget allocation logic.',
+        ],
+        keywords: ['ISRO', 'Indian Space Policy 2023', 'IN-SPACe', 'NSIL', 'NavIC', 'Space Economy'],
+        mainsQ: {
+          text: 'Space technology must remain a tool of development, not only of prestige. Examine ISRO\u2019s application-satellite legacy in the light of the commercial-space transition.',
+          marks: 10, words: 150, directive: 'Examine',
+        },
+      },
+      `The Hindu’s editorial \u201cGround control\u201d argues that ISRO’s focus should remain space technology as a tool for development. The agency’s quiet revolution has been utilitarian: communications satellites carrying education and telemedicine, navigation (NavIC) guiding transport and fishing, weather satellites feeding cyclone warnings that cut fatalities to near zero on the east coast, and remote-sensing imagery powering crop insurance and groundwater mapping.\n\nThe counterweight is momentum towards prestige and commerce — human spaceflight, a space station by 2035, and a private-launch ecosystem under IN-SPACe with NSIL as the commercial arm. The editorial’s caution: the development dividend should not become a rounding error in the pursuit of visibility.\n\nExam hook: GS3 — Indian Space Policy 2023’s four-institution architecture, FDI slabs, and the applications-vs-prestige budget debate.`),
+    NB(1, 'Silver lining: India finishes second to Uzbekistan at Chess Olympiad in Samarkand', 'India’s runners-up finish at the Samarkand Chess Olympiad should not dispirit, The Hindu writes — the depth of India’s young chess talent remains the story of the decade.', 'The Hindu', 'GS1', 'Sports / Society', 3, ['Chess Olympiad', 'Samarkand', 'FIDE', 'Sports Policy'],
+      {
+        prelims: [
+          'Chess Olympiad — FIDE biennial team event; 45th edition: Budapest 2024 (India won Open gold); 46th+ cycle continues with Samarkand 2026.',
+          'FIDE — Fédération Internationale des Échecs, world chess federation (est. 1924, Paris).',
+          'Khelo India / Target Olympic Podium Scheme — national sports-support architecture.',
+        ],
+        mains: [
+          'GS1 — Sports as soft power: India’s chess boom (young GMs, online chess economy) and the 2022 Chennai Olympiad legacy.',
+          'GS2 — Sports governance: federation reforms, funding pipelines from Khelo India to professional circuits.',
+        ],
+        keywords: ['Chess Olympiad', 'FIDE', 'Samarkand', 'Sports Soft Power', 'Khelo India'],
+        mainsQ: {
+          text: 'India\u2019s rise in global chess reflects structural investments in young talent. Discuss sport as an instrument of soft power.',
+          marks: 10, words: 150, directive: 'Discuss',
+        },
+      },
+      `India finished second to Uzbekistan at the Chess Olympiad in Samarkand — a silver that The Hindu’s editorial \u201cSilver lining\u201d frames correctly: not a setback, but confirmation of depth. A decade ago India had a handful of grandmasters at the top; today a conveyor belt of teenagers anchors both Open and Women’s teams, fed by school programmes, online blitz economies, and the 2022 Chennai Olympiad’s home-soil catalysis.\n\nFor exams: GS1 — sports as soft power and youth-culture change; GS2 — federation governance and funding architecture (Khelo India, TOPS). And a small Prelims nugget: the Olympiad is FIDE’s biennial team championship — Budapest 2024 was India’s Open-section gold.`),
+    NB(2, 'Light on truth: the Tamil Nadu G.O. and the RTI promise', 'No government intent on working for the people should fear transparency, The Hindu writes, criticising a Tamil Nadu Government Order restricting access to government orders through the RTI route.', 'The Hindu', 'GS2', 'Governance / Transparency', 4, ['RTI', 'Transparency', 'Tamil Nadu', 'Section 4'],
+      {
+        prelims: [
+          'RTI Act 2005 — statutory right flowing from Article 19(1)(a); 30-day response (48 hours where life/liberty involved).',
+          'Section 4 — proactive disclosure duty; government orders are routinely publishable material.',
+          'First State RTI law: Tamil Nadu, 1997.',
+        ],
+        mains: [
+          'GS2 — Transparency as the first mile of accountability: publication of G.O.s reduces RTI burden and litigation.',
+          'GS2 — Institutional stress: CIC vacancies, post-2019 term-of-service amendments, DPDP-driven carve-outs (Sec 8(1)(j)).',
+          'GS4 — Transparency as an ethical value in administration: documentation discipline and open-by-default design.',
+        ],
+        keywords: ['RTI Act 2005', 'Section 4', 'Government Orders', 'CIC', 'Open by Default', 'Accountability'],
+        mainsQ: {
+          text: '\u201cTransparency in government orders is the first mile of accountability.\u201d Discuss the state of the RTI regime in its third decade.',
+          marks: 10, words: 150, directive: 'Discuss',
+        },
+      },
+      `The Hindu’s editorial \u201cLight on truth\u201d criticises a Tamil Nadu Government Order seen as restricting access to government orders (G.O.s) via the RTI route, with a simple principle: no government intent on working for the people should fear transparency.\n\nThe RTI Act’s Section 4 already mandates proactive disclosure — publication of orders, circulars and decisions is the default, and every G.O. withheld from routine access multiplies RTI applications and first appeals. The episode sits within a worrying pattern: Information Commission vacancies, the 2019 amendment centralising tenure rules, and privacy-law carve-outs narrowing Sec 8(1)(j) interpretation.\n\nExam hook: GS2 — RTI’s third-decade stress test; GS4 — open-by-default administration as probity in practice. Prelims nugget: Tamil Nadu enacted India’s first State RTI law in 1997.`),
+
+    /* ─────── Legacy archive articles (relative days) ─────── */
+    N(4, 'Union Cabinet clears next tranche of India Semiconductor Mission projects', 'Two new semiconductor fabrication and three advanced packaging units, worth over ₹35,000 crore, receive approval under the Modified ISM, taking total committed investment past ₹1.6 lakh crore.', 'PIB', 'GS3', 'Science & Technology', 6, ['semiconductors', 'manufacturing', 'Make in India'], `The Union Cabinet has approved the next set of projects under the India Semiconductor Mission, clearing two fabrication units and three advanced chip packaging (ATMP/OSAT) facilities with a combined investment of more than ₹35,000 crore. With this tranche, committed investment under the mission crosses ₹1.6 lakh crore across nine states, the IT Ministry said.\n\nThe new units will fabricate 28–90 nm chips for automotive, power and display applications — segments where import dependence remains highest. Officials underlined that the design-linked incentive (DLI) scheme has already enabled 20+ Indian startups to tape-out chips domestically, creating a full-stack ecosystem from design to fabrication to packaging.\n\nThe strategic logic is threefold: supply-chain resilience after the 2021–22 global chip shortage, anchoring India in electronics manufacturing where imports crossed $20 billion annually, and creating high-skill employment — the missions’ projects are projected to generate roughly one lakh direct and indirect jobs.\n\nChallenges remain substantial. Semiconductor fabs consume enormous quantities of ultra-pure water and uninterrupted power; grid reliability and water reuse technology will decide operational economics. Analysts also flag the talent gap: India produces strong chip designers but few fab process engineers, requiring focused curricula in tier-2 engineering institutes.\n\nRelevance to UPSC: GS-III (industrial policy, growth of electronics manufacturing, government schemes); Prelims facts on ISM, DLI and SPECS; possible Essay themes on technological self-reliance.`),
+    N(5, 'GST 2.0 rate rationalisation completes first full month: revenue holds, consumption shifts', 'Goods and Services Tax collections remain above ₹1.8 lakh crore in the first full month after the two-slab restructuring, with visible demand growth in consumer durables and insurance.', 'The Hindu', 'GS3', 'Economy', 7, ['GST', 'taxation', 'consumption'], `One month after the "GST 2.0" restructuring moved most goods into 5% and 18% slabs with a 40% demerit rate, official data shows gross monthly collections holding above ₹1.8 lakh crore — a key test of whether simplification would erode revenue. Net collections, after record refunds, grew year-on-year, the Finance Ministry said.\n\nConsumption data is the most striking early signal: sales of entry-level cars, two-wheelers, televisions and air-conditioners rose sharply as several items migrated from 28% to 18%, and term and health insurance premiums — now nil-rated — saw a spike in new policy issuance. Economists describe the reform as a demand-side stimulus calibrated through the tax system.\n\nCompliance metrics improved as well. The collapse from four principal slabs to two reduced classification disputes that earlier choked appellate forums, while automated refunds under the revised returns cycle released working capital for exporters. States' compensation-cess concerns, however, persist for sin goods whose base has shifted.\n\nThe medium-term test is different: with the Fiscal Responsibility framework guiding a 4.4% deficit glide path, the government must hold capex while absorbing the reform’s short-run cost. The next GST Council will examine rate fine-tuning in services and further reforms in registration and audits.\n\nRelevance to UPSC: GS-III (fiscal policy, GST architecture, cooperative federalism in the GST Council); GS-II (centre-state financial relations); Prelims facts on slab structure and cesses.`),
     N(1, 'Supreme Court: Governors must act on bills within reasonable time, fixes three-month outer limit', 'A Constitution Bench holds that gubernatorial inaction on state bills is judicially reviewable, reaffirming federal principles under Article 200–201.', 'Indian Express', 'GS2', 'Polity', 6, ['judiciary', 'federalism', 'Article 200'], `A five-judge Constitution Bench of the Supreme Court has ruled that a Governor cannot sit indefinitely over bills passed by a state legislature, holding that the phrase "as soon as possible" in Article 200 imposes a binding constitutional obligation — with three months as the presumptive outer limit for the first decision on a bill, extendable only by recorded reasons.\n\nThe judgment resolves a decade of friction between several state governments and Raj Bhavans, where bills — including those on reservation and university governance — were withheld for years. The Court held that while the Governor retains discretion to reserve bills for the President under Article 201, that discretion is not "absolute" and is subject to judicial review on grounds of mala fides, arbitrariness or extraneous consideration.\n\nWriting for the Bench, the Chief Justice grounded the ruling in "constitutional trust" reposed in every high office: a Governor is neither elected nor politically accountable, and therefore must act with demonstrable neutrality. The Court also framed procedural transparency requirements — communicating reasons to the state government when reserving bills.\n\nPolitical scientists note the verdict recalibrates Union–State relations without rewriting text: the Court used interpretive discipline rather than inserting timelines into the Constitution. Implementation questions remain — what happens when even the extended limit lapses, and whether "deemed assent" flows as a remedy in extreme cases, an aspect the Bench left for future adjudication.\n\nRelevance to UPSC: GS-II (union-state relations, role of Governors, judicial review); Prelims on Articles 200–201; Mains case-study material for constitutional offices.`),
     N(1, 'NISAR completes first year: radar duo begins delivering global ecosystem data', 'The NASA-ISRO Synthetic Aperture Radar satellite, launched in July 2025, has begun routine science operations, tracking ground deformation, forests and ice at centimetre scale.', 'PIB', 'GS3', 'Science & Technology', 5, ['ISRO', 'NISAR', 'remote sensing'], `The NASA-ISRO Synthetic Aperture Radar (NISAR) mission — launched aboard GSLV Mk-II in July 2025 — has completed commissioning and begun routine science operations, marking the first time a single satellite combines L-band and S-band radar to image nearly all of Earth’s land and ice surfaces twice every 12 days.\n\nEarly datasets are already in use: glaciers in the Himalaya mapped for seasonal velocity shifts, cropland in the Indo-Gangetic plain tracked for moisture stress, and subsidence measured in deltaic cities where groundwater extraction outpaces recharge. Because radar penetrates cloud and works at night, NISAR promises continuity that optical missions lack during the monsoon — critical for Indian agriculture and disaster response.\n\nFor ISRO, the mission is a technology inflection: the S-band radar, the 12-metre unfurlable antenna and the novel dual-frequency payload architecture were developed domestically, skills that feed directly into future Earth-observation constellations. For NASA, ISRO provided the spacecraft bus and launch — a genuine co-development rather than a buyer-seller tie-up.\n\nThe wider lesson for India’s space economy is collaborative scale: NISAR cost roughly $1.5 billion shared across agencies and creates open global datasets. Officials indicate follow-on joint missions in thermal infrared and ocean altimetry are in discussion, while the private sector eyes value-added analytics on top of open NISAR data.\n\nRelevance to UPSC: GS-III (space technology, bilateral S&T cooperation); Prelims facts on NISAR, GSLV, radar bands; Essay material on science diplomacy.`),
     N(2, 'India crosses 91 Ramsar sites as three coastal wetlands join the list', 'Chilika extension, Bhitarkanika mangroves and a Goa saltpan wetland receive Ramsar designation, strengthening migratory bird habitat protection.', 'PIB', 'GS3', 'Environment', 5, ['wetlands', 'Ramsar', 'biodiversity'], `India’s network of Ramsar sites — wetlands of international importance under the 1971 Ramsar Convention — has grown to 91 with the designation of three more coastal wetlands, the Environment Ministry announced. India now has Asia’s largest Ramsar network.\n\nThe new entrants include a significant extension of Odisha’s Chilika lagoon — Asia’s largest brackish water lake and wintering ground for over a million migratory birds — and the Bhitarkanika mangrove complex, home to rising saltwater crocodile populations. A managed saltpan wetland in Goa was also listed, a nod to the biodiversity value of anthropogenic wetlands.\n\nDesignation, however, is the beginning rather than the end of protection. Wetlands India-wide face pressures from aquaculture expansion, siltation, invasive species and real-estate conversion. The Ministry’s Wetlands (Conservation and Management) Rules require state authorities to prepare brief documents and zonation plans for each site, and the Green Tribunal has repeatedly pushed for scientific management over paper protection.\n\nEconomists and ecologists increasingly converge on the "wise use" principle at the heart of the Convention: wetlands deliver fisheries, flood buffers and groundwater recharge worth billions, so community-linked livelihood models — as attempted around Chilika with dolphin-watching cooperatives — are seen as the sustainable path.\n\nRelevance to UPSC: GS-III (conservation, environmental governance); Prelims facts on Ramsar sites, wetland rules; GS-I geography linkages with coastal ecology.`),
@@ -482,6 +808,10 @@ async function main() {
         date: isoDaysAgo(a.d),
         readMinutes: a.readMinutes,
         tagsJson: JSON.stringify(a.tags),
+        prelimsJson: a.prelims ? JSON.stringify(a.prelims) : null,
+        mainsJson: a.mains ? JSON.stringify(a.mains) : null,
+        keywordsJson: a.keywords ? JSON.stringify(a.keywords) : null,
+        mainsQuestionJson: a.mainsQ ? JSON.stringify(a.mainsQ) : null,
       },
     })
   }
@@ -498,7 +828,60 @@ async function main() {
   console.log('Monthly digests: 4')
 
   // ─── Resources ──────────────────────────────────────────────────────────────
-  const resources = []
+  type ResourceSeed = {
+    title: string
+    category: string
+    exam: string
+    year: number | null
+    description: string
+    fileType: string
+    pages: number | null
+    downloads: number
+    slug: string
+    contentSummary: string
+  }
+  const resources: ResourceSeed[] = []
+  // 2026 papers — flagship on-screen reader entries (digital, no downloads)
+  resources.push({
+    title: 'UPSC Prelims 2026 — GS Paper I (On-Screen Reader with Solutions)',
+    category: 'pyq', exam: 'UPSC', year: 2026,
+    description: 'Held 24 May 2026. Read the paper digitally: verified questions with instant answer reveal and detailed explanations.',
+    fileType: 'page', pages: null, downloads: 8600,
+    slug: 'upsc-prelims-2026-gs1',
+    contentSummary: 'Curated 2026 archive (verified 2026 questions + pattern-exact practice) with answer key, explanations and cross-check sources.',
+  })
+  resources.push({
+    title: 'UPSC Prelims 2026 — CSAT Paper II (On-Screen Reader)',
+    category: 'pyq', exam: 'CSAT', year: 2026,
+    description: 'Held 24 May 2026. Quant, reasoning and comprehension with worked solutions — fully on screen.',
+    fileType: 'page', pages: null, downloads: 5100,
+    slug: 'upsc-prelims-2026-csat',
+    contentSummary: 'Step-by-step solved archive modelled on the 2026 CSAT pattern with time-strategy notes.',
+  })
+  const mains2026: Array<[string, string, string]> = [
+    ['GS1', 'upsc-mains-2026-gs1', 'Held 22 August 2026 (9 AM–12 PM). History, society and geography questions with directive-word analysis and model outlines.'],
+    ['GS2', 'upsc-mains-2026-gs2', 'Held 22 August 2026 (2 PM–5 PM). Polity, governance, social justice and IR questions with model answer outlines.'],
+    ['GS3', 'upsc-mains-2026-gs3', 'Held 23 August 2026 (9 AM–12 PM). Economy, environment, S&T and security questions with model outlines.'],
+    ['GS4', 'upsc-mains-2026-gs4', 'Held 23 August 2026 (2 PM–5 PM). Ethics concepts and case studies with stakeholder-mapped approaches.'],
+  ]
+  for (const [gs, slug, desc] of mains2026) {
+    resources.push({
+      title: `UPSC Mains 2026 — ${gs} Question Paper (On-Screen Reader)`,
+      category: 'pyq', exam: 'UPSC', year: 2026,
+      description: desc,
+      fileType: 'page', pages: null, downloads: 3900,
+      slug,
+      contentSummary: '2026 archive with marks/word-limit tags, directive verbs, model outlines and one-click AI evaluation.',
+    })
+  }
+  resources.push({
+    title: 'UPSC Mains 2026 — Essay Paper (On-Screen Reader)',
+    category: 'pyq', exam: 'UPSC', year: 2026,
+    description: 'Held 21 August 2026. All essay topics with dimension-building outlines and intro techniques.',
+    fileType: 'page', pages: null, downloads: 4400,
+    slug: 'upsc-mains-2026-essay',
+    contentSummary: 'Quote-based and thematic essay topics with model dimensions and structure guidance.',
+  })
   for (let y = 2025; y >= 2016; y--) {
     resources.push({
       title: `UPSC Prelims GS Paper I — PYQ ${y} with Solutions`,

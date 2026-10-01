@@ -86,8 +86,8 @@ function localQuiz(count: number, pool: GeoItem[]): GeoQuizQuestion[] {
 
 /* ---------------------------------- route ---------------------------------- */
 
-export async function POST(req: NextRequest): Promise<NextResponse> {
-  return withErrorGuard(async (): Promise<NextResponse> => {
+export async function POST(req: NextRequest): Promise<Response> {
+  return withErrorGuard(async (): Promise<Response> => {
     let body: Record<string, unknown> = {}
     try {
       body = (await req.json()) as Record<string, unknown>

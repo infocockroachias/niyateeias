@@ -13,6 +13,7 @@ import { HomeView } from "@/components/views/HomeView";
 import { AboutView } from "@/components/views/AboutView";
 import { NewsView } from "@/components/views/NewsView";
 import { ResourcesView } from "@/components/views/ResourcesView";
+import { PaperReaderView } from "@/components/views/PaperReaderView";
 import { AIHubView } from "@/components/views/AIHubView";
 import { AIEvaluateView } from "@/components/views/AIEvaluateView";
 import { AIChatView } from "@/components/views/AIChatView";
@@ -37,6 +38,8 @@ function renderView(view: ViewName) {
       return <NewsView />;
     case "resources":
       return <ResourcesView />;
+    case "pyq-reader":
+      return <PaperReaderView />;
     case "ai-hub":
       return <AIHubView />;
     case "ai-evaluate":
