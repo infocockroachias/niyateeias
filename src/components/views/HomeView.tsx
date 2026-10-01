@@ -76,134 +76,81 @@ function Hero() {
   const navigate = useAppStore((s) => s.navigate);
   return (
     <section className="bg-hero-depth text-ivory" aria-label="Introduction">
-      <div className="mx-auto grid max-w-7xl items-center gap-12 px-4 pb-20 pt-16 sm:px-6 lg:grid-cols-2 lg:gap-8 lg:px-8 lg:pb-28 lg:pt-24">
-        {/* Copy */}
-        <div>
-          <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-            <Badge className="mb-5 border border-gold/40 bg-gold/10 text-gold hover:bg-gold/10">
-              <Sparkles className="mr-1.5 h-3.5 w-3.5" aria-hidden />
-              {SITE.positioning}
-            </Badge>
-          </motion.div>
-
-          <motion.h1
-            initial={{ opacity: 0, y: 22 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.55, delay: 0.08 }}
-            className="font-display text-4xl leading-[1.12] text-balance sm:text-5xl lg:text-[3.4rem]"
-          >
-            Best UPSC Coaching in Odisha, with{" "}
-            <span className="text-gold">AI-powered preparation</span> and expert mentorship
-          </motion.h1>
-
-          <motion.p
-            initial={{ opacity: 0, y: 22 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.55, delay: 0.16 }}
-            className="mt-5 max-w-xl text-base leading-relaxed text-ivory/75 sm:text-lg"
-          >
-            <span className="font-hindi font-bold text-gold" lang="hi">
-              नियती
-            </span>{" "}
-            means <em>Destiny</em> in Sanskrit, and destiny is built, not wished for. A structured
-            Learn → Practice → Evaluate → Succeed framework for Prelims, Mains and Interview, with
-            AI built in.
-          </motion.p>
-
-          <motion.div
-            initial={{ opacity: 0, y: 22 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.55, delay: 0.24 }}
-            className="mt-8 flex flex-wrap items-center gap-4"
-          >
-            <Button
-              size="lg"
-              onClick={() => navigate("register")}
-              className="min-h-12 bg-secondary px-6 text-base font-semibold text-primary hover:bg-gold-bright"
-            >
-              Start Learning Free <ArrowRight className="ml-2 h-4 w-4" aria-hidden />
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              onClick={() => navigate("courses")}
-              className="min-h-12 border-ivory/50 bg-transparent px-6 text-base font-semibold text-ivory hover:bg-ivory/10 hover:text-ivory"
-            >
-              Explore Our Courses
-            </Button>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-ivory/60"
-          >
-            <span className="flex items-center gap-1.5">
-              <CheckCircle2 className="h-4 w-4 text-gold" aria-hidden /> Offline + Online + Recorded
-            </span>
-            <span className="flex items-center gap-1.5">
-              <CheckCircle2 className="h-4 w-4 text-gold" aria-hidden /> Prelims to Interview
-            </span>
-            <span className="flex items-center gap-1.5">
-              <CheckCircle2 className="h-4 w-4 text-gold" aria-hidden /> Free AI tools to start
-            </span>
-          </motion.div>
-        </div>
-
-        {/* Visual composition */}
+      <div className="mx-auto max-w-3xl px-4 pb-20 pt-16 text-center sm:px-6 sm:pt-20 lg:pb-28 lg:pt-24">
         <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="relative mx-auto hidden h-[460px] w-full max-w-md sm:block"
-          aria-hidden
+          initial={{ opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="flex justify-center"
         >
-          {/* Central logo card */}
-          <div className="absolute left-1/2 top-1/2 w-64 -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-white/10 bg-navy-800/60 p-8 text-center shadow-2xl">
-            <Star className="mx-auto mb-3 h-6 w-6 fill-gold text-gold" />
-            <img
-              src="/brand/logo.png"
-              alt=""
-              className="mx-auto h-16 w-auto rounded-lg bg-white/5 p-1.5"
-            />
-            <p className="mt-4 font-hindi text-2xl font-bold text-gold" lang="hi">
-              नियती
-            </p>
-            <p className="mt-1 text-xs uppercase tracking-[0.3em] text-ivory/60">Destiny</p>
-            <p className="mt-3 text-sm font-medium text-ivory/85">{SITE.tagline}</p>
-          </div>
+          <Badge className="mb-5 border border-gold/40 bg-gold/10 text-gold hover:bg-gold/10">
+            <Sparkles className="mr-1.5 h-3.5 w-3.5" aria-hidden />
+            {SITE.positioning}
+          </Badge>
+        </motion.div>
 
-          {/* Floating value cards */}
-          <div className="animate-float-slow absolute -top-2 right-0 flex items-center gap-3 rounded-2xl border border-white/10 bg-navy-deep p-4 shadow-xl">
-            <span className="flex h-11 w-11 items-center justify-center rounded-full bg-gold/15">
-              <Newspaper className="h-5 w-5 text-gold" />
-            </span>
-            <div>
-              <p className="font-display text-base font-bold text-ivory">Daily brief</p>
-              <p className="text-xs text-ivory/60">The Hindu, PIB &amp; more</p>
-            </div>
-          </div>
+        <motion.h1
+          initial={{ opacity: 0, y: 22 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.55, delay: 0.08 }}
+          className="font-display text-4xl leading-[1.12] text-balance sm:text-5xl lg:text-[3.4rem]"
+        >
+          Best UPSC Coaching in Odisha, with{" "}
+          <span className="text-gold">AI-powered preparation</span> and expert mentorship
+        </motion.h1>
 
-          <div className="animate-float-slower absolute bottom-14 left-0 flex items-center gap-3 rounded-2xl border border-white/10 bg-navy-deep p-4 shadow-xl">
-            <span className="flex h-11 w-11 items-center justify-center rounded-full bg-gold/15">
-              <Users className="h-5 w-5 text-gold" />
-            </span>
-            <div>
-              <p className="font-display text-2xl font-bold text-ivory">3</p>
-              <p className="text-xs text-ivory/60">Modes of coaching</p>
-            </div>
-          </div>
+        <motion.p
+          initial={{ opacity: 0, y: 22 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.55, delay: 0.16 }}
+          className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-ivory/75 sm:text-lg"
+        >
+          <span className="font-hindi font-bold text-gold" lang="hi">
+            नियती
+          </span>{" "}
+          means <em>Destiny</em> in Sanskrit, and destiny is built, not wished for. A structured
+          Learn → Practice → Evaluate → Succeed framework for Prelims, Mains and Interview, with
+          AI built in.
+        </motion.p>
 
-          <div className="animate-float-slowest absolute bottom-0 right-6 flex items-center gap-3 rounded-2xl border border-gold/30 bg-navy-deep p-4 shadow-xl">
-            <span className="flex h-11 w-11 items-center justify-center rounded-full bg-gold/15">
-              <BrainCircuit className="h-5 w-5 text-gold" />
-            </span>
-            <div>
-              <p className="font-display text-base font-bold text-ivory">AI-Integrated</p>
-              <p className="text-xs text-ivory/60">Ecosystem for UPSC</p>
-            </div>
-          </div>
+        <motion.div
+          initial={{ opacity: 0, y: 22 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.55, delay: 0.24 }}
+          className="mt-8 flex flex-wrap items-center justify-center gap-4"
+        >
+          <Button
+            size="lg"
+            onClick={() => navigate("register")}
+            className="min-h-12 bg-secondary px-6 text-base font-semibold text-primary hover:bg-gold-bright"
+          >
+            Start Learning Free <ArrowRight className="ml-2 h-4 w-4" aria-hidden />
+          </Button>
+          <Button
+            size="lg"
+            variant="outline"
+            onClick={() => navigate("courses")}
+            className="min-h-12 border-ivory/50 bg-transparent px-6 text-base font-semibold text-ivory hover:bg-ivory/10 hover:text-ivory"
+          >
+            Explore Our Courses
+          </Button>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+          className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-ivory/60"
+        >
+          <span className="flex items-center gap-1.5">
+            <CheckCircle2 className="h-4 w-4 text-gold" aria-hidden /> Offline + Online + Recorded
+          </span>
+          <span className="flex items-center gap-1.5">
+            <CheckCircle2 className="h-4 w-4 text-gold" aria-hidden /> Prelims to Interview
+          </span>
+          <span className="flex items-center gap-1.5">
+            <CheckCircle2 className="h-4 w-4 text-gold" aria-hidden /> Free AI tools to start
+          </span>
         </motion.div>
       </div>
     </section>

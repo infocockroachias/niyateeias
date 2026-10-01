@@ -239,3 +239,19 @@ Work Log:
 
 Stage Summary:
 - The platform is now fully stateless: zero database calls, zero mandatory LLM calls. Vercel deployment needs nothing but the repo import; every previously failing panel (stats, courses, news, today's brief, newsroom wire, resources) renders from memory. Content edits: change scripts/seed.ts → bun run scripts/dump-content.ts → commit.
+
+---
+Task ID: 8
+Agent: Orchestrator (Z.ai Code)
+Task: Remove floating cards from homepage hero, center hero content, verify phone view
+
+Work Log:
+- HomeView Hero() rewritten: entire right-side "Visual composition" column removed (central logo card + three animate-float value cards: Daily brief, 3 Modes of coaching, AI-Integrated)
+- Hero is now a single centered column (max-w-3xl mx-auto text-center): gold positioning badge, display headline, नियती intro paragraph, both CTAs (Start Learning Free / Explore Our Courses) and the three CheckCircle trust points all centered; vertical padding kept generous (pt-16/24, pb-20/28) so content sits in the middle of the band
+- globals.css: orphaned .animate-float-slow/-slower/-slowest classes + @keyframes floaty removed (no remaining usages)
+- Icon imports verified still used elsewhere in HomeView (Newspaper, Users, BrainCircuit, Star, Trophy) — no dead imports
+- Browser-verified desktop 1366: hero badge/headline/paragraph/CTAs centered, no floating cards, rest of page untouched
+- Browser-verified phone 390: everything centered, CTA buttons stack, trust chips wrap centered, no horizontal overflow, hero → trust strip → framework transition clean, no console errors; lint clean
+
+Stage Summary:
+- Homepage hero is now a clean centered composition with zero floating cards; verified on desktop and phone; committed and pushed for Vercel preview
