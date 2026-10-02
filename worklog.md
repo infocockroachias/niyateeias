@@ -255,3 +255,16 @@ Work Log:
 
 Stage Summary:
 - Homepage hero is now a clean centered composition with zero floating cards; verified on desktop and phone; committed and pushed for Vercel preview
+
+---
+Task ID: 9
+Agent: Orchestrator (Z.ai Code)
+Task: Prepare outreach email draft for Niyatee IAS (client-facing deliverable)
+
+Work Log:
+- Drafted email covering: what the present niyateeias.com offers (courses, current affairs with calendar/PDFs, PYQ resources, AI tools, plans, books, test series, student login) and how each section was rebuilt/improvised per UPSC standards and aspirant psychology
+- Careful tone review: no statements about unverifiable claims, credibility, broken pages or empty APIs (could read as criticism); everything framed positively
+- Included: 48-hour link validity notice, live preview URL (https://niyateeias.vercel.app, verified HTTP 200), content-creation role + test + awaiting result mention, graceful "even if you decline" line, closing quote tied to the brand name नियती (destiny)
+- Draft saved as email-draft.md on this machine only; deliberately NOT committed to the public repo (client-visible), no sensitive pitch details in this log
+Stage Summary:
+- Final email draft ready for the user to review, personalize (name/phone/email placeholders) and send
